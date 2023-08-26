@@ -1,7 +1,7 @@
 import sys
 
 CURR_DIR_PATH = sys.path[0]
-MAIN_DIR_PATH = CURR_DIR_PATH.split("/")[0] + CURR_DIR_PATH.split("/")[1] + CURR_DIR_PATH.split("/")[2]
+MAIN_DIR_PATH = CURR_DIR_PATH.split("/")[0] + "/" + CURR_DIR_PATH.split("/")[1] + "/" + CURR_DIR_PATH.split("/")[2]
 print(MAIN_DIR_PATH)
 print(sys.path[1])
 DATASET_PATH = MAIN_DIR_PATH + "/" + "Dataset/"
