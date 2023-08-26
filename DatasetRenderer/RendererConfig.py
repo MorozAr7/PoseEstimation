@@ -7,4 +7,4 @@ CAM_DATA_FILE = "camera_data_1.json"
 IMG_SIZE = 224
 UVW_RANGE = 256
 
-DATA_AMOUNT = {"Training": 100, "Validation": 10}
+DATA_AMOUNT = {"Training": 1000, "Validation": 10}
