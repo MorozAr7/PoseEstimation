@@ -1,7 +1,6 @@
 import os
 import open3d as o3d
 from RendererConfig import *
-LAST_IMAGE = 3001
 import numpy as np
 import random
 import cv2
@@ -231,16 +230,9 @@ class DatasetRenderer:
 		self.io.save_json_file(path, json_data)
 
 	def render_dataset(self):
+		LAST_IMAGE = 3002
 		for subset in ["Training", "Validation"]:
-			for data_index in range(LAST_IMAGE, LAST_IMAGE + 3000):
-				if data_index == DATA_AMOUNT[subset]:
-					break
-				if data_index == LAST_IMAGE + 3000:
-					LAST_IMAGE = LAST_IMAGE + 3000
-					pid = os.getpid()
-					print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
-					subprocess.run(["python3", "Renderer.py"])
-					os.kill(pid, signal.SIGKILL)
+			for data_index in range(LAST_IMAGE, LAST_IMAGE + 3500):
 				rendered_image_dict = self.get_image()
 				self.save_data(rendered_image_dict, data_index, subset)
 				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset]))
