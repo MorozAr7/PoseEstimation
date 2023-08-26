@@ -7,6 +7,7 @@ import cv2
 import sys
 sys.path.insert(0, MAIN_DIR_PATH + '/CameraData')
 sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
+print(MAIN_DIR_PATH + '/Utils')
 from MathUtils import Transformations
 from IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
