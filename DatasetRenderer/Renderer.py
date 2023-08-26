@@ -6,6 +6,8 @@ import numpy as np
 import random
 import cv2
 import sys
+sys.path.insert(1, '/PoseEstimation/CameraData')
+sys.path.insert(1, '/PoseEstimation/Utils')
 from Utils.MathUtils import Transformations
 from Utils.IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
