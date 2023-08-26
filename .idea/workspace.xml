@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/CameraData/camera_data_1.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Utils/IOUtils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Utils/MathUtils.py" beforeDir="false" />
-    </list>
+    <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -164,7 +160,7 @@
       <option name="presentableId" value="Default" />
       <updated>1692287159725</updated>
       <workItem from="1692287179761" duration="17168000" />
-      <workItem from="1692903869949" duration="16288000" />
+      <workItem from="1692903869949" duration="16592000" />
     </task>
     <servers />
   </component>
