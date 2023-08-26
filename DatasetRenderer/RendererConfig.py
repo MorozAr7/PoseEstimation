@@ -1,8 +1,8 @@
 import sys
 
 CURR_DIR_PATH = sys.path[0]
-MAIN_DIR_PATH = CURR_DIR_PATH.split("/")[0] + "/" + CURR_DIR_PATH.split("/")[1] + "/" + CURR_DIR_PATH.split("/")[2]
-
+MAIN_DIR_PATH = CURR_DIR_PATH.split("/")[0] + "/" + CURR_DIR_PATH.split("/")[1] + "/" + CURR_DIR_PATH.split("/")[2] + "/" + CURR_DIR_PATH.split("/")[3]
+print(MAIN_DIR_PATH, CURR_DIR_PATH)
 DATASET_PATH = MAIN_DIR_PATH + "/" + "Dataset/"
 OBJECT_TYPE = "Chassis"
 CAM_DATA_FILE = "camera_data_1.json"
