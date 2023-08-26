@@ -162,9 +162,9 @@ class DatasetRenderer:
 		else:
 			direction = [0, 0, 0]
 			intensity = random.randint(500, 2500)
-			r = random.randint(100, 230)
-			g = r + random.randint(-25, 25)
-			b = r + random.randint(-25, 25)
+			r = random.randint(100, 205)
+			g = r + random.randint(-50, 50)
+			b = r + random.randint(-50, 50)
 			color = [r, g, b]
 
 		self.setup_renderer_scene(direction, color, intensity)
