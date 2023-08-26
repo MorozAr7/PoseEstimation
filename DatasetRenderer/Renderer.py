@@ -86,7 +86,7 @@ class DatasetRenderer:
 		y_min = np.min(mask_positive_pixels[0])
 		y_max = np.max(mask_positive_pixels[0])
 
-		return x_min, y_min, x_max, y_max
+		return int(x_min), int(y_min), int(x_max), int(y_max)
 
 	@staticmethod
 	def get_min_max_scaling(coords: np.array) -> np.array:
@@ -215,19 +215,22 @@ class DatasetRenderer:
 		return rendered_image_dict
 
 	def save_data(self, img_object, index, subset):
+		json_data = {"Pose": None, "Box": None}
 		for key, data in img_object.items():
-			if key in ["bbox", "poses6d"]:
-				path = DATASET_PATH + subset + "/" + key + "_{}.json".format(index)
-				self.io.save_json_file(path, data)
+			if key in ["Box", "Pose"]:
+				json_data[key] = data
 			else:
-				path = DATASET_PATH + subset + "/" + key + "_{}.json".format(index)
+				path = DATASET_PATH + subset + "/" + key + "/data_{}.np".format(index)
 				self.io.save_numpy_file(path, data)
+		path = DATASET_PATH + subset + "/" + "Pose" + "/data_{}.json".format(index)
+		self.io.save_json_file(path, json_data)
 
 	def render_dataset(self):
 		for subset in ["Training", "Validation"]:
 			for data_index in range(DATA_AMOUNT[subset]):
 				rendered_image_dict = self.get_image()
 				self.save_data(rendered_image_dict, data_index, subset)
+				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset]))
 
 
 if __name__ == "__main__":
