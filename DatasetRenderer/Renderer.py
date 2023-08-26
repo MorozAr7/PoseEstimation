@@ -208,8 +208,8 @@ class DatasetRenderer:
 		                       "Umap": u_map,
 		                       "Vmap": v_map,
 		                       "Wmap": w_map,
-		                       "bbox": bbox,
-		                       "pose6d": object_pose
+		                       "Box": bbox,
+		                       "Pose": object_pose
 		                       }
 
 		return rendered_image_dict
