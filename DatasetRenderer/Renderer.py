@@ -1,14 +1,13 @@
 import os
 import open3d as o3d
-import json
 from RendererConfig import *
 import numpy as np
 import random
 import cv2
 import sys
-sys.path.insert(1, ROOT_PATH + 'PoseEstimation/CameraData')
-print(ROOT_PATH + 'PoseEstimation/CameraData')
-sys.path.insert(1, ROOT_PATH + 'PoseEstimation/Utils')
+sys.path.insert(1, ROOT_PATH + '/CameraData')
+print(ROOT_PATH + '/CameraData')
+sys.path.insert(1, ROOT_PATH + '/Utils')
 from Utils.MathUtils import Transformations
 from Utils.IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
