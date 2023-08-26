@@ -5,9 +5,9 @@ import numpy as np
 import random
 import cv2
 import sys
-sys.path.insert(1, ROOT_PATH + '/CameraData')
-print(ROOT_PATH + '/CameraData')
-sys.path.insert(1, ROOT_PATH + '/Utils')
+sys.path.insert(1, MAIN_DIR_PATH + '/CameraData')
+print(MAIN_DIR_PATH + '/CameraData')
+sys.path.insert(1, MAIN_DIR_PATH + '/Utils')
 from Utils.MathUtils import Transformations
 from Utils.IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
@@ -39,7 +39,7 @@ class DatasetRenderer:
 		self.transformations = Transformations()
 		self.io = IOUtils()
 
-		self.camera_data = self.io.load_json_file(ROOT_PATH + "/CameraData/" + CAM_DATA_FILE)
+		self.camera_data = self.io.load_json_file(MAIN_DIR_PATH + "/CameraData/" + CAM_DATA_FILE)
 		self.camera_intrinsic = np.array(self.camera_data["K"])
 
 		self.image_h, self.image_w = self.camera_data["res_undist"]
