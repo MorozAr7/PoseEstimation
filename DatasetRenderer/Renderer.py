@@ -40,7 +40,7 @@ class DatasetRenderer:
 		self.transformations = Transformations()
 		self.io = IOUtils()
 
-		self.camera_data = self.io.load_json_file(MAIN_DIR_PATH + "/CameraData/" + CAM_DATA_FILE)
+		self.camera_data = self.io.load_json_file(CURR_DIR_PATH + "/CameraData/" + CAM_DATA_FILE)
 		self.camera_intrinsic = np.array(self.camera_data["K"])
 
 		self.image_h, self.image_w = self.camera_data["res_undist"]
@@ -230,9 +230,18 @@ class DatasetRenderer:
 		self.io.save_json_file(path, json_data)
 
 	def render_dataset(self):
-		LAST_IMAGE = 3002
+		with open('last_img.txt', 'r') as f:
+			num = int(f.read())
+		f.close()
 		for subset in ["Training", "Validation"]:
-			for data_index in range(LAST_IMAGE, LAST_IMAGE + 3500):
+			for data_index in range(num, DATA_AMOUNT[subset]):
+				if data_index == num + 3000:
+					with open('last_img.txt', 'w') as f:
+						f.write('%d' % data_index)
+					pid = os.getpid()
+					print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
+					subprocess.run(["python3", "Renderer.py"])
+					os.kill(pid, signal.SIGKILL)
 				rendered_image_dict = self.get_image()
 				self.save_data(rendered_image_dict, data_index, subset)
 				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset]))
