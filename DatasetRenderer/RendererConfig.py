@@ -1,6 +1,7 @@
 import sys
 
-ROOT_PATH = sys.path[1]
+ROOT_PATH = sys.path[0]
+print(ROOT_PATH)
 DATASET_PATH = ROOT_PATH + "/" + "Dataset/"
 OBJECT_TYPE = "Chassis"
 CAM_DATA_FILE = "camera_data_1.json"

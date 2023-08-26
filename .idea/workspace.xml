@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" afterDir="false" />
-    </list>
+    <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -38,7 +35,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "true",
-    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/Dataset/Validation",
+    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/DatasetRenderer",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -48,9 +45,9 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/DatasetRenderer" />
       <recent name="$PROJECT_DIR$/Dataset/Validation" />
       <recent name="$PROJECT_DIR$/DatasetRenderer/Models3D/Chassis" />
-      <recent name="$PROJECT_DIR$/DatasetRenderer" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -163,7 +160,7 @@
       <option name="presentableId" value="Default" />
       <updated>1692287159725</updated>
       <workItem from="1692287179761" duration="17168000" />
-      <workItem from="1692903869949" duration="15237000" />
+      <workItem from="1692903869949" duration="15571000" />
     </task>
     <servers />
   </component>
