@@ -1,6 +1,7 @@
 import os
 import open3d as o3d
 from RendererConfig import *
+LAST_IMAGE = 3001
 import numpy as np
 import random
 import cv2
