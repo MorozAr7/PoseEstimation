@@ -5,6 +5,7 @@ from RendererConfig import *
 import numpy as np
 import random
 import cv2
+import sys
 from Utils.MathUtils import Transformations
 from Utils.IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
