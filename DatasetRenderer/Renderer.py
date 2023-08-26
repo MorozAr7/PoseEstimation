@@ -40,7 +40,7 @@ class DatasetRenderer:
 		self.transformations = Transformations()
 		self.io = IOUtils()
 
-		self.camera_data = self.io.load_json_file(CURR_DIR_PATH + "/CameraData/" + CAM_DATA_FILE)
+		self.camera_data = self.io.load_json_file(MAIN_DIR_PATH + "/CameraData/" + CAM_DATA_FILE)
 		self.camera_intrinsic = np.array(self.camera_data["K"])
 
 		self.image_h, self.image_w = self.camera_data["res_undist"]
