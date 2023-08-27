@@ -1,5 +1,5 @@
 from CONFIG import *
-sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
+sys.path.insert(0, MAIN_DIR_PATH)
 import random
 import numpy as np
 import cv2

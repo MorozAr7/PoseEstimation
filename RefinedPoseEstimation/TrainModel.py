@@ -1,5 +1,5 @@
 from CONFIG import *
-sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
+sys.path.insert(0, MAIN_DIR_PATH)
 import torch
 import sys
 import os
