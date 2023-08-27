@@ -1,6 +1,7 @@
 import sys
 from CONFIG import *
 sys.path.insert(0, MAIN_DIR_PATH + "/Utils")
+print(MAIN_DIR_PATH + "/Utils")
 from Utils.ConvUtils import *
 import numpy as np
 from CONFIG import DEVICE
