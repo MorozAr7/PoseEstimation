@@ -132,7 +132,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss_rotation:
 			smallest_loss_rotation = valid_l_rotation + valid_l_xy + valid_l_z
 			print("SAVING MODEL")
-			torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimatorModel"))
+			torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModel"))
 			print("MODEL WAS SUCCESSFULLY SAVED!")
 		pid = os.getpid()
 		print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
@@ -143,7 +143,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 if __name__ == "__main__":
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE)#.apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimatorModel.pt", map_location="cpu"))
+	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
 	l1_loss_function = nn.L1Loss(reduction="sum")

@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="" />
+    <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/CnnModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DatasetRenderer/RendererConfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/RendererConfig.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ObjectSegmentation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/ObjectSegmentation/CONFIG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimatorModel.pt" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -30,20 +40,20 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "true",
-    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -189,6 +199,7 @@
       <workItem from="1692287179761" duration="17168000" />
       <workItem from="1692903869949" duration="16592000" />
       <workItem from="1693058579214" duration="23036000" />
+      <workItem from="1693143732129" duration="367000" />
     </task>
     <servers />
   </component>
@@ -211,7 +222,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py</url>
-          <line>2</line>
+          <line>3</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
