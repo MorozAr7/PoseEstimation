@@ -1,38 +1,17 @@
 import os
 import open3d as o3d
-from RendererConfig import *
+from DatasetRenderer.RendererConfig import *
 import numpy as np
 import random
 import cv2
 import sys
 import subprocess
 import signal
-sys.path.insert(0, MAIN_DIR_PATH + '/CameraData')
-sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
-from MathUtils import Transformations
-from IOUtils import IOUtils
+#sys.path.insert(0, MAIN_DIR_PATH + '/CameraData')
+#sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
+from Utils.MathUtils import Transformations
+from Utils.IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
-
-
-class RenderedImage:
-	def __init__(self,
-	             full_scale_black=None,
-	             full_scale_background=None,
-	             mask=None,
-	             u_map=None,
-	             v_map=None,
-	             w_map=None,
-	             bbox=None,
-	             pose_6d=None):
-
-		self.full_scale_black = full_scale_black
-		self.full_scale_background = full_scale_background
-		self.mask = mask
-		self.u_map = u_map
-		self.v_map = v_map
-		self.w_map = w_map
-		self.bbox = bbox
-		self.pose_6d = pose_6d
 
 
 class DatasetRenderer:
@@ -44,10 +23,10 @@ class DatasetRenderer:
 		self.camera_intrinsic = np.array(self.camera_data["K"])
 
 		self.image_h, self.image_w = self.camera_data["res_undist"]
-		self.point_cloud = self.io.load_numpy_file("./Models3D/" + OBJECT_TYPE + "/PointCloud.npy")
-		self.model3d = o3d.io.read_triangle_model("./Models3D/" + OBJECT_TYPE + "/Mesh.obj")
+		self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/PointCloud.npy")
+		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/Mesh.obj")
 
-		self.uvw_mapping = self.io.load_json_file("./Models3D/" + OBJECT_TYPE + "/UVWmapping.json")
+		self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/UVWmapping.json")
 
 		self.renderer = o3d.visualization.rendering.OffscreenRenderer(self.image_w, self.image_h)
 		self.renderer.scene.add_model(OBJECT_TYPE + "Model", self.model3d)
@@ -57,13 +36,13 @@ class DatasetRenderer:
 		self.pose_ranges = {"RotX": (-180, 180),
 		                    "RotY": (-180, 180),
 		                    "RotZ": (-180, 180),
-		                    "TransX": (-270, 270),
-		                    "TransY": (-120, 120),
-		                    "TransZ": (500, 1000)}
+		                    "TransX": (270, 270),
+		                    "TransY": (120, 120),
+		                    "TransZ": (500, 500)}
 
 		self.noise_threshold = 2
 
-		self.backgrounds_path = "./Backgrounds/"
+		self.backgrounds_path = MAIN_DIR_PATH + "/DatasetRenderer" + "/Backgrounds/"
 		self.backgrounds_list = os.listdir(self.backgrounds_path)
 
 	@staticmethod
@@ -189,10 +168,10 @@ class DatasetRenderer:
 		x_min, y_min, x_max, y_max = bbox
 		return cv2.resize(full_scale[y_min: y_max, x_min: x_max], (IMG_SIZE, IMG_SIZE))
 
-	def get_image(self, transformation_matrix: np.array = None, bbox: list = None, image_black: bool = True, image_background: bool = True):
-		if transformation_matrix is None:
+	def get_image(self, object_pose: np.array = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True):
+		if object_pose is None:
 			object_pose = self.sample_pose()
-			transformation_matrix = self.transformations.get_transformation_matrix_from_pose(object_pose)
+		transformation_matrix = self.transformations.get_transformation_matrix_from_pose(object_pose)
 
 		images_dict = self.render_to_image(transformation_matrix, False, image_black, image_background)
 		image_black = images_dict["black"]
@@ -202,9 +181,14 @@ class DatasetRenderer:
 		if bbox is None:
 			bbox = self.get_bbox_from_mask(mask)
 
-		x_2d, y_2d = self.project_point_cloud(self.point_cloud, transformation_matrix)
+		if UVW:
+			x_2d, y_2d = self.project_point_cloud(self.point_cloud, transformation_matrix)
 
-		u_map, v_map, w_map = self.get_rendered_uvw_maps(x_2d, y_2d, self.uvw_coords)
+			u_map, v_map, w_map = self.get_rendered_uvw_maps(x_2d, y_2d, self.uvw_coords)
+		else:
+			u_map = None
+			v_map = None
+			w_map = None
 
 		rendered_image_dict = {"ImageBackground": image_background,
 		                       "ImageBlack": image_black,
@@ -230,18 +214,8 @@ class DatasetRenderer:
 		self.io.save_json_file(path, json_data)
 
 	def render_dataset(self):
-		with open('last_img.txt', 'r') as f:
-			num = int(f.read())
-		f.close()
 		for subset in ["Training", "Validation"]:
-			for data_index in range(num, DATA_AMOUNT[subset]):
-				if data_index == num + 3000:
-					with open('last_img.txt', 'w') as f:
-						f.write('%d' % data_index)
-					pid = os.getpid()
-					print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
-					subprocess.run(["python3", "Renderer.py"])
-					os.kill(pid, signal.SIGKILL)
+			for data_index in range(DATA_AMOUNT[subset]):
 				rendered_image_dict = self.get_image()
 				self.save_data(rendered_image_dict, data_index, subset)
 				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset]))
