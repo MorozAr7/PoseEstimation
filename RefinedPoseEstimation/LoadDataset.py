@@ -67,7 +67,7 @@ class Dataset(torch.utils.data.Dataset):
 				limits["up"] = min(val, size_20_percent)
 			elif key == "y_max":
 				limits["down"] = min(val, size_20_percent)
-		print(bbox, check_results, limits)
+		#print(bbox, check_results, limits)
 		return limits
 
 	@staticmethod
