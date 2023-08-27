@@ -1,3 +1,6 @@
+from CONFIG import *
+sys.path.insert(0, MAIN_DIR_PATH)
+
 from Utils.ConvUtils import *
 
 

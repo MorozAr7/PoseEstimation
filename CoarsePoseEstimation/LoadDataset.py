@@ -1,6 +1,7 @@
-import pandas as pd
 import random
 import numpy as np
+from CONFIG import *
+sys.path.insert(0, MAIN_DIR_PATH)
 import cv2
 import torch
 from Utils.IOUtils import IOUtils

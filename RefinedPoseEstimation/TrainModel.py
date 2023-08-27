@@ -43,8 +43,8 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_tr
 			images = images.to(DEVICE)
 			refinement_images = refinement_images.to(DEVICE)
 
-			#visualize = torch.cat([images, refinement_images], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
-			#cv2.imwrite("image_test_{}.png".format(epoch), visualize[0].astype(np.uint8))
+			visualize = 255 * torch.cat([images, refinement_images], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
+			cv2.imwrite("image_test_{}.png".format(epoch), visualize[0].astype(np.uint8))
 			angle_target = angle_target.to(DEVICE)
 			t_target = t_target.to(DEVICE)
 			angle_coarse = angle_coarse.to(DEVICE)
@@ -110,7 +110,6 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		# print("START")
 		since = time.time()
 		change_learning_rate(optimizer, epoch)
-		#dataset_renderer.create_renderer()
 		train_l_rotation, train_l_xy, train_l_z = one_epoch(
 		                           pose_refiner_model,
 		                           optimizer,
@@ -126,7 +125,6 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		                           l1_loss_function,
 		                           is_training=False
 		                           )
-		#dataset_renderer.del_renderer()
 		print("Epoch: {}, Train rotation: {}, Train xy: {}, Train z: {}, Valid rotation: {}, Valid xy: {}, Valid z: {}"
 		      .format(epoch, train_l_rotation, train_l_xy, train_l_z, valid_l_rotation, valid_l_xy, valid_l_z))
 		print("EPOCH RUNTIME", time.time() - since)
@@ -134,7 +132,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss_rotation:
 			smallest_loss_rotation = valid_l_rotation + valid_l_xy + valid_l_z
 			print("SAVING MODEL")
-			torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimatorModel".format(epoch)))
+			torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimatorModel"))
 			print("MODEL WAS SUCCESSFULLY SAVED!")
 		pid = os.getpid()
 		print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
@@ -146,10 +144,11 @@ if __name__ == "__main__":
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE)#.apply(init_weights)
 	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimatorModel.pt", map_location="cpu"))
+
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
 	l1_loss_function = nn.L1Loss(reduction="sum")
-	train_dataset = Dataset("Training", 64, dataset_renderer, PoseEstimationAugmentation)
-	validation_dataset = Dataset("Validation", 2, dataset_renderer, None)
+	train_dataset = Dataset("Training", 100000, dataset_renderer, PoseEstimationAugmentation)
+	validation_dataset = Dataset("Validation", 10000, dataset_renderer, None)
 
 	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
 	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)

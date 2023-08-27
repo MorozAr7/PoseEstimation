@@ -1,12 +1,13 @@
 from CnnModel import AutoencoderPoseEstimationModel
 from LoadDataset import Dataset
+from CONFIG import *
+sys.path.insert(0, MAIN_DIR_PATH)
 from Utils.DataAugmentationUtils import PoseEstimationAugmentation
 from torch.utils.data import DataLoader
 import torch.nn as nn
 import time
 from warnings import filterwarnings
 import cv2
-from CONFIG import *
 filterwarnings("ignore")
 
 
@@ -19,7 +20,7 @@ def init_weights(m):
 
 
 def change_learning_rate(optimizer, epoch):
-	epochs_to_change = list(range(10, 500, 10))
+	epochs_to_change = list(range(15, 500, 15))
 	if epoch in epochs_to_change:
 		optimizer.param_groups[0]["lr"] /= 2
 
@@ -181,7 +182,7 @@ if __name__ == "__main__":
 	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModel.pt", map_location="cpu"))
 	model.to(DEVICE)
 
-	optimizer = torch.optim.Adam(lr=LR, params=model.parameters())
+	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
 	loss_function = nn.CrossEntropyLoss(reduction="sum")
 
 	train_dataset = Dataset(subset="Training", num_images=100000, data_augmentation=PoseEstimationAugmentation)
