@@ -91,7 +91,7 @@ class Dataset(torch.utils.data.Dataset):
 		return shifted_bbox
 
 	def __getitem__(self, index):
-		path = "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/Dataset/" + self.subset + "/"
+		path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
 
 		image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
 		mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
