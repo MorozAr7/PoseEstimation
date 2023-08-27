@@ -31,7 +31,7 @@ def change_learning_rate(optimizer, epoch):
 
 
 def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_training=True, epoch=0):
-	pose_refiner_model.eval() if is_training else pose_refiner_model.eval()
+	pose_refiner_model.train() if is_training else pose_refiner_model.eval()
 	epoch_loss_rotation = 0
 	epoch_loss_translation_z = 0
 	epoch_loss_translation_xy = 0
@@ -134,11 +134,11 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss_rotation:
 			smallest_loss_rotation = valid_l_rotation + valid_l_xy + valid_l_z
 			print("SAVING MODEL")
-			torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/PoseRefinerModel_COSY_EXP_2".format(epoch)))
+			torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimatorModel".format(epoch)))
 			print("MODEL WAS SUCCESSFULLY SAVED!")
 		pid = os.getpid()
 		print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
-		subprocess.run(["python3", "TrainPoseRefinerModel.py"])
+		subprocess.run(["python3", "TrainModel.py"])
 		os.kill(pid, signal.SIGKILL)
 
 
