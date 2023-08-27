@@ -1,10 +1,9 @@
-import pandas as pd
+from CONFIG import *
+sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
 import random
 import numpy as np
 import cv2
 import torch
-from CONFIG import *
-sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
 from Utils.IOUtils import IOUtils
 from Utils.DataAugmentationUtils import NormalizeToTensor
 

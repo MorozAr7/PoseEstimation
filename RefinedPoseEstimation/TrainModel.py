@@ -1,4 +1,5 @@
 from CONFIG import *
+sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
 import torch
 import sys
 import os
@@ -7,7 +8,6 @@ import signal
 import numpy as np
 from CnnModel import PoseRefinementNetwork
 from LoadDataset import Dataset
-sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
 from Utils.DataAugmentationUtils import PoseEstimationAugmentation
 from torch.utils.data import DataLoader
 import torch.nn as nn
