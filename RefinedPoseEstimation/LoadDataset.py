@@ -105,7 +105,7 @@ class Dataset(torch.utils.data.Dataset):
 		return distorted_pose
 
 	def __getitem__(self, index):
-		path = "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/Dataset/" + self.subset + "/"
+		path = MAIN_DIR_PATH + "Dataset/" + self.subset + "/"
 
 		image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
 		json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))

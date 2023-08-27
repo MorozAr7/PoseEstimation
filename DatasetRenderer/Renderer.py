@@ -7,8 +7,7 @@ import cv2
 import sys
 import subprocess
 import signal
-sys.path.insert(0, MAIN_DIR_PATH + '/CameraData')
-sys.path.insert(0, MAIN_DIR_PATH + '/Utils')
+sys.path.insert(0, MAIN_DIR_PATH)
 from Utils.MathUtils import Transformations
 from Utils.IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
