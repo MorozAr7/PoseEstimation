@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/RendererConfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/RendererConfig.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -192,7 +193,7 @@
       <workItem from="1692287179761" duration="17168000" />
       <workItem from="1692903869949" duration="16592000" />
       <workItem from="1693058579214" duration="23036000" />
-      <workItem from="1693143732129" duration="3465000" />
+      <workItem from="1693143732129" duration="5546000" />
     </task>
     <servers />
   </component>
