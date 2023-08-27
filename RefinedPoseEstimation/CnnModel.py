@@ -1,5 +1,5 @@
 
-from Utils.ConvUtils import *
+from PoseEstimation.Utils.ConvUtils import *
 import numpy as np
 from CONFIG import DEVICE
 
