@@ -1,7 +1,7 @@
 import sys
 
-CURR_DIR_PATH = sys.path[1]
-MAIN_DIR_PATH = sys.path[1]#CURR_DIR_PATH.split("/")[0] + "/" + CURR_DIR_PATH.split("/")[1] + "/" + CURR_DIR_PATH.split("/")[2] + "/" + CURR_DIR_PATH.split("/")[3]
+CURR_DIR_PATH = sys.path[0]
+MAIN_DIR_PATH = CURR_DIR_PATH.split("/")[0] + "/" + CURR_DIR_PATH.split("/")[1] + "/" + CURR_DIR_PATH.split("/")[2] + "/" + CURR_DIR_PATH.split("/")[3]
 
 DATASET_PATH = MAIN_DIR_PATH + "/" + "Dataset/"
 OBJECT_TYPE = "Chassis"

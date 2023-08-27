@@ -119,7 +119,7 @@ class Dataset(torch.utils.data.Dataset):
 		t_target = np.array([target_pose["TransX"], target_pose["TransY"], target_pose["TransZ"]])
 
 		coarse_pose = self.distort_target_pose(target_pose)
-		rendered_image_dict = self.dataset_renderer.get_image(coarse_pose, bbox_crop, image_black=True, image_background=False, UVW=False)
+		rendered_image_dict = self.dataset_renderer.get_image(coarse_pose, bbox_crop, image_black=True, image_background=False, UVW=False, constant_light=True)
 		refinement_image = rendered_image_dict["ImageBlack"]
 		refinement_image = self.crop_and_resize(refinement_image, bbox_crop)
 

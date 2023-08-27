@@ -35,9 +35,9 @@ class DatasetRenderer:
 		self.pose_ranges = {"RotX": (-180, 180),
 		                    "RotY": (-180, 180),
 		                    "RotZ": (-180, 180),
-		                    "TransX": (270, 270),
-		                    "TransY": (120, 120),
-		                    "TransZ": (500, 500)}
+		                    "TransX": (-270, 270),
+		                    "TransY": (-120, 120),
+		                    "TransZ": (500, 1000)}
 
 		self.noise_threshold = 2
 
@@ -132,7 +132,7 @@ class DatasetRenderer:
 
 		return background
 
-	def render_to_image(self, transformation_matrix: np.array, use_constant_light_cond: bool = False, image_black: bool = True, image_background: bool = True) -> dict:
+	def render_image(self, transformation_matrix: np.array, use_constant_light_cond: bool = False, image_black: bool = True, image_background: bool = True) -> dict:
 		if use_constant_light_cond:
 			direction = [0, 0, 0]
 			intensity = 1000
@@ -167,12 +167,12 @@ class DatasetRenderer:
 		x_min, y_min, x_max, y_max = bbox
 		return cv2.resize(full_scale[y_min: y_max, x_min: x_max], (IMG_SIZE, IMG_SIZE))
 
-	def get_image(self, object_pose: np.array = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True):
+	def get_image(self, object_pose: np.array = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True, constant_light: bool = False):
 		if object_pose is None:
 			object_pose = self.sample_pose()
 		transformation_matrix = self.transformations.get_transformation_matrix_from_pose(object_pose)
 
-		images_dict = self.render_to_image(transformation_matrix, False, image_black, image_background)
+		images_dict = self.render_image(transformation_matrix, constant_light, image_black, image_background)
 		image_black = images_dict["black"]
 		image_background = images_dict["background"]
 
