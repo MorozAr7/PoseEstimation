@@ -1,4 +1,7 @@
+import sys
 
+sys.path.insert(0, sys.path[0] + "Utils")
+print(sys.path[0] + "Utils")
 from Utils.ConvUtils import *
 import numpy as np
 from CONFIG import DEVICE
