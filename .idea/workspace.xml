@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/LoadDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/LoadDataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -190,7 +191,7 @@
       <updated>1692287159725</updated>
       <workItem from="1692287179761" duration="17168000" />
       <workItem from="1692903869949" duration="16592000" />
-      <workItem from="1693058579214" duration="21652000" />
+      <workItem from="1693058579214" duration="21991000" />
     </task>
     <servers />
   </component>
