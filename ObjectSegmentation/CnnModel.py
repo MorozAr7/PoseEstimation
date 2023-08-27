@@ -1,6 +1,7 @@
-
+from CONFIG import *
+sys.path.insert(0, MAIN_DIR_PATH)
 from Utils.ConvUtils import *
-from CONFIG import DEVICE
+
 
 class UnetSegmentation(nn.Module):
 	def __init__(self):

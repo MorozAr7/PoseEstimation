@@ -16,10 +16,11 @@ PoseEstimationAugmentation = A.Compose([
 
 
 ObjectSegmentationAugmentation = A.Compose([
+		A.ChannelShuffle(p=0.75),
+		A.ColorJitter(brightness=(0.75, 1.75), contrast=(0.5, 2), saturation=(1, 5), hue=(0, 0), always_apply=False, p=0.8),
 		A.HorizontalFlip(p=0.5),
 		A.VerticalFlip(p=0.5),
 		A.Rotate(p=1, limit=(180, 180), border_mode=cv2.BORDER_REPLICATE),
-		A.RandomBrightness(p=1, limit=(-0.1, 0.1)),
 		A.OneOf([
 			A.GaussNoise(var_limit=(25.0, 40.0), mean=0, per_channel=True, always_apply=True, p=1),
 			A.MultiplicativeNoise(multiplier=(0.925, 1.075), per_channel=True, elementwise=True, always_apply=True, p=1),
