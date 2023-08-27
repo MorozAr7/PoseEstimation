@@ -108,6 +108,6 @@ class Dataset(torch.utils.data.Dataset):
 			image = transformation["image"]
 			mask = transformation["mask"]
 		image_tensor = NormalizeToTensor(image=image)["image"]
-		print(mask.shape)
+
 		return image_tensor, torch.tensor(mask).unsqueeze(2).permute(2, 0, 1).float()
 
