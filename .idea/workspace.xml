@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +39,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "true",
-    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation",
+    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -48,11 +49,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/Utils" />
       <recent name="$PROJECT_DIR$/RefinedPoseEstimation" />
       <recent name="$PROJECT_DIR$/ObjectSegmentation" />
-      <recent name="$PROJECT_DIR$/RefinedPoseEstimation/TrainedModels" />
-      <recent name="$PROJECT_DIR$/CoarsePoseEstimation/TrainedModels" />
-      <recent name="$PROJECT_DIR$/ObjectSegmentation/TrainedModels" />
+      <recent name="$PROJECT_DIR$/DatasetRenderer" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/RefinedPoseEstimation" />
@@ -190,7 +191,7 @@
       <updated>1692287159725</updated>
       <workItem from="1692287179761" duration="17168000" />
       <workItem from="1692903869949" duration="16592000" />
-      <workItem from="1693058579214" duration="20460000" />
+      <workItem from="1693058579214" duration="20945000" />
     </task>
     <servers />
   </component>
