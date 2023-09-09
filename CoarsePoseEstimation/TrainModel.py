@@ -1,7 +1,6 @@
+from CONFIG import *
 from CnnModel import AutoencoderPoseEstimationModel
 from LoadDataset import Dataset
-from CONFIG import *
-sys.path.insert(0, MAIN_DIR_PATH)
 from Utils.DataAugmentationUtils import PoseEstimationAugmentation
 from torch.utils.data import DataLoader
 import torch.nn as nn
@@ -9,7 +8,6 @@ import time
 from warnings import filterwarnings
 import cv2
 filterwarnings("ignore")
-
 
 def init_weights(m):
 	if type(m) in [nn.Conv2d, nn.ConvTranspose2d]:
@@ -56,7 +54,6 @@ def one_epoch(model, optimizer, dataloader, l1_loss_function, is_training=True, 
 	if is_training:
 		for index, (image, mask, u_map, v_map, w_map) in enumerate(dataloader):
 			print("BATCH TRAINING: ", index)
-			#print(image.shape, mask.shape, u_map.shape, v_map.shape, w_map.shape)
 			optimizer.zero_grad()
 
 			image = image.to(DEVICE)
@@ -134,7 +131,6 @@ def one_epoch(model, optimizer, dataloader, l1_loss_function, is_training=True, 
 
 
 def main(model, optimizer, training_dataloader, validation_dataloader, loss_function):
-	best_validation_accuracy = 0
 	smallest_loss = float("inf")
 	for epoch in range(1, 5000):
 
@@ -170,23 +166,28 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 		print("EPOCH RUNTIME", time.time() - since)
 
-		if loss_u_v + loss_v_v + loss_w_v < smallest_loss:
+		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
 			print("SAVING MODEL")
-			torch.save(model.state_dict(), "{}.pt".format("./TrainedModels/CoarsePoseEstimatorModel"))
+			#torch.save(model.state_dict(), "{}.pt".format("./CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModel.pt"))
 			print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
 	model = AutoencoderPoseEstimationModel()#init_classification_model()
-	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModel.pt", map_location="cpu"))
+	model.load_state_dict(torch.load("./CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModel.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
 	loss_function = nn.CrossEntropyLoss(reduction="sum")
 
-	train_dataset = Dataset(subset="Training", num_images=100000, data_augmentation=PoseEstimationAugmentation)
-	validation_dataset = Dataset(subset="Validation", num_images=10000, data_augmentation=None)
+	train_dataset = Dataset(subset=list(SUBSET_NUM_DATA.keys())[0], 
+			 				num_images=list(SUBSET_NUM_DATA.values())[0], 
+			 				data_augmentation=PoseEstimationAugmentation)
+	
+	validation_dataset = Dataset(subset=list(SUBSET_NUM_DATA.keys())[1], 
+			      				num_images=list(SUBSET_NUM_DATA.values())[1], 
+				  				data_augmentation=None)
 
 	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
 	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)

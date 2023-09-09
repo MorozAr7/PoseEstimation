@@ -1,7 +1,7 @@
 import sys
 from CONFIG import *
 sys.path.insert(0, MAIN_DIR_PATH)
-
+import cv2
 from Utils.ConvUtils import *
 import numpy as np
 from CONFIG import DEVICE
@@ -10,40 +10,46 @@ from CONFIG import DEVICE
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [3, 32, 64, 128, 192, 256, 512]
+		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512 * 2]
 
 		self.Conv0 = ConvBnReLU(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
 		self.Conv1 = ConvBnReLU(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
-		self.ResLayer1 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
-		self.ResLayer2 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
+		self.ResLayer1 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
+		self.ResLayer2 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 
 		self.Conv2 = ConvBnReLU(in_channels=self.layer_channels[2], out_channels=self.layer_channels[3], stride=2)
-		self.ResLayer3 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
-		self.ResLayer4 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+		self.ResLayer3 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+		self.ResLayer4 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
 
 		self.Conv3 = ConvBnReLU(in_channels=self.layer_channels[3], out_channels=self.layer_channels[4], stride=2)
-		self.ResLayer5 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
-		self.ResLayer6 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+		self.ResLayer5 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+		self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
 		self.Conv4 = ConvBnReLU(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
-		self.Conv5 = ConvBnReLU(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_relu=False, padding=0, apply_bias=False)
-
+		self.Conv5 = ConvBnReLU(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_relu=True, padding=0, apply_bias=False, activ_type="prelu")
+		
 	def forward(self, x):
 		x = self.Conv0(x)
+  
 		x = self.Conv1(x)
-
+		
 		x = self.ResLayer1(x)
 		x = self.ResLayer2(x)
+		
 		x = self.Conv2(x)
 
 		x = self.ResLayer3(x)
 		x = self.ResLayer4(x)
+
 		x = self.Conv3(x)
+  
 		x = self.ResLayer5(x)
 		x = self.ResLayer6(x)
+  
 		x = self.Conv4(x)
 		x = self.Conv5(x)
+
 		return x
 
 
@@ -51,64 +57,64 @@ class PoseRefinementNetwork(nn.Module):
 	def __init__(self):
 		super(PoseRefinementNetwork, self).__init__()
 		self.EncoderReal = EncoderModel()
-		self.EncoderRendered = EncoderModel()
 		self.AvgPool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
-		self.z_linear_1 = nn.Linear(512, 256)
-		self.z_linear_2 = nn.Linear(256, 1)
+		self.xyz_linear_1 = nn.Linear(512, 256, bias=False)
+		self.xyz_linear_2 = nn.Linear(256, 3, bias=False)
+		
+		self.rotation_linear_1 = nn.Linear(512, 256, bias=False)
+		self.rotation_linear_2 = nn.Linear(256, 6, bias=False)
 
-		self.xy_linear_1 = nn.Linear(512, 256)
-		self.xy_linear_2 = nn.Linear(256, 2)
-
-		self.rotation_linear_1 = nn.Linear(512, 256)
-		self.rotation_linear_2 = nn.Linear(256, 3)
-
-		self.ReLU = nn.ReLU(inplace=True)
+		self.ReLU = nn.ReLU()
 		self.Tanh = nn.Tanh()
+  
+	def orthonormalization(self, rotation_output):
+		v1 = rotation_output[..., :3]
+		v2 = rotation_output[..., 3:]
+
+		v1 = v1 / torch.norm(v1, dim=-1, keepdim=True)
+		v3 = torch.cross(v1, v2, dim=-1) / torch.norm(v2, dim=-1, keepdim=True)
+		v2 = torch.cross(v3, v1, dim=-1)
+  
+		v1 = v1.reshape(-1, 3, 1)
+		v2 = v2.reshape(-1, 3, 1)
+		v3 = v3.reshape(-1, 3, 1)
+
+		R = torch.cat([v1, v2, v3], dim=2)
+
+		return R
 
 	def forward_rotation_linear(self, feature_vector):
 
 		x = self.rotation_linear_1(feature_vector)
 		x = self.ReLU(x)
 		x = self.rotation_linear_2(x)
-		x = self.Tanh(x)
+		x = self.orthonormalization(x)
+  
 		return x
 
-	def forward_xy_linear(self, feature_vector):
-		x = self.xy_linear_1(feature_vector)
+	def forward_xyz_linear(self, feature_vector):
+		x = self.xyz_linear_1(feature_vector)
 		x = self.ReLU(x)
-		x = self.xy_linear_2(x)
+		x = self.xyz_linear_2(x)
+		x[..., -1] = torch.exp(x[..., -1])
+  
 		return x
 
-	def forward_z_linear(self, feature_vector):
-		x = self.z_linear_1(feature_vector)
-		x = self.ReLU(x)
-		x = self.z_linear_2(x)
+	def forward_cnn(self, x):
+		features_real = self.EncoderReal(x)
+		features_real = self.AvgPool(features_real).reshape(-1, 512 * 2)
 
-		return x
+		return features_real
 
-	def forward_cnn(self, x_real, x_rendered):
-		features_real = self.EncoderReal(x_real)
-		features_rendered = self.EncoderRendered(x_rendered)
-		diff = features_real - features_rendered
+	def forward(self, x):
 
-		feature_vector = self.AvgPool(diff).reshape(-1, 512)
+		feature_vector = self.forward_cnn(x)
 
-		return feature_vector
-
-	def forward(self, x_real, x_rendered, prediction):
-
-		feature_vector = self.forward_cnn(x_real, x_rendered)
-
-		prediction_xy = prediction[..., 0:2]
-		prediction_z = prediction[..., 2:3]
-		prediction_rot = prediction[..., 3:]
-
-		refined_z = torch.exp(self.forward_z_linear(feature_vector)) * prediction_z
-		refined_xy = (self.forward_xy_linear(feature_vector) + prediction_xy / prediction_z) * refined_z
-		refined_rotation = self.forward_rotation_linear(feature_vector) + prediction_rot
-
-		return torch.cat([refined_xy, refined_z, refined_rotation], dim=1)
+		translation_output = self.forward_xyz_linear(feature_vector[..., 512:])
+		rotation_output = self.forward_rotation_linear(feature_vector[..., :512])
+		
+		return translation_output, rotation_output
 
 
 if __name__ == "__main__":

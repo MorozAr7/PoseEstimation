@@ -80,6 +80,14 @@ class RotationConversions:
 class Transformations:
 	def __init__(self):
 		pass
+	
+	@staticmethod
+	def vector_cross_product(v1, v2):
+		pass
+
+	@staticmethod
+	def gramm_schmidd_orthogonalization(v1, v2):
+		pass
 
 	@staticmethod
 	def convert_deg2rad(angle: float = 0.0) -> float:

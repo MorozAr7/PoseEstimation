@@ -33,7 +33,7 @@ class TransposeConvBnReLU(nn.Module):
 
 
 class ConvBnReLU(nn.Module):
-	def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, groups=1, dilation_rate=1, apply_bn=True, apply_relu=True, apply_bias=True):
+	def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, groups=1, dilation_rate=1, apply_bn=True, apply_relu=True, apply_bias=True, activ_type="silu"):
 		super(ConvBnReLU, self).__init__()
 
 		self.apply_relu = apply_relu
@@ -49,7 +49,7 @@ class ConvBnReLU(nn.Module):
 		if apply_bn:
 			self.BN = nn.BatchNorm2d(num_features=out_channels)
 		if apply_relu:
-			self.ReLU = nn.SiLU(inplace=True)
+			self.ReLU = nn.SiLU(inplace=True) if activ_type == "silu" else nn.PReLU(out_channels)
 
 	def forward(self, x):
 
@@ -91,12 +91,28 @@ class DepthWiseConvResidualBlock(nn.Module):
 			                                       kernel_size=1,
 			                                       padding=0,
 			                                       stride=stride)
-		if apply_activ:
-			self.SiLU = nn.SiLU(inplace=True)
+		self.SiLU = nn.SiLU(inplace=True)
 
 	def forward(self, x):
 		residual = x
 		x = self.expansion_convolution(x)
 		x = self.depth_wise_convolution(x)
 		x = self.projection_convolution(x)
+		return x + residual
+
+
+class ResidualBlock(nn.Module):
+	def __init__(self, in_channels, out_channels, expansion_factor=6, stride=1, dilation_rate=1, apply_activ=False, use_skip=True):
+		super(ResidualBlock, self).__init__()
+		self.apply_activ = apply_activ
+		self.use_skip = use_skip
+		self.Conv1 = ConvBnReLU(in_channels=in_channels, out_channels=out_channels)
+		self.Conv2 = ConvBnReLU(in_channels=in_channels, out_channels=out_channels, apply_relu=False)
+	
+		self.SiLU = nn.SiLU(inplace=True)
+
+	def forward(self, x):
+		residual = x
+		x = self.Conv1(x)
+		x = self.Conv2(x)
 		return x + residual

@@ -6,10 +6,11 @@ import cv2
 import torch
 from Utils.IOUtils import IOUtils
 from Utils.DataAugmentationUtils import NormalizeToTensor
+from Utils.MathUtils import Transformations
 
 
 class Dataset(torch.utils.data.Dataset):
-	def __init__(self, subset, num_images, dataset_renderer, data_augmentation=None):
+	def __init__(self, subset, num_images, dataset_renderer, data_augmentation=None) -> None:
 		super(Dataset, self).__init__()
 		self.data_augmentation = data_augmentation
 		self.subset = subset
@@ -19,7 +20,15 @@ class Dataset(torch.utils.data.Dataset):
 		self.full_scale_h = 1039
 		self.io = IOUtils()
 		self.dataset_renderer = dataset_renderer
-
+		self.index = None
+		self.z_displacements = [[random.randint(-75, 75) for j in range(2)] for i in range(self.dataset_len)]
+		self.x_displacements = [[random.randint(-25, 25) for j in range(2)] for i in range(self.dataset_len)]
+		self.y_displacements = [[random.randint(-25, 25) for j in range(2)] for i in range(self.dataset_len)]
+		self.A_displacements = [[random.randint(-15, 15) for j in range(2)] for i in range(self.dataset_len)]
+		self.B_displacements = [[random.randint(-15, 15) for j in range(2)] for i in range(self.dataset_len)]
+		self.C_displacements = [[random.randint(-15, 15) for j in range(2)] for i in range(self.dataset_len)]
+		self.transformations = Transformations()
+ 
 	def __len__(self):
 		return self.dataset_len
 
@@ -50,13 +59,14 @@ class Dataset(torch.utils.data.Dataset):
 	def shift_bbox(square_bbox, shift_limits):
 		shift_x = random.randint(-shift_limits["left"], shift_limits["right"])
 		shift_y = random.randint(-shift_limits["up"], shift_limits["down"])
+		print(shift_x, shift_y)
 		x_min, y_min, x_max, y_max = square_bbox
 		return x_min + shift_x, y_min + shift_y, x_max + shift_x, y_max + shift_y
 
 	@staticmethod
 	def get_shift_limits(bbox, check_results):
 		size = bbox[2] - bbox[0]
-		size_20_percent = size // 5
+		size_20_percent = 0#size // 5
 		limits = {"left": None, "right": None, "up": None, "down": None}
 		for key, val in check_results.items():
 			if key == "x_min":
@@ -91,50 +101,95 @@ class Dataset(torch.utils.data.Dataset):
 		shifted_bbox = self.shift_bbox(square_bbox, limits)
 		return shifted_bbox
 
-	@staticmethod
-	def distort_target_pose(pose):
+	def distort_target_pose(self, pose):
 		distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
 		for param in pose.keys():
-			if "Rot" in param:
-				distorted_pose[param] = pose[param] + random.randint(-15, 15)
-			elif param == "TransX" or param == "TransY":
-				distorted_pose[param] = pose[param] + random.randint(-20, 20)
+			if param == "RotX":
+				distorted_pose[param] = pose[param] + self.A_displacements[self.index][random.randint(0, 1)]
+			elif param == "RotY":
+				distorted_pose[param] = pose[param] + self.B_displacements[self.index][random.randint(0, 1)]
+			elif param == "RotZ":
+				distorted_pose[param] = pose[param] + self.C_displacements[self.index][random.randint(0, 1)]
+			elif param == "TransX":
+				distorted_pose[param] = pose[param] + self.x_displacements[self.index][random.randint(0, 1)]
+			elif param == "TransY":
+				distorted_pose[param] = pose[param] + self.y_displacements[self.index][random.randint(0, 1)]
 			elif param == "TransZ":
-				distorted_pose[param] = pose[param] + random.randint(-50, 50)
+				distorted_pose[param] = pose[param] + self.z_displacements[self.index][random.randint(0, 1)]
 
 		return distorted_pose
 
+	def distort_ref_poses(self, pose):
+		distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
+		for param in pose.keys():
+			if "Rot" in param:
+				distorted_pose[param] = pose[param] + random.randint(-180, 180)
+			elif param == "TransX":
+				distorted_pose[param] = pose[param]
+			elif param == "TransY":
+				distorted_pose[param] = pose[param]
+			elif param == "TransZ":
+				distorted_pose[param] = pose[param]#random.randint(-50, 50) #* self.index
+
+		return distorted_pose
+
+	def get_bbox_from_mask(self, mask: np.array) -> tuple:
+		mask_positive_pixels = np.where(mask == 1)
+		x_min = np.min(mask_positive_pixels[1])
+		x_max = np.max(mask_positive_pixels[1])
+		y_min = np.min(mask_positive_pixels[0])
+		y_max = np.max(mask_positive_pixels[0])
+
+		return x_min, y_min, x_max, y_max
+
+	def get_centered_bbox(self, trans_matrix, bbox_rendered, bbox_image):
+		projected_center = self.dataset_renderer.project_point_cloud(np.array([[0, 0, 0]]), trans_matrix)
+		x_c_projected, y_c_projected = projected_center[0][0], projected_center[1][0]
+		x1_min, y1_min, x1_max, y1_max = bbox_image
+		x2_min, y2_min, x2_max, y2_max = bbox_rendered
+		#size_x = max(abs(x1_max - x_c_projected), abs(x1_min - x_c_projected), abs(x2_max - x_c_projected), abs(x2_min - x_c_projected))
+		#size_y = max(abs(y1_max - y_c_projected), abs(y1_min - y_c_projected), abs(y2_max - y_c_projected), abs(y2_min - y_c_projected))
+		#size = max(size_x, size_y) * 2 * 1.0
+		size = max(x1_max - x1_min, y1_max - y1_min, x2_max - x2_min, y2_max - y2_min) * 1.2
+		x_min = x_c_projected - int(size//2)
+		y_min = y_c_projected - int(size//2)
+		x_max = x_c_projected + int(size//2)
+		y_max = y_c_projected + int(size//2)
+		return x_min, y_min, x_max, y_max
+
 	def __getitem__(self, index):
+		
 		path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
-
-		image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
+		self.index = index
+		real_image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
 		json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
-
-		bbox = json_data["Box"]
+		mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
+		real_image = real_image# * np.expand_dims(mask, axis=-1)
 		target_pose = json_data["Pose"]
-		bbox_crop = self.get_bbox(bbox)
+		trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
 
-		image = self.crop_and_resize(image, bbox_crop)
-		angles_target = np.array([target_pose["RotX"], target_pose["RotY"], target_pose["RotZ"]]) / 180
-		t_target = np.array([target_pose["TransX"], target_pose["TransY"], target_pose["TransZ"]])
+		coarse_pose1 = self.distort_target_pose(target_pose)
+		trans_matrix_coarse1 = self.transformations.get_transformation_matrix_from_pose(coarse_pose1) 
 
-		coarse_pose = self.distort_target_pose(target_pose)
-		rendered_image_dict = self.dataset_renderer.get_image(coarse_pose, bbox_crop, image_black=True, image_background=False, UVW=False, constant_light=True)
-		refinement_image = rendered_image_dict["ImageBlack"]
-		refinement_image = self.crop_and_resize(refinement_image, bbox_crop)
+		rendered_image_dict1 = self.dataset_renderer.get_image(trans_matrix_coarse1, coarse_pose1, image_black=True, image_background=False, UVW=False, constant_light=True)
 
-		angles_coarse = np.array([coarse_pose["RotX"], coarse_pose["RotY"], coarse_pose["RotZ"]]) / 180
-		t_coarse = np.array([coarse_pose["TransX"], coarse_pose["TransY"], coarse_pose["TransZ"]])
-
+		refinement_image1 = rendered_image_dict1["ImageBlack"] * np.expand_dims(rendered_image_dict1["Mask"], axis=-1)
+	
+		bbox_image = json_data["Box"]
+		bbox_rendered = rendered_image_dict1["Box"]
+		bbox_crop = self.get_centered_bbox(trans_matrix_coarse1, bbox_rendered=bbox_rendered, bbox_image=bbox_image)
+	
+		real_image = self.crop_and_resize(real_image, bbox_crop)
+		
+		refinement_image1 = self.crop_and_resize(refinement_image1, bbox_crop)
+		
 		if self.data_augmentation:
-			image = self.data_augmentation(image=image)["image"]
-		image_tensor = NormalizeToTensor(image=image)["image"]
-		refinement_image_tensor = NormalizeToTensor(image=refinement_image)["image"]
+			real_image = self.data_augmentation(image=real_image)["image"]
+		image_tensor = NormalizeToTensor(image=real_image)["image"]
+		refinement_image_tensor1 = NormalizeToTensor(image=refinement_image1)["image"]
 
-		return image_tensor, \
-		       refinement_image_tensor, \
-		       torch.tensor(angles_target, dtype=torch.float32), \
-		       torch.tensor(t_target, dtype=torch.float32), \
-		       torch.tensor(angles_coarse, dtype=torch.float32), \
-		       torch.tensor(t_coarse, dtype=torch.float32)
-
+		#trans_matrix_coarse1[0:3, -1] /= 1000
+		#trans_matrix_target[0:3, -1] /= 1000
+		return image_tensor, refinement_image_tensor1, \
+             torch.tensor(trans_matrix_target, dtype=torch.float32), \
+		       torch.tensor(trans_matrix_coarse1, dtype=torch.float32)

@@ -1,13 +1,22 @@
 import os
+import sys
+
+from torch import rand
+CURR_DIR_PATH = sys.path[0]
+MAIN_DIR_PATH = ""
+for i in CURR_DIR_PATH.split("/")[:-1]:
+    MAIN_DIR_PATH += i + "/"
+
+sys.path.insert(0, MAIN_DIR_PATH)
+sys.path.insert(1, CURR_DIR_PATH)
 import open3d as o3d
 from DatasetRenderer.RendererConfig import *
 import numpy as np
 import random
 import cv2
 import sys
-import subprocess
-import signal
-sys.path.insert(0, MAIN_DIR_PATH)
+
+
 from Utils.MathUtils import Transformations
 from Utils.IOUtils import IOUtils
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
@@ -22,8 +31,8 @@ class DatasetRenderer:
 		self.camera_intrinsic = np.array(self.camera_data["K"])
 
 		self.image_h, self.image_w = self.camera_data["res_undist"]
-		self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/PointCloud.npy")
-		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/Mesh.obj")
+		self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/SparcePointCloud5k.npy")
+		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj")
 
 		self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/UVWmapping.json")
 
@@ -35,8 +44,8 @@ class DatasetRenderer:
 		self.pose_ranges = {"RotX": (-180, 180),
 		                    "RotY": (-180, 180),
 		                    "RotZ": (-180, 180),
-		                    "TransX": (-270, 270),
-		                    "TransY": (-120, 120),
+		                    "TransX": (-200, 200),
+		                    "TransY": (-100, 100),
 		                    "TransZ": (500, 1000)}
 
 		self.noise_threshold = 2
@@ -44,6 +53,16 @@ class DatasetRenderer:
 		self.backgrounds_path = MAIN_DIR_PATH + "/DatasetRenderer" + "/Backgrounds/"
 		self.backgrounds_list = os.listdir(self.backgrounds_path)
 
+	def sample_point_cloud(self, num_points):
+		file = MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj"
+		mesh = o3d.io.read_triangle_mesh(file)
+		pcd = mesh.sample_points_poisson_disk(num_points)
+		#help(pcd)
+		pcd = np.array(pcd.points)
+  
+		print(pcd.shape)
+		self.io.save_numpy_file("SparcePointCloud5k.npy", pcd)
+	
 	@staticmethod
 	def get_homogenous_coords(cartesian_coords: np.array) -> np.array:
 		ones = np.ones(shape=(cartesian_coords.shape[0], 1))
@@ -167,11 +186,7 @@ class DatasetRenderer:
 		x_min, y_min, x_max, y_max = bbox
 		return cv2.resize(full_scale[y_min: y_max, x_min: x_max], (IMG_SIZE, IMG_SIZE))
 
-	def get_image(self, object_pose: np.array = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True, constant_light: bool = False):
-		if object_pose is None:
-			object_pose = self.sample_pose()
-		transformation_matrix = self.transformations.get_transformation_matrix_from_pose(object_pose)
-
+	def get_image(self, transformation_matrix: np.array = None, pose6d: dict = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True, constant_light: bool = False):
 		images_dict = self.render_image(transformation_matrix, constant_light, image_black, image_background)
 		image_black = images_dict["black"]
 		image_background = images_dict["background"]
@@ -196,9 +211,10 @@ class DatasetRenderer:
 		                       "Vmap": v_map,
 		                       "Wmap": w_map,
 		                       "Box": bbox,
-		                       "Pose": object_pose
+		                       "Pose": pose6d
 		                       }
-
+		#cv2.imshow("image", image_background )
+		#cv2.waitKey(1)
 		return rendered_image_dict
 
 	def save_data(self, img_object, index, subset):
@@ -215,11 +231,22 @@ class DatasetRenderer:
 	def render_dataset(self):
 		for subset in ["Training", "Validation"]:
 			for data_index in range(DATA_AMOUNT[subset]):
-				rendered_image_dict = self.get_image()
+				pose6d = self.sample_pose()
+				transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
+				rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
 				self.save_data(rendered_image_dict, data_index, subset)
-				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset]))
+				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset])) 
 
 
 if __name__ == "__main__":
 	dataset_renderer = DatasetRenderer()
-	dataset_renderer.render_dataset()
+	#dataset_renderer.sample_point_cloud(5000)
+	#exit()
+	#dataset_renderer.render_dataset()
+	while True:
+		sampled_pose = dataset_renderer.sample_pose()
+		transf_matrix = dataset_renderer.transformations.get_transformation_matrix_from_pose(sampled_pose)
+		rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True)
+
+		cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
+		cv2.waitKey(0)
