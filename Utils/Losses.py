@@ -10,10 +10,9 @@ class ProjectionLoss(nn.Module):
         self.device = device
         self.homogenous_point_cloud = self.get_homogenous_coords(self.point_cloud).T.to(device)
         self.num_points = self.point_cloud.shape[0]
-        
-    @staticmethod
-    def get_homogenous_coords(point_cloud):
-        ones = torch.ones(size=(point_cloud.shape[0], 1)).to("mps")
+
+    def get_homogenous_coords(self, point_cloud):
+        ones = torch.ones(size=(point_cloud.shape[0], 1)).to(self.device)
         return torch.cat([point_cloud, ones], dim=-1)
     
     @staticmethod

@@ -27,9 +27,9 @@ def init_weights(m) -> None:
 
 
 def change_learning_rate(optimizer, epoch) -> None:
-	epochs_to_change = list(range(100, 5000, 100))
+	epochs_to_change = list(range(10, 5000, 10))
 	if epoch in epochs_to_change:
-		optimizer.param_groups[0]["lr"] /= 2
+		optimizer.param_groups[0]["lr"] /= 1.5
 
 
 def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_training=True, epoch=0):
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 	torch.autograd.set_detect_anomaly(True)
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	#pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModel_Test.pt", map_location="cpu"))
+	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file("./DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")

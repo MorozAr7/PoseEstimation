@@ -105,17 +105,17 @@ class Dataset(torch.utils.data.Dataset):
 		distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
 		for param in pose.keys():
 			if param == "RotX":
-				distorted_pose[param] = pose[param] + self.A_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + random.randint(-15, 15)
 			elif param == "RotY":
-				distorted_pose[param] = pose[param] + self.B_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + random.randint(-15, 15)
 			elif param == "RotZ":
-				distorted_pose[param] = pose[param] + self.C_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + random.randint(-15, 15)
 			elif param == "TransX":
-				distorted_pose[param] = pose[param] + self.x_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + random.randint(-25, 25)
 			elif param == "TransY":
-				distorted_pose[param] = pose[param] + self.y_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + random.randint(-25, 25)
 			elif param == "TransZ":
-				distorted_pose[param] = pose[param] + self.z_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + random.randint(-65, 65)
 
 		return distorted_pose
 
@@ -158,38 +158,39 @@ class Dataset(torch.utils.data.Dataset):
 		return x_min, y_min, x_max, y_max
 
 	def __getitem__(self, index):
+		try:
+			path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
+			self.index = index
+			real_image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
+			json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
+			mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
+			real_image = real_image# * np.expand_dims(mask, axis=-1)
+			target_pose = json_data["Pose"]
+			trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
+
+			coarse_pose1 = self.distort_target_pose(target_pose)
+			trans_matrix_coarse1 = self.transformations.get_transformation_matrix_from_pose(coarse_pose1) 
+
+			rendered_image_dict1 = self.dataset_renderer.get_image(trans_matrix_coarse1, coarse_pose1, image_black=True, image_background=False, UVW=False, constant_light=True)
+
+			refinement_image1 = rendered_image_dict1["ImageBlack"] * np.expand_dims(rendered_image_dict1["Mask"], axis=-1)
 		
-		path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
-		self.index = index
-		real_image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
-		json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
-		mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
-		real_image = real_image# * np.expand_dims(mask, axis=-1)
-		target_pose = json_data["Pose"]
-		trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
+			bbox_image = json_data["Box"]
+			bbox_rendered = rendered_image_dict1["Box"]
+			bbox_crop = self.get_centered_bbox(trans_matrix_coarse1, bbox_rendered=bbox_rendered, bbox_image=bbox_image)
+   
+			real_image = self.crop_and_resize(real_image, bbox_crop)
+			
+			refinement_image1 = self.crop_and_resize(refinement_image1, bbox_crop)
+				
+			if self.data_augmentation:
+				real_image = self.data_augmentation(image=real_image)["image"]
+			image_tensor = NormalizeToTensor(image=real_image)["image"]
+			refinement_image_tensor1 = NormalizeToTensor(image=refinement_image1)["image"]
 
-		coarse_pose1 = self.distort_target_pose(target_pose)
-		trans_matrix_coarse1 = self.transformations.get_transformation_matrix_from_pose(coarse_pose1) 
-
-		rendered_image_dict1 = self.dataset_renderer.get_image(trans_matrix_coarse1, coarse_pose1, image_black=True, image_background=False, UVW=False, constant_light=True)
-
-		refinement_image1 = rendered_image_dict1["ImageBlack"] * np.expand_dims(rendered_image_dict1["Mask"], axis=-1)
-	
-		bbox_image = json_data["Box"]
-		bbox_rendered = rendered_image_dict1["Box"]
-		bbox_crop = self.get_centered_bbox(trans_matrix_coarse1, bbox_rendered=bbox_rendered, bbox_image=bbox_image)
-	
-		real_image = self.crop_and_resize(real_image, bbox_crop)
-		
-		refinement_image1 = self.crop_and_resize(refinement_image1, bbox_crop)
-		
-		if self.data_augmentation:
-			real_image = self.data_augmentation(image=real_image)["image"]
-		image_tensor = NormalizeToTensor(image=real_image)["image"]
-		refinement_image_tensor1 = NormalizeToTensor(image=refinement_image1)["image"]
-
-		#trans_matrix_coarse1[0:3, -1] /= 1000
-		#trans_matrix_target[0:3, -1] /= 1000
-		return image_tensor, refinement_image_tensor1, \
-             torch.tensor(trans_matrix_target, dtype=torch.float32), \
-		       torch.tensor(trans_matrix_coarse1, dtype=torch.float32)
+			return image_tensor, refinement_image_tensor1, \
+				torch.tensor(trans_matrix_target, dtype=torch.float32), \
+				torch.tensor(trans_matrix_coarse1, dtype=torch.float32)
+		except:
+			print("IMAGE ERROR IS: ", index)
+			self.__getitem__(index)
