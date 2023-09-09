@@ -1,4 +1,4 @@
-
+import gc
 from CONFIG import *
 sys.path.insert(0, MAIN_DIR_PATH)
 import torch
@@ -65,6 +65,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_tr
 			del refinement_images1
 			del T_coarse
 			del T_target
+			gc.collect()
 			torch.cuda.empty_cache()
 
 			epoch_loss_rotation += loss_R.item()
@@ -97,6 +98,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_tr
 				del refinement_images1
 				del T_coarse
 				del T_target
+				gc.collect()
 				torch.cuda.empty_cache()
 
 				epoch_loss_rotation += loss_R.item()
