@@ -242,11 +242,11 @@ if __name__ == "__main__":
 	dataset_renderer = DatasetRenderer()
 	#dataset_renderer.sample_point_cloud(5000)
 	#exit()
-	#dataset_renderer.render_dataset()
-	while True:
+	dataset_renderer.render_dataset()
+	"""while True:
 		sampled_pose = dataset_renderer.sample_pose()
 		transf_matrix = dataset_renderer.transformations.get_transformation_matrix_from_pose(sampled_pose)
 		rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True)
 
 		cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
-		cv2.waitKey(0)
+		cv2.waitKey(0)"""

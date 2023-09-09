@@ -17,7 +17,6 @@ import torch.nn as nn
 import time
 import cv2
 from DatasetRenderer.Renderer import DatasetRenderer
-BATCH_SIZE = 16
 
 def init_weights(m) -> None:
 	if type(m) in [nn.Conv2d, nn.ConvTranspose2d, nn.Linear]:
@@ -144,7 +143,7 @@ if __name__ == "__main__":
 	#pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModel_Test.pt", map_location="cpu"))
 	
 	io = IOUtils()
-	point_cloud = io.load_numpy_file("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
+	point_cloud = io.load_numpy_file("./DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
 	point_cloud_torch = torch.tensor(point_cloud).float().to(DEVICE)
  
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
