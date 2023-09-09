@@ -143,7 +143,7 @@ if __name__ == "__main__":
 	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
 	
 	io = IOUtils()
-	point_cloud = io.load_numpy_file("./DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
+	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
 	point_cloud_torch = torch.tensor(point_cloud).float().to(DEVICE)
  
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
