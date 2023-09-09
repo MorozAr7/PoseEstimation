@@ -140,7 +140,7 @@ if __name__ == "__main__":
 	torch.autograd.set_detect_anomaly(True)
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimationModel.pt", map_location="cpu"))
+	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file("./DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
