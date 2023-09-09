@@ -105,17 +105,17 @@ class Dataset(torch.utils.data.Dataset):
 		distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
 		for param in pose.keys():
 			if param == "RotX":
-				distorted_pose[param] = pose[param] + random.randint(-15, 15)#self.A_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + self.A_displacements[self.index][random.randint(0, 1)]
 			elif param == "RotY":
-				distorted_pose[param] = pose[param] + random.randint(-15, 15)#+ self.B_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + self.B_displacements[self.index][random.randint(0, 1)]
 			elif param == "RotZ":
-				distorted_pose[param] = pose[param] + random.randint(-15, 15)#+ self.C_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + self.C_displacements[self.index][random.randint(0, 1)]
 			elif param == "TransX":
-				distorted_pose[param] = pose[param] + random.randint(-25, 25)#+ self.x_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + self.x_displacements[self.index][random.randint(0, 1)]
 			elif param == "TransY":
-				distorted_pose[param] = pose[param] + random.randint(-25, 25)#+ self.y_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + self.y_displacements[self.index][random.randint(0, 1)]
 			elif param == "TransZ":
-				distorted_pose[param] = pose[param] + random.randint(-75, 75)#+ self.z_displacements[self.index][random.randint(0, 1)]
+				distorted_pose[param] = pose[param] + self.z_displacements[self.index][random.randint(0, 1)]
 
 		return distorted_pose
 
