@@ -49,7 +49,7 @@ class ConvBnReLU(nn.Module):
 		if apply_bn:
 			self.BN = nn.BatchNorm2d(num_features=out_channels)
 		if apply_relu:
-			self.ReLU = nn.SiLU(inplace=True) if activ_type == "silu" else nn.PReLU(out_channels)
+			self.ReLU = nn.SiLU(inplace=True) if activ_type == "silu" else nn.PReLU()
 
 	def forward(self, x):
 

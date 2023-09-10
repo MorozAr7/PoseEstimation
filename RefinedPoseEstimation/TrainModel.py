@@ -14,9 +14,11 @@ from Utils.IOUtils import IOUtils
 from Utils.Losses import ProjectionLoss
 from torch.utils.data import DataLoader
 import torch.nn as nn
+import warnings
 import time
 import cv2
 from DatasetRenderer.Renderer import DatasetRenderer
+warnings.filterwarnings("ignore")
 
 def init_weights(m) -> None:
 	if type(m) in [nn.Conv2d, nn.ConvTranspose2d, nn.Linear]:
@@ -32,30 +34,31 @@ def change_learning_rate(optimizer, epoch) -> None:
 		optimizer.param_groups[0]["lr"] /= 2
 
 
-def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_training=True, epoch=0):
+def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_training=True, epoch=0):
 	pose_refiner_model.train() if is_training else pose_refiner_model.eval()
 	epoch_loss_rotation = 0
 	epoch_loss_translation_z = 0
 	epoch_loss_translation_xy = 0
 
 	if is_training:
-		for index, (images, refinement_images1, T_target, T_coarse) in enumerate(dataloader):
+		for index, (images_real, images_rendered, T_target, T_coarse) in enumerate(dataloader):
 			print("BATCH TRAINING: ", index)
 			optimizer.zero_grad()
-			images = images.to(DEVICE)
-			refinement_images1 = refinement_images1.to(DEVICE)
+			images_real = images_real.to(DEVICE)
+			images_rendered = images_rendered.to(DEVICE)
    
-			visualize = 255 * torch.cat([images, refinement_images1], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
-			cv2.imwrite("image_test_1.png".format(epoch), visualize[0].astype(np.uint8))
+			visualize = 255 * torch.cat([images_real, images_rendered], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
+			cv2.imwrite("image_test_2.png".format(epoch), visualize[0].astype(np.uint8))
    
 			T_target = T_target.to(DEVICE)
 			T_coarse = T_coarse.to(DEVICE)
 
-			predicted_translation, predicted_rotation = pose_refiner_model(torch.cat([images, refinement_images1], dim=1))
+			predicted_translation, predicted_rotation = pose_refiner_model(torch.cat([images_real, images_rendered], dim=1))
 			t_coarse = T_coarse[..., 0:3, -1]
 			t_target = T_target[..., 0:3, -1]
-
-			loss_xy, loss_z, loss_R = l1_loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
+			
+			loss_xy, loss_z, loss_R = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
+	
 			disentangled_loss = 1 * loss_z + 1 * loss_xy + 1 * loss_R
    
 			disentangled_loss.backward()
@@ -71,23 +74,20 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_tr
 	else:
 
 		with torch.no_grad():
-			for index, (images, refinement_images1, T_target, T_coarse) in enumerate(dataloader):
+			for index, (images_real, images_rendered, T_target, T_coarse) in enumerate(dataloader):
 				print("BATCH VALIDATION: ", index)
 				optimizer.zero_grad()
-				images = images.to(DEVICE)
-				refinement_images1 = refinement_images1.to(DEVICE)
-	
-				#visualize = 255 * torch.cat([images, refinement_images1], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
-				#cv2.imwrite("image_test_1.png".format(epoch), visualize[0].astype(np.uint8))
+				images_real = images_real.to(DEVICE)
+				images_rendered = images_rendered.to(DEVICE)
 	
 				T_target = T_target.to(DEVICE)
 				T_coarse = T_coarse.to(DEVICE)
 
-				predicted_translation, predicted_rotation = pose_refiner_model(torch.cat([images, refinement_images1], dim=1))
+				predicted_translation, predicted_rotation = pose_refiner_model(torch.cat([images_real, images_rendered], dim=1))
 				t_coarse = T_coarse[..., 0:3, -1]
 				t_target = T_target[..., 0:3, -1]
 
-				loss_xy, loss_z, loss_R = l1_loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
+				loss_xy, loss_z, loss_R = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
 				disentangled_loss = loss_z + loss_xy + loss_R
 
 				torch.cuda.empty_cache()
@@ -100,18 +100,17 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_tr
 			return epoch_loss_rotation / len(validation_dataset), epoch_loss_translation_xy / len(validation_dataset), epoch_loss_translation_z / len(validation_dataset)
 
 
-def main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, l1_loss_function) -> None:
+def main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, loss_function) -> None:
 
 	smallest_loss = float("inf")
 	for epoch in range(1, 1000):
-		# print("START")
 		since: float = time.time()
 		change_learning_rate(optimizer, epoch)
 		train_l_rotation, train_l_xy, train_l_z = one_epoch(
 		                           pose_refiner_model,
 		                           optimizer,
 		                           training_dataloader,
-		                           l1_loss_function,
+		                           loss_function,
 		                           is_training=True,
 		                           epoch=epoch
 		                           )
@@ -119,7 +118,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		                           pose_refiner_model,
 		                           optimizer,
 		                           validation_dataloader,
-		                           l1_loss_function,
+		                           loss_function,
 		                           is_training=False
 		                           )
 		print("Epoch: {}, Train rotation: {}, Train xy: {}, Train z: {}, Valid rotation: {}, Valid xy: {}, Valid z: {}"
@@ -129,7 +128,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModel"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelMergedFeatures"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 		"""pid = os.getpid()
 		print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
@@ -141,14 +140,14 @@ if __name__ == "__main__":
 	torch.autograd.set_detect_anomaly(True)
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
+	#pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
 	point_cloud_torch = torch.tensor(point_cloud).float().to(DEVICE)
  
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
-	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE)#nn.L1Loss(reduction="sum")
+	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE)
 	train_dataset = Dataset("Training", 10000, dataset_renderer, PoseEstimationAugmentation)
 	validation_dataset = Dataset("Validation", 2000, dataset_renderer, None)
 

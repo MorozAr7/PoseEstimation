@@ -10,7 +10,7 @@ from CONFIG import DEVICE
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512 * 2]
+		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512]
 
 		self.Conv0 = ConvBnReLU(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
@@ -103,7 +103,7 @@ class PoseRefinementNetwork(nn.Module):
 
 	def forward_cnn(self, x):
 		features_real = self.EncoderReal(x)
-		features_real = self.AvgPool(features_real).reshape(-1, 512 * 2)
+		features_real = self.AvgPool(features_real).reshape(-1, 512)
 
 		return features_real
 
@@ -111,8 +111,8 @@ class PoseRefinementNetwork(nn.Module):
 
 		feature_vector = self.forward_cnn(x)
 
-		translation_output = self.forward_xyz_linear(feature_vector[..., 512:])
-		rotation_output = self.forward_rotation_linear(feature_vector[..., :512])
+		translation_output = self.forward_xyz_linear(feature_vector)
+		rotation_output = self.forward_rotation_linear(feature_vector)
 		
 		return translation_output, rotation_output
 

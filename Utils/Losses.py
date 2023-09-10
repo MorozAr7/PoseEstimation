@@ -55,7 +55,7 @@ class ProjectionLoss(nn.Module):
         t_target = T_target[..., 0:3, -1]
         t_coarse = T_coarse[..., 0:3, -1]
         R_coarse = T_coarse[..., 0:3, 0:3]
-
+        
         updated_z = self.get_updated_depth(cnn_translation[..., 2:], t_coarse)
         updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
         updated_R = self.get_updated_rotation(cnn_rotation, R_coarse)
