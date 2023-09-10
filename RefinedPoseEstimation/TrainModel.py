@@ -151,7 +151,7 @@ if __name__ == "__main__":
 	train_dataset = Dataset("Training", 10000, dataset_renderer, PoseEstimationAugmentation)
 	validation_dataset = Dataset("Validation", 2000, dataset_renderer, None)
 
-	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)
+	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
 	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)
 
 	main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, l1_loss_function)
