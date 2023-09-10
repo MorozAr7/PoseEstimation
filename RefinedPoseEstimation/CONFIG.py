@@ -11,5 +11,5 @@ sys.path.insert(1, CURR_DIR_PATH)
 
 CUDA_DEVICE = 1
 DEVICE = "mps" if getattr(torch, 'has_mps', False) else CUDA_DEVICE if torch.cuda.is_available() else "cpu"
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.00005
 BATCH_SIZE = 64
