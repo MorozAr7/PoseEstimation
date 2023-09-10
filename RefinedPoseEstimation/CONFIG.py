@@ -1,9 +1,9 @@
-import torch
+#import torch
 import sys
 
 CURR_DIR_PATH = sys.path[0]
 MAIN_DIR_PATH = ""
-for i in CURR_DIR_PATH.split("/")[:-1]:
+for i in CURR_DIR_PATH.split("/")[:-1]:#
     MAIN_DIR_PATH += i + "/"
 
 sys.path.insert(0, MAIN_DIR_PATH)
