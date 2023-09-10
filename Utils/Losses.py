@@ -27,22 +27,19 @@ class ProjectionLoss(nn.Module):
     def get_updated_rotation(R_prediction, R_coarse):
         return torch.bmm(R_prediction, R_coarse)
     
-    def get_xy_loss(self, updated_R, updated_z, T_coarse, T_target):
-        T_matrix = torch.tensor(T_coarse)
-        T_matrix[..., 2:3, -1] = updated_z
-        T_matrix[..., :3, :3] = updated_R
-        return self.compute_projection_loss(T_target, T_matrix)
-    
-    def get_z_loss(self, updated_R, updated_xy, T_coarse, T_target):
-        T_matrix = torch.tensor(T_coarse)
-        T_matrix[..., :3, :3] = updated_R
+    def get_xy_loss(self, updated_xy, T_target):
+        T_matrix = torch.tensor(T_target)
         T_matrix[..., :2, -1] = updated_xy
         return self.compute_projection_loss(T_target, T_matrix)
     
-    def get_R_loss(self, updated_z, updated_xy, T_coarse, T_target):
-        T_matrix = torch.tensor(T_coarse)
+    def get_z_loss(self, updated_z, T_target):
+        T_matrix = torch.tensor(T_target)
         T_matrix[..., 2:3, -1] = updated_z
-        T_matrix[..., :2, -1] = updated_xy
+        return self.compute_projection_loss(T_target, T_matrix)
+    
+    def get_R_loss(self, updated_R, T_target):
+        T_matrix = torch.tensor(T_target)
+        T_matrix[..., :3, :3] = updated_R
         return self.compute_projection_loss(T_target, T_matrix)
     
     def compute_projection_loss(self, T_target, T_coarse_updated):
@@ -60,9 +57,9 @@ class ProjectionLoss(nn.Module):
         updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
         updated_R = self.get_updated_rotation(cnn_rotation, R_coarse)
         
-        loss_xy = self.get_xy_loss(updated_R, updated_z, T_coarse, T_target)
-        loss_z = self.get_z_loss(updated_R, updated_xy, T_coarse, T_target)
-        loss_R = self.get_R_loss(updated_z, updated_xy, T_coarse, T_target)
+        loss_xy = self.get_xy_loss(updated_xy, T_target)
+        loss_z = self.get_z_loss(updated_z, T_target)
+        loss_R = self.get_R_loss(updated_R, T_target)
         
         return loss_xy/self.num_points, loss_z/self.num_points, loss_R/self.num_points
         
