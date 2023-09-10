@@ -60,15 +60,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_tr
    
 			disentangled_loss.backward()
 			optimizer.step()
-			images.to('cpu')
-			refinement_images1.to('cpu')
-			T_coarse.to("cpu")
-			T_target.to("cpu")
-			del images
-			del refinement_images1
-			del T_coarse
-			del T_target
-			gc.collect()
+
 			torch.cuda.empty_cache()
 
 			epoch_loss_rotation += loss_R.item()
@@ -98,15 +90,6 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, l1_loss_function, is_tr
 				loss_xy, loss_z, loss_R = l1_loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
 				disentangled_loss = loss_z + loss_xy + loss_R
 
-				images.to('cpu')
-				refinement_images1.to('cpu')
-				T_coarse.to("cpu")
-				T_target.to("cpu")
-				del images
-				del refinement_images1
-				del T_coarse
-				del T_target
-				gc.collect()
 				torch.cuda.empty_cache()
 
 				epoch_loss_rotation += loss_R.item()

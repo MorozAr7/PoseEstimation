@@ -147,9 +147,7 @@ class Dataset(torch.utils.data.Dataset):
 		x_c_projected, y_c_projected = projected_center[0][0], projected_center[1][0]
 		x1_min, y1_min, x1_max, y1_max = bbox_image
 		x2_min, y2_min, x2_max, y2_max = bbox_rendered
-		#size_x = max(abs(x1_max - x_c_projected), abs(x1_min - x_c_projected), abs(x2_max - x_c_projected), abs(x2_min - x_c_projected))
-		#size_y = max(abs(y1_max - y_c_projected), abs(y1_min - y_c_projected), abs(y2_max - y_c_projected), abs(y2_min - y_c_projected))
-		#size = max(size_x, size_y) * 2 * 1.0
+
 		size = max(x1_max - x1_min, y1_max - y1_min, x2_max - x2_min, y2_max - y2_min) * 1.2
 		x_min = x_c_projected - int(size//2)
 		y_min = y_c_projected - int(size//2)
