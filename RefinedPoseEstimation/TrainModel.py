@@ -129,19 +129,19 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModel"))
+		#torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModel"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
-		pid = os.getpid()
+		"""pid = os.getpid()
 		print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
 		subprocess.run(["python3", "TrainModel.py"])
-		os.kill(pid, signal.SIGKILL)
+		os.kill(pid, signal.SIGKILL)"""
 
 
 if __name__ == "__main__":
 	torch.autograd.set_detect_anomaly(True)
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
+	#pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModel.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
@@ -149,8 +149,8 @@ if __name__ == "__main__":
  
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
 	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE)#nn.L1Loss(reduction="sum")
-	train_dataset = Dataset("Training", 10000, dataset_renderer, PoseEstimationAugmentation)
-	validation_dataset = Dataset("Validation", 2000, dataset_renderer, None)
+	train_dataset = Dataset("Training", 32, dataset_renderer, PoseEstimationAugmentation)
+	validation_dataset = Dataset("Validation", 4, dataset_renderer, None)
 
 	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)
 	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)

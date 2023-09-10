@@ -159,12 +159,25 @@ class Dataset(torch.utils.data.Dataset):
 		try:
 			path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
 			self.index = index
-			real_image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
+			image_real = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
 			json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
-			mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
-			real_image = real_image# * np.expand_dims(mask, axis=-1)
-			target_pose = json_data["Pose"]
-			trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
+			
+			real_pose = json_data["Pose"]
+   
+			refinement_pose_number = random.randint(0, 9)
+			path_datapoint = path + "ImageRefinement/" + "Data_{}/".format(index)
+			refinement_image_path = path_datapoint + "Image/" + "data_{}.npy".format(refinement_pose_number)
+			refinement_data_path = path_datapoint + "Pose/" + "data_{}.json".format(refinement_pose_number)
+   
+			rendered_image = self.io.load_numpy_file(refinement_image_path)
+			rendered_data = self.io.load_json_file(refinement_data_path)
+			rendered_pose = rendered_data["Pose"]
+			rendered_bbox = rendered_data["Box"]
+			trans_matrix_real = self.transformations.get_transformation_matrix_from_pose(real_pose)
+			trans_matrix_rendered = self.transformations.get_transformation_matrix_from_pose(rendered_pose)
+   
+			image_real = self.crop_and_resize(image_real, rendered_bbox)
+			"""trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
 
 			coarse_pose1 = self.distort_target_pose(target_pose)
 			trans_matrix_coarse1 = self.transformations.get_transformation_matrix_from_pose(coarse_pose1) 
@@ -179,16 +192,17 @@ class Dataset(torch.utils.data.Dataset):
    
 			real_image = self.crop_and_resize(real_image, bbox_crop)
 			
-			refinement_image1 = self.crop_and_resize(refinement_image1, bbox_crop)
+			refinement_image1 = self.crop_and_resize(refinement_image1, bbox_crop)"""
 				
 			if self.data_augmentation:
-				real_image = self.data_augmentation(image=real_image)["image"]
-			image_tensor = NormalizeToTensor(image=real_image)["image"]
-			refinement_image_tensor1 = NormalizeToTensor(image=refinement_image1)["image"]
+				image_real = self.data_augmentation(image=image_real)["image"]
+			image_tensor = NormalizeToTensor(image=image_real)["image"]
+			refinement_image_tensor1 = NormalizeToTensor(image=rendered_image)["image"]
 
 			return image_tensor, refinement_image_tensor1, \
-				torch.tensor(trans_matrix_target, dtype=torch.float32), \
-				torch.tensor(trans_matrix_coarse1, dtype=torch.float32)
-		except:
+				torch.tensor(trans_matrix_real, dtype=torch.float32), \
+				torch.tensor(trans_matrix_rendered, dtype=torch.float32)
+		except Exception as e:
+			print(e)
 			print("IMAGE ERROR IS: ", index)
 			self.__getitem__(index)

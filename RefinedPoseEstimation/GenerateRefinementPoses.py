@@ -57,7 +57,7 @@ def get_centered_bbox(trans_matrix, bbox_rendered, bbox_image):
     y_min = y_c_projected - int(size//2)
     x_max = x_c_projected + int(size//2)
     y_max = y_c_projected + int(size//2)
-    return x_min, y_min, x_max, y_max
+    return int(x_min), int(y_min), int(x_max), int(y_max)
 
 def generate_refinement_image(subset, index):
     path = MAIN_DIR_PATH + "Dataset/" + subset + "/"
@@ -85,8 +85,10 @@ def generate_refinement_image(subset, index):
         
         rendered_image_cropped = crop_and_resize(rendered_image, bbox_crop)
         
+        data_json = {"Pose": pose_rendered, "Box": bbox_crop}
+        
         io.save_numpy_file(path_datapoint + "Image/" + "data_{}.npy".format(i), rendered_image_cropped)
-        io.save_json_file(path_datapoint + "Pose/" + "data_{}.json".format(i), pose_rendered)
+        io.save_json_file(path_datapoint + "Pose/" + "data_{}.json".format(i), data_json)
         print("Rendered image number {} with pose {} was genedered".format(i, pose_rendered))
         
 
