@@ -147,8 +147,8 @@ if __name__ == "__main__":
  
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
 	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE)
-	train_dataset = Dataset("Training", 32, dataset_renderer, PoseEstimationAugmentation)
-	validation_dataset = Dataset("Validation", 2, dataset_renderer, None)
+	train_dataset = Dataset("Training", 10000, dataset_renderer, PoseEstimationAugmentation)
+	validation_dataset = Dataset("Validation", 2000, dataset_renderer, None)
 
 	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
 	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)
