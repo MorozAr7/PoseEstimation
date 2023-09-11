@@ -27,7 +27,7 @@ class EncoderModel(nn.Module):
 		self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
 		self.Conv4 = ConvBnReLU(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
-		self.Conv5 = ConvBnReLU(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_relu=True, padding=0, apply_bias=False, activ_type="prelu")
+		self.Conv5 = ConvBnReLU(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_relu=True, padding=0, apply_bias=True, activ_type="prelu")
 		
 	def forward(self, x):
 		x = self.Conv0(x)
@@ -59,14 +59,14 @@ class PoseRefinementNetwork(nn.Module):
 		self.EncoderReal = EncoderModel()
 		self.AvgPool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
-		self.xy_linear_1 = nn.Linear(512, 256, bias=False)
-		self.xy_linear_2 = nn.Linear(256, 2, bias=False)
+		self.xy_linear_1 = nn.Linear(512, 256)
+		self.xy_linear_2 = nn.Linear(256, 2)
 
-		self.z_linear_1 = nn.Linear(512, 256, bias=False)
-		self.z_linear_2 = nn.Linear(256, 1, bias=False)
+		self.z_linear_1 = nn.Linear(512, 256)
+		self.z_linear_2 = nn.Linear(256, 1)
 		
-		self.rotation_linear_1 = nn.Linear(512, 256, bias=False)
-		self.rotation_linear_2 = nn.Linear(256, 6, bias=False)
+		self.rotation_linear_1 = nn.Linear(512, 256)
+		self.rotation_linear_2 = nn.Linear(256, 6)
 
 		self.ReLU = nn.ReLU()
 		self.Tanh = nn.Tanh()
@@ -107,7 +107,7 @@ class PoseRefinementNetwork(nn.Module):
 		x = self.z_linear_1(feature_vector)
 		x = self.ReLU(x)
 		x = self.z_linear_2(x)
-		#x[..., -1] = torch.exp(x[..., -1])
+		#x = torch.exp(x)
   
 		return x
 
