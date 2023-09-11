@@ -67,8 +67,8 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			torch.cuda.empty_cache()
 
 			epoch_loss_rotation += loss_R.item()
-			epoch_loss_translation_xy += torch.sum(torch.abs((predicted_translation[..., :2] + t_coarse[..., 0:2] / t_coarse[..., 2:3]) * t_target[..., 2:3] - t_target[..., :2])).item() * 1000
-			epoch_loss_translation_z += torch.sum(torch.abs((t_coarse[..., -1] * predicted_translation[..., 2] - t_target[..., -1]))).item() * 1000
+			epoch_loss_translation_xy += torch.sum(torch.abs((predicted_translation[..., :2] + t_coarse[..., 0:2] / t_coarse[..., 2:3]) * t_target[..., 2:3] - t_target[..., :2])).item()
+			epoch_loss_translation_z += torch.sum(torch.abs((t_coarse[..., -1] * predicted_translation[..., 2] - t_target[..., -1]))).item()
 
 		return epoch_loss_rotation / len(train_dataset), epoch_loss_translation_xy / len(train_dataset), epoch_loss_translation_z/ len(train_dataset)
 	else:
@@ -92,8 +92,8 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 				torch.cuda.empty_cache()
 
 				epoch_loss_rotation += loss_R.item()
-				epoch_loss_translation_xy += torch.sum(torch.abs((predicted_translation[..., :2] + t_coarse[..., 0:2] / t_coarse[..., 2:3]) * t_target[..., 2:3] - t_target[..., :2])).item() * 1000
-				epoch_loss_translation_z += torch.sum(torch.abs((t_coarse[..., -1] * predicted_translation[..., 2] - t_target[..., -1]))).item() * 1000
+				epoch_loss_translation_xy += torch.sum(torch.abs((predicted_translation[..., :2] + t_coarse[..., 0:2] / t_coarse[..., 2:3]) * t_target[..., 2:3] - t_target[..., :2])).item()
+				epoch_loss_translation_z += torch.sum(torch.abs((t_coarse[..., -1] * predicted_translation[..., 2] - t_target[..., -1]))).item()
 
 
 			return epoch_loss_rotation / len(validation_dataset), epoch_loss_translation_xy / len(validation_dataset), epoch_loss_translation_z / len(validation_dataset)
