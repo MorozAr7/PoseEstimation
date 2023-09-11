@@ -32,7 +32,7 @@ class DatasetRenderer:
 
 		self.image_h, self.image_w = self.camera_data["res_undist"]
 		self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/SparcePointCloud5k.npy")
-		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj")
+		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/Mesh.obj")
 
 		self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/UVWmapping.json")
 
@@ -44,9 +44,9 @@ class DatasetRenderer:
 		self.pose_ranges = {"RotX": (-180, 180),
 		                    "RotY": (-180, 180),
 		                    "RotZ": (-180, 180),
-		                    "TransX": (-200, 200),
-		                    "TransY": (-100, 100),
-		                    "TransZ": (500, 1000)}
+		                    "TransX": (-100, 100),
+		                    "TransY": (-50, 50),
+		                    "TransZ": (500, 300)}
 
 		self.noise_threshold = 2
 
@@ -190,7 +190,8 @@ class DatasetRenderer:
 		images_dict = self.render_image(transformation_matrix, constant_light, image_black, image_background)
 		image_black = images_dict["black"]
 		image_background = images_dict["background"]
-
+		cv2.imshow("image", image_background)
+		cv2.waitKey(0)
 		mask = self.get_object_mask(image_black)
 		if bbox is None:
 			bbox = self.get_bbox_from_mask(mask)
@@ -203,7 +204,7 @@ class DatasetRenderer:
 			u_map = None
 			v_map = None
 			w_map = None
-
+		
 		rendered_image_dict = {"ImageBackground": image_background,
 		                       "ImageBlack": image_black,
 		                       "Mask": mask,
@@ -242,11 +243,12 @@ if __name__ == "__main__":
 	dataset_renderer = DatasetRenderer()
 	#dataset_renderer.sample_point_cloud(5000)
 	#exit()
-	dataset_renderer.render_dataset()
-	"""while True:
-		sampled_pose = dataset_renderer.sample_pose()
+	#dataset_renderer.render_dataset()
+	while True:
+		#sampled_pose = dataset_renderer.sample_pose()
+		sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}
 		transf_matrix = dataset_renderer.transformations.get_transformation_matrix_from_pose(sampled_pose)
 		rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True)
 
 		cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
-		cv2.waitKey(0)"""
+		cv2.waitKey(0)

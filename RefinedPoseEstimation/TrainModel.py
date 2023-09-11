@@ -29,7 +29,7 @@ def init_weights(m) -> None:
 
 
 def change_learning_rate(optimizer, epoch) -> None:
-	epochs_to_change = list(range(50, 5000, 50))
+	epochs_to_change = list(range(100, 5000, 100))
 	if epoch in epochs_to_change:
 		optimizer.param_groups[0]["lr"] /= 2
 
@@ -88,7 +88,6 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 				t_target = T_target[..., 0:3, -1]
 
 				loss_xy, loss_z, loss_R = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
-				disentangled_loss = loss_z + loss_xy + loss_R
 
 				torch.cuda.empty_cache()
 
@@ -128,7 +127,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelMergedFeaturesLoss"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelMergedFeaturesLossNoExp"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 		"""pid = os.getpid()
 		print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
@@ -148,8 +147,8 @@ if __name__ == "__main__":
  
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=pose_refiner_model.parameters())
 	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE)
-	train_dataset = Dataset("Training", 10000, dataset_renderer, PoseEstimationAugmentation)
-	validation_dataset = Dataset("Validation", 2000, dataset_renderer, None)
+	train_dataset = Dataset("Training", 32, dataset_renderer, PoseEstimationAugmentation)
+	validation_dataset = Dataset("Validation", 2, dataset_renderer, None)
 
 	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
 	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)

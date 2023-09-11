@@ -97,7 +97,7 @@ class PoseRefinementNetwork(nn.Module):
 		x = self.xyz_linear_1(feature_vector)
 		x = self.ReLU(x)
 		x = self.xyz_linear_2(x)
-		x[..., -1] = torch.exp(x[..., -1])
+		#x[..., -1] = torch.exp(x[..., -1])
   
 		return x
 

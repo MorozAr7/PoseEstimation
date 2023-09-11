@@ -16,36 +16,36 @@ class ProjectionLoss(nn.Module):
         return torch.cat([point_cloud, ones], dim=-1)
     
     @staticmethod
-    def get_updated_translation(translation_prediction, t_coarse, t_target):
-        return (translation_prediction + t_coarse[..., :2] / t_coarse[..., 2:3]) * t_target[..., 2:3]
+    def get_updated_translation(xy_prediction, t_coarse, t_target):
+        return (xy_prediction + t_coarse[..., :2] / t_coarse[..., 2:3]) * t_target[..., 2:3]
     
     @staticmethod
-    def get_updated_depth(depth_prediciton, t_coarse):
-        return depth_prediciton * t_coarse[..., 2:3]
+    def get_updated_depth(z_prediction, t_coarse):
+        return z_prediction * t_coarse[..., 2:3]
     
     @staticmethod
     def get_updated_rotation(R_prediction, R_coarse):
         return torch.bmm(R_prediction, R_coarse)
     
     def get_xy_loss(self, updated_xy, T_target):
-        T_matrix = torch.tensor(T_target)
+        T_matrix = T_target.clone()
         T_matrix[..., :2, -1] = updated_xy
         return self.compute_projection_loss(T_target, T_matrix)
     
     def get_z_loss(self, updated_z, T_target):
-        T_matrix = torch.tensor(T_target)
+        T_matrix = T_target.clone()
         T_matrix[..., 2:3, -1] = updated_z
         return self.compute_projection_loss(T_target, T_matrix)
     
     def get_R_loss(self, updated_R, T_target):
-        T_matrix = torch.tensor(T_target)
+        T_matrix = T_target.clone()
         T_matrix[..., :3, :3] = updated_R
         return self.compute_projection_loss(T_target, T_matrix)
     
     def compute_projection_loss(self, T_target, T_coarse_updated):
         transformed_pc_predicted = T_coarse_updated @ self.homogenous_point_cloud
         transformed_pc_target = T_target @ self.homogenous_point_cloud
-       
+
         return self.L1_loss(transformed_pc_predicted[:, 0:3, :], transformed_pc_target[:, 0:3, :])
     
     def forward(self, cnn_translation, cnn_rotation, T_coarse, T_target):
