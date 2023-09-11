@@ -75,8 +75,9 @@ class PoseRefinementNetwork(nn.Module):
 		v1 = rotation_output[..., :3]
 		v2 = rotation_output[..., 3:]
 
-		v1 = v1 / torch.norm(v1, dim=-1, keepdim=True)
-		v3 = torch.cross(v1, v2, dim=-1) / torch.norm(v2, dim=-1, keepdim=True)
+		v1 = v1 / torch.norm(v1, p=2, dim=-1, keepdim=True)
+		v3 = torch.cross(v1, v2, dim=-1) 
+		v3 = v3 / torch.norm(v3, p=2, dim=-1, keepdim=True)
 		v2 = torch.cross(v3, v1, dim=-1)
   
 		v1 = v1.reshape(-1, 3, 1)
