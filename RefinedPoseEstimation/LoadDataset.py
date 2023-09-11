@@ -160,8 +160,8 @@ class Dataset(torch.utils.data.Dataset):
 			path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
 			self.index = index
 			image_real = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
-			mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
-			image_real = image_real * np.expand_dims(mask, axis=-1)
+			#mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
+			#image_real = image_real * np.expand_dims(mask, axis=-1)
 			json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
 			
 			real_pose = json_data["Pose"]

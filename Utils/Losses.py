@@ -67,15 +67,15 @@ class ProjectionLoss(nn.Module):
         t_coarse = T_coarse[..., :3, -1]
         R_coarse = T_coarse[..., :3, :3]
         
-        updated_z = self.get_updated_depth(cnn_translation[..., 2:], t_coarse)
-        updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
+        #updated_z = self.get_updated_depth(cnn_translation[..., 2:], t_coarse)
+        #updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
         updated_R = self.get_updated_rotation(cnn_rotation, R_coarse)
-        loss_projection = self.get_total_loss(updated_xy, updated_z, updated_R, T_target)
+        #loss_projection = self.get_total_loss(updated_xy, updated_z, updated_R, T_target)
         
-        loss_xy = self.get_xy_loss(updated_xy, T_target)
-        loss_z = self.get_z_loss(updated_z, T_target)
+        #loss_xy = self.get_xy_loss(updated_xy, T_target)
+        #loss_z = self.get_z_loss(updated_z, T_target)
         loss_R = self.get_R_loss(updated_R, T_target)
         
         
-        return loss_xy/self.num_points, loss_z/self.num_points, loss_R/self.num_points
+        return loss_R/self.num_points
         

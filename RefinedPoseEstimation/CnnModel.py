@@ -10,7 +10,7 @@ from CONFIG import DEVICE
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512 * 3]
+		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512]
 
 		self.Conv0 = ConvBnReLU(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
@@ -59,11 +59,11 @@ class PoseRefinementNetwork(nn.Module):
 		self.EncoderReal = EncoderModel()
 		self.AvgPool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
-		self.xy_linear_1 = nn.Linear(512, 256)
+		"""self.xy_linear_1 = nn.Linear(512, 256)
 		self.xy_linear_2 = nn.Linear(256, 2)
 
 		self.z_linear_1 = nn.Linear(512, 256)
-		self.z_linear_2 = nn.Linear(256, 1)
+		self.z_linear_2 = nn.Linear(256, 1)"""
 		
 		self.rotation_linear_1 = nn.Linear(512, 256)
 		self.rotation_linear_2 = nn.Linear(256, 6)
@@ -113,7 +113,7 @@ class PoseRefinementNetwork(nn.Module):
 
 	def forward_cnn(self, x):
 		features_real = self.EncoderReal(x)
-		features_real = self.AvgPool(features_real).reshape(-1, 512 * 3)
+		features_real = self.AvgPool(features_real).reshape(-1, 512)
 
 		return features_real
 
@@ -121,12 +121,12 @@ class PoseRefinementNetwork(nn.Module):
 
 		feature_vector = self.forward_cnn(x)
 
-		z_output = self.forward_z_linear(feature_vector[..., :512])
-		xy_output = self.forward_xy_linear(feature_vector[..., 512:1024])
-		rotation_output = self.forward_rotation_linear(feature_vector[..., 1024:])
-		translation_output = torch.cat([xy_output, z_output], dim=-1)
+		#z_output = self.forward_z_linear(feature_vector[..., :512])
+		#xy_output = self.forward_xy_linear(feature_vector[..., 512:1024])
+		rotation_output = self.forward_rotation_linear(feature_vector)
+		#translation_output = torch.cat([xy_output, z_output], dim=-1)
   
-		return translation_output, rotation_output
+		return rotation_output
 
 
 if __name__ == "__main__":

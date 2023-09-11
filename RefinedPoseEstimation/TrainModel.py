@@ -53,13 +53,13 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			T_target = T_target.to(DEVICE)
 			T_coarse = T_coarse.to(DEVICE)
 
-			predicted_translation, predicted_rotation = pose_refiner_model(torch.cat([images_real, images_rendered], dim=1))
-			t_coarse = T_coarse[..., 0:3, -1]
-			t_target = T_target[..., 0:3, -1]
+			predicted_rotation = pose_refiner_model(torch.cat([images_real, images_rendered], dim=1))
+			#t_coarse = T_coarse[..., 0:3, -1]
+			#t_target = T_target[..., 0:3, -1]
 			
-			loss_xy, loss_z, loss_R = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
+			loss_R = loss_function(None, predicted_rotation, T_coarse, T_target)
 	
-			disentangled_loss = loss_xy + loss_z + loss_R
+			disentangled_loss = loss_R
    
 			disentangled_loss.backward()
 			optimizer.step()
@@ -67,8 +67,8 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			torch.cuda.empty_cache()
 
 			epoch_loss_rotation += loss_R.item()
-			epoch_loss_translation_xy += torch.sum(torch.abs((predicted_translation[..., :2] + t_coarse[..., 0:2] / t_coarse[..., 2:3]) * t_target[..., 2:3] - t_target[..., :2])).item()
-			epoch_loss_translation_z += torch.sum(torch.abs((t_coarse[..., -1] * predicted_translation[..., 2] - t_target[..., -1]))).item()
+			epoch_loss_translation_xy += 0
+			epoch_loss_translation_z += 0
 
 		return epoch_loss_rotation / len(train_dataset), epoch_loss_translation_xy / len(train_dataset), epoch_loss_translation_z/ len(train_dataset)
 	else:
@@ -80,20 +80,23 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 				images_real = images_real.to(DEVICE)
 				images_rendered = images_rendered.to(DEVICE)
 	
+				visualize = 255 * torch.cat([images_real, images_rendered], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
+				cv2.imwrite("image_test_12.png".format(epoch), visualize[0].astype(np.uint8))
+	
 				T_target = T_target.to(DEVICE)
 				T_coarse = T_coarse.to(DEVICE)
 
-				predicted_translation, predicted_rotation = pose_refiner_model(torch.cat([images_real, images_rendered], dim=1))
-				t_coarse = T_coarse[..., 0:3, -1]
-				t_target = T_target[..., 0:3, -1]
-
-				loss_xy, loss_z, loss_R = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
+				predicted_rotation = pose_refiner_model(torch.cat([images_real, images_rendered], dim=1))
+				#t_coarse = T_coarse[..., 0:3, -1]
+				#t_target = T_target[..., 0:3, -1]
+				
+				loss_R = loss_function(None, predicted_rotation, T_coarse, T_target)
 
 				torch.cuda.empty_cache()
 
 				epoch_loss_rotation += loss_R.item()
-				epoch_loss_translation_xy += torch.sum(torch.abs((predicted_translation[..., :2] + t_coarse[..., 0:2] / t_coarse[..., 2:3]) * t_target[..., 2:3] - t_target[..., :2])).item()
-				epoch_loss_translation_z += torch.sum(torch.abs((t_coarse[..., -1] * predicted_translation[..., 2] - t_target[..., -1]))).item()
+				epoch_loss_translation_xy += 0
+				epoch_loss_translation_z += 0
 
 
 			return epoch_loss_rotation / len(validation_dataset), epoch_loss_translation_xy / len(validation_dataset), epoch_loss_translation_z / len(validation_dataset)
@@ -127,7 +130,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		#torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelEntangledLossSegmented"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelPureRotation"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 		"""pid = os.getpid()
 		print("THE CURRENT PROCESS WITH PID : {} HAS BEEN KILLED".format(pid))
