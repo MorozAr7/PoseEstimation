@@ -122,7 +122,7 @@ class PoseRefinementNetwork(nn.Module):
 		feature_vector = self.forward_cnn(x)
 
 		z_output = self.forward_z_linear(feature_vector[..., :512])
-		xy_output = self.forward_xyz_linear(feature_vector[..., 512:1024])
+		xy_output = self.forward_xy_linear(feature_vector[..., 512:1024])
 		rotation_output = self.forward_rotation_linear(feature_vector[..., 1024:])
 		translation_output = torch.cat([xy_output, z_output], dim=-1)
   
