@@ -1,10 +1,16 @@
 from torch import nn
 import torch 
+from Utils.IOUtils import IOUtils
 
 class ProjectionLoss(nn.Module):
     def __init__(self, point_cloud, device):
         super(ProjectionLoss, self).__init__()
+        self.ProjectionType = "3D"
         self.L1_loss = nn.L1Loss(reduction="sum")
+
+        self.camera_intrinsic = [[1264.2506212016297, 0.0, 968.7422075177082,0.0],
+                                [0.0, 1262.6091110231175, 523.4709875072625, 0.0],
+                                [0.0, 0.0, 1.0, 0.0]]
         
         self.point_cloud = point_cloud
         self.device = device
@@ -42,6 +48,14 @@ class ProjectionLoss(nn.Module):
         T_updated[..., :3, :3] = updated_R
         return self.compute_projection_loss(T_target, T_updated)
     
+    def get_total_loss(self, updated_xy, updated_z, updated_R, T_target):
+        T_updated = T_target.clone()
+        T_updated[..., :3, :3] = updated_R
+        T_updated[..., :2, -1] = updated_xy
+        T_updated[..., 2:3, -1] = updated_z
+        
+        return self.compute_projection_loss(T_target, T_updated)
+        
     def compute_projection_loss(self, T_target, T_coarse_updated):
         transformed_pc_predicted = T_coarse_updated @ self.homogenous_point_cloud
         transformed_pc_target = T_target @ self.homogenous_point_cloud
@@ -56,10 +70,11 @@ class ProjectionLoss(nn.Module):
         updated_z = self.get_updated_depth(cnn_translation[..., 2:], t_coarse)
         updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
         updated_R = self.get_updated_rotation(cnn_rotation, R_coarse)
+        loss_projection = self.get_total_loss(updated_xy, updated_z, updated_R, T_target)
         
-        loss_xy = self.get_xy_loss(updated_xy, T_target)
-        loss_z = self.get_z_loss(updated_z, T_target)
-        loss_R = self.get_R_loss(updated_R, T_target)
+        #loss_xy = self.get_xy_loss(updated_xy, T_target)
+        #loss_z = self.get_z_loss(updated_z, T_target)
+        #loss_R = self.get_R_loss(updated_R, T_target)
         
-        return loss_xy/self.num_points, loss_z/self.num_points, loss_R/self.num_points
+        return loss_projection#loss_xy/self.num_points, loss_z/self.num_points, loss_R/self.num_points
         
