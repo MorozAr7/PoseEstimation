@@ -49,7 +49,7 @@ class ConvBnReLU(nn.Module):
 		if apply_bn:
 			self.BN = nn.BatchNorm2d(num_features=out_channels)
 		if apply_relu:
-			self.ReLU = nn.SiLU(inplace=True) if activ_type == "silu" else nn.PReLU()
+			self.ReLU = nn.SiLU(inplace=True) if activ_type == "silu" else nn.PReLU(num_parameters=out_channels)
 
 	def forward(self, x):
 
@@ -115,4 +115,4 @@ class ResidualBlock(nn.Module):
 		residual = x
 		x = self.Conv1(x)
 		x = self.Conv2(x)
-		return x + residual
+		return self.SiLU(x + residual)

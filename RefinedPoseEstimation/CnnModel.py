@@ -10,7 +10,7 @@ from CONFIG import DEVICE
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512]
+		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512 * 3]
 
 		self.Conv0 = ConvBnReLU(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
@@ -59,8 +59,11 @@ class PoseRefinementNetwork(nn.Module):
 		self.EncoderReal = EncoderModel()
 		self.AvgPool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
-		self.xyz_linear_1 = nn.Linear(512, 256, bias=False)
-		self.xyz_linear_2 = nn.Linear(256, 3, bias=False)
+		self.xy_linear_1 = nn.Linear(512, 256, bias=False)
+		self.xy_linear_2 = nn.Linear(256, 2, bias=False)
+
+		self.z_linear_1 = nn.Linear(512, 256, bias=False)
+		self.z_linear_2 = nn.Linear(256, 1, bias=False)
 		
 		self.rotation_linear_1 = nn.Linear(512, 256, bias=False)
 		self.rotation_linear_2 = nn.Linear(256, 6, bias=False)
@@ -93,10 +96,17 @@ class PoseRefinementNetwork(nn.Module):
   
 		return x
 
-	def forward_xyz_linear(self, feature_vector):
-		x = self.xyz_linear_1(feature_vector)
+	def forward_xy_linear(self, feature_vector):
+		x = self.xy_linear_1(feature_vector)
 		x = self.ReLU(x)
-		x = self.xyz_linear_2(x)
+		x = self.xy_linear_2(x)
+  
+		return x
+
+	def forward_z_linear(self, feature_vector):
+		x = self.z_linear_1(feature_vector)
+		x = self.ReLU(x)
+		x = self.z_linear_2(x)
 		#x[..., -1] = torch.exp(x[..., -1])
   
 		return x
@@ -111,9 +121,11 @@ class PoseRefinementNetwork(nn.Module):
 
 		feature_vector = self.forward_cnn(x)
 
-		translation_output = self.forward_xyz_linear(feature_vector)
-		rotation_output = self.forward_rotation_linear(feature_vector)
-		
+		z_output = self.forward_z_linear(feature_vector[..., :512])
+		xy_output = self.forward_xyz_linear(feature_vector[..., 512:1024])
+		rotation_output = self.forward_rotation_linear(feature_vector[..., 1024:])
+		translation_output = torch.cat([xy_output, z_output], dim=-1)
+  
 		return translation_output, rotation_output
 
 

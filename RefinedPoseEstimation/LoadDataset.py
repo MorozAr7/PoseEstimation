@@ -175,9 +175,11 @@ class Dataset(torch.utils.data.Dataset):
 			rendered_bbox = rendered_data["Box"]
 			trans_matrix_real = self.transformations.get_transformation_matrix_from_pose(real_pose)
 			trans_matrix_rendered = self.transformations.get_transformation_matrix_from_pose(rendered_pose)
-			trans_matrix_real[0:3, -1] /= 1000
-			trans_matrix_rendered[0:3, -1] /= 1000
+			
 			image_real = self.crop_and_resize(image_real, rendered_bbox)
+			"""print(real_pose["TransX"] - rendered_pose["TransX"], real_pose["TransY"] - rendered_pose["TransY"], real_pose["TransZ"] - rendered_pose["TransZ"])
+			cv2.imshow("images", np.concatenate([image_real, rendered_image]))
+			cv2.waitKey(0)"""
 			"""trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
 
 			coarse_pose1 = self.distort_target_pose(target_pose)
