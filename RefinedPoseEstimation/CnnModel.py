@@ -113,7 +113,7 @@ class PoseRefinementNetwork(nn.Module):
 
 	def forward_cnn(self, x):
 		features_real = self.EncoderReal(x)
-		features_real = self.AvgPool(features_real).reshape(-1, 512)
+		features_real = self.AvgPool(features_real).reshape(-1, 512 * 3)
 
 		return features_real
 
