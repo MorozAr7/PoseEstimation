@@ -32,7 +32,7 @@ class DatasetRenderer:
 
 		self.image_h, self.image_w = self.camera_data["res_undist"]
 		self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/SparcePointCloud5k.npy")
-		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/Mesh.obj")
+		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj")
 
 		self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/UVWmapping.json")
 
@@ -44,9 +44,9 @@ class DatasetRenderer:
 		self.pose_ranges = {"RotX": (-180, 180),
 		                    "RotY": (-180, 180),
 		                    "RotZ": (-180, 180),
-		                    "TransX": (-100, 100),
-		                    "TransY": (-50, 50),
-		                    "TransZ": (500, 300)}
+		                    "TransX": (-120, 120),
+		                    "TransY": (-70, 70),
+		                    "TransZ": (500, 1000)}
 
 		self.noise_threshold = 2
 
@@ -137,7 +137,7 @@ class DatasetRenderer:
 		v_map[y_2d, x_2d] = uvw_maps[1].reshape(-1, 1)
 		w_map[y_2d, x_2d] = uvw_maps[2].reshape(-1, 1)
 
-		return u_map.astype(np.uint8), v_map.astype(np.uint8), w_map.astype(np.uint8)
+		return np.stack([u_map.astype(np.uint8), v_map.astype(np.uint8), w_map.astype(np.uint8)], axis=-1)
 
 	def setup_renderer_scene(self, direction: list, color: list, intensity: int) -> None:
 		self.renderer.scene.scene.set_sun_light(direction, color, intensity)
@@ -190,27 +190,22 @@ class DatasetRenderer:
 		images_dict = self.render_image(transformation_matrix, constant_light, image_black, image_background)
 		image_black = images_dict["black"]
 		image_background = images_dict["background"]
-		cv2.imshow("image", image_background)
-		cv2.waitKey(0)
+		#cv2.imshow("image", image_background)
+		#cv2.waitKey(0)
 		mask = self.get_object_mask(image_black)
 		if bbox is None:
 			bbox = self.get_bbox_from_mask(mask)
 
-		if UVW:
-			x_2d, y_2d = self.project_point_cloud(self.point_cloud, transformation_matrix)
 
-			u_map, v_map, w_map = self.get_rendered_uvw_maps(x_2d, y_2d, self.uvw_coords)
-		else:
-			u_map = None
-			v_map = None
-			w_map = None
+		x_2d, y_2d = self.project_point_cloud(self.point_cloud, transformation_matrix)
+		#print(x_2d, y_2d)
+		uvw_map = self.get_rendered_uvw_maps(x_2d, y_2d, self.uvw_coords)
+
 		
 		rendered_image_dict = {"ImageBackground": image_background,
 		                       "ImageBlack": image_black,
 		                       "Mask": mask,
-		                       "Umap": u_map,
-		                       "Vmap": v_map,
-		                       "Wmap": w_map,
+                         	   "UVWmap": uvw_map,
 		                       "Box": bbox,
 		                       "Pose": pose6d
 		                       }
@@ -229,26 +224,32 @@ class DatasetRenderer:
 		path = DATASET_PATH + subset + "/" + "Pose" + "/data_{}.json".format(index)
 		self.io.save_json_file(path, json_data)
 
+	def render_batch(self, index_start, subset):
+		for index in range(index_start, index_start + self.batch_size):
+			pose6d = self.sample_pose()
+			transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
+			rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
+			self.save_data(rendered_image_dict, index, subset)
+			print("{} image number {}/{} has been rendered".format(subset, index + 1, DATA_AMOUNT[subset])) 
+   
 	def render_dataset(self):
+		self.batch_size = 250
 		for subset in ["Training", "Validation"]:
-			for data_index in range(DATA_AMOUNT[subset]):
-				pose6d = self.sample_pose()
-				transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
-				rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
-				self.save_data(rendered_image_dict, data_index, subset)
-				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset])) 
+			for data_index in range(0, DATA_AMOUNT[subset], self.batch_size):
+				self.render_batch(data_index, subset)
+				
 
 
 if __name__ == "__main__":
 	dataset_renderer = DatasetRenderer()
 	#dataset_renderer.sample_point_cloud(5000)
 	#exit()
-	#dataset_renderer.render_dataset()
-	while True:
+	dataset_renderer.render_dataset()
+	"""while True:
 		#sampled_pose = dataset_renderer.sample_pose()
-		sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}
+		#sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}
 		transf_matrix = dataset_renderer.transformations.get_transformation_matrix_from_pose(sampled_pose)
-		rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True)
+		rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True, UVW=True)"""
 
-		cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
-		cv2.waitKey(0)
+		#cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
+		#cv2.waitKey(0)

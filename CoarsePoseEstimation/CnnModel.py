@@ -9,23 +9,23 @@ class EncoderModel(nn.Module):
 		super(EncoderModel, self).__init__()
 		self.layer_channels = [3, 32, 64, 128, 192, 256]
 
-		self.Conv0 = ConvBnReLU(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
+		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
-		self.Conv1 = ConvBnReLU(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
+		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
 		self.ResLayer1 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 		self.ResLayer2 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 
-		self.Conv2 = ConvBnReLU(in_channels=self.layer_channels[2], out_channels=self.layer_channels[3], stride=2)
+		self.Conv2 = ConvBnActiv(in_channels=self.layer_channels[2], out_channels=self.layer_channels[3], stride=2)
 		self.ResLayer3 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
 		self.ResLayer4 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
 
-		self.Conv3 = ConvBnReLU(in_channels=self.layer_channels[3], out_channels=self.layer_channels[4], stride=2)
+		self.Conv3 = ConvBnActiv(in_channels=self.layer_channels[3], out_channels=self.layer_channels[4], stride=2)
 		self.ResLayer5 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 		self.ResLayer6 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
-		self.Conv4 = ConvBnReLU(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
-		self.DilatedConv1 = ConvBnReLU(in_channels=self.layer_channels[5], out_channels=self.layer_channels[5], dilation_rate=2, padding=2)
-		self.DilatedConv2 = ConvBnReLU(in_channels=self.layer_channels[5], out_channels=self.layer_channels[5], dilation_rate=4, padding=4)
+		self.Conv4 = ConvBnActiv(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
+		self.DilatedConv1 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[5], dilation_rate=2, padding=2)
+		self.DilatedConv2 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[5], dilation_rate=4, padding=4)
 
 	def forward(self, x):
 		skip_connections = []
@@ -54,18 +54,18 @@ class DecoderModel(nn.Module):
 		super(DecoderModel, self).__init__()
 		self.channel = [256, 192, 128, 64, 32, 256]
 
-		self.TransConv1 = TransposeConvBnReLU(in_channels=self.channel[0], out_channels=self.channel[1])
-		self.Conv1 = ConvBnReLU(in_channels=self.channel[1], out_channels=self.channel[1])
-		self.Conv2 = ConvBnReLU(in_channels=self.channel[1], out_channels=self.channel[1])
-		self.TransConv2 = TransposeConvBnReLU(in_channels=self.channel[1], out_channels=self.channel[2])
-		self.Conv3 = ConvBnReLU(in_channels=self.channel[2], out_channels=self.channel[2])
-		self.Conv4 = ConvBnReLU(in_channels=self.channel[2], out_channels=self.channel[2])
-		self.TransConv3 = TransposeConvBnReLU(in_channels=self.channel[2], out_channels=self.channel[3])
-		self.Conv5 = ConvBnReLU(in_channels=self.channel[3], out_channels=self.channel[3])
-		self.Conv6 = ConvBnReLU(in_channels=self.channel[3], out_channels=self.channel[3])
-		self.TransConv4 = TransposeConvBnReLU(in_channels=self.channel[3], out_channels=self.channel[4])
-		self.Conv7 = ConvBnReLU(in_channels=self.channel[4], out_channels=self.channel[4])
-		self.Conv8 = ConvBnReLU(in_channels=self.channel[4], out_channels=self.channel[5], apply_bn=False, apply_relu=False, apply_bias=False)
+		self.TransConv1 = TransposeConvBnActiv(in_channels=self.channel[0], out_channels=self.channel[1])
+		self.Conv1 = ConvBnActiv(in_channels=self.channel[1], out_channels=self.channel[1])
+		self.Conv2 = ConvBnActiv(in_channels=self.channel[1], out_channels=self.channel[1])
+		self.TransConv2 = TransposeConvBnActiv(in_channels=self.channel[1], out_channels=self.channel[2])
+		self.Conv3 = ConvBnActiv(in_channels=self.channel[2], out_channels=self.channel[2])
+		self.Conv4 = ConvBnActiv(in_channels=self.channel[2], out_channels=self.channel[2])
+		self.TransConv3 = TransposeConvBnActiv(in_channels=self.channel[2], out_channels=self.channel[3])
+		self.Conv5 = ConvBnActiv(in_channels=self.channel[3], out_channels=self.channel[3])
+		self.Conv6 = ConvBnActiv(in_channels=self.channel[3], out_channels=self.channel[3])
+		self.TransConv4 = TransposeConvBnActiv(in_channels=self.channel[3], out_channels=self.channel[4])
+		self.Conv7 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[4])
+		self.Conv8 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[5], apply_bn=False, apply_activation=False, apply_bias=False)
 
 		self.Sigmoid = nn.Sigmoid()
 

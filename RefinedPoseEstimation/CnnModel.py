@@ -10,24 +10,24 @@ from CONFIG import DEVICE
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512]
+		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512 * 3]
 
-		self.Conv0 = ConvBnReLU(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
+		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
-		self.Conv1 = ConvBnReLU(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
+		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
 		self.ResLayer1 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 		self.ResLayer2 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 
-		self.Conv2 = ConvBnReLU(in_channels=self.layer_channels[2], out_channels=self.layer_channels[3], stride=2)
+		self.Conv2 = ConvBnActiv(in_channels=self.layer_channels[2], out_channels=self.layer_channels[3], stride=2)
 		self.ResLayer3 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
 		self.ResLayer4 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
 
-		self.Conv3 = ConvBnReLU(in_channels=self.layer_channels[3], out_channels=self.layer_channels[4], stride=2)
+		self.Conv3 = ConvBnActiv(in_channels=self.layer_channels[3], out_channels=self.layer_channels[4], stride=2)
 		self.ResLayer5 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 		self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
-		self.Conv4 = ConvBnReLU(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
-		self.Conv5 = ConvBnReLU(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_relu=True, padding=0, apply_bias=True, activ_type="prelu")
+		self.Conv4 = ConvBnActiv(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
+		self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_activation=True, padding=0, apply_bias=True, activ_type="prelu")
 		
 	def forward(self, x):
 		x = self.Conv0(x)
@@ -59,11 +59,11 @@ class PoseRefinementNetwork(nn.Module):
 		self.EncoderReal = EncoderModel()
 		self.AvgPool = nn.AdaptiveAvgPool2d(output_size=(1, 1))
 
-		"""self.xy_linear_1 = nn.Linear(512, 256)
+		self.xy_linear_1 = nn.Linear(512, 256)
 		self.xy_linear_2 = nn.Linear(256, 2)
 
 		self.z_linear_1 = nn.Linear(512, 256)
-		self.z_linear_2 = nn.Linear(256, 1)"""
+		self.z_linear_2 = nn.Linear(256, 1)
 		
 		self.rotation_linear_1 = nn.Linear(512, 256)
 		self.rotation_linear_2 = nn.Linear(256, 6)
@@ -108,26 +108,27 @@ class PoseRefinementNetwork(nn.Module):
 		x = self.z_linear_1(feature_vector)
 		x = self.ReLU(x)
 		x = self.z_linear_2(x)
-		#x = torch.exp(x)
+		x = torch.exp(x)
   
 		return x
 
 	def forward_cnn(self, x):
 		features_real = self.EncoderReal(x)
-		features_real = self.AvgPool(features_real).reshape(-1, 512)
+		features_real = self.AvgPool(features_real).reshape(-1, 512 * 3)
 
 		return features_real
 
-	def forward(self, x):
-
+	def forward(self, images_real, images_rendered):
+		x = torch.cat([images_real, images_rendered], dim=1)
 		feature_vector = self.forward_cnn(x)
 
-		#z_output = self.forward_z_linear(feature_vector[..., :512])
-		#xy_output = self.forward_xy_linear(feature_vector[..., 512:1024])
-		rotation_output = self.forward_rotation_linear(feature_vector)
-		#translation_output = torch.cat([xy_output, z_output], dim=-1)
+		z_output = self.forward_z_linear(feature_vector[..., :512])
+		xy_output = self.forward_xy_linear(feature_vector[..., 512:1024])
+		rotation_output = self.forward_rotation_linear(feature_vector[..., 1024:])
   
-		return rotation_output
+		translation_output = torch.cat([xy_output, z_output], dim=-1)
+  
+		return translation_output, rotation_output
 
 
 if __name__ == "__main__":

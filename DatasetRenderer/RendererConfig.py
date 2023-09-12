@@ -13,4 +13,4 @@ OBJECT_TYPE = "Chassis"
 CAM_DATA_FILE = "camera_data_1.json"
 IMG_SIZE = 224
 UVW_RANGE = 256
-DATA_AMOUNT = {"Training": 32, "Validation": 4}
+DATA_AMOUNT = {"Training": 10000, "Validation": 2000}

@@ -160,8 +160,7 @@ class Dataset(torch.utils.data.Dataset):
 			path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
 			self.index = index
 			image_real = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
-			#mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
-			#image_real = image_real * np.expand_dims(mask, axis=-1)
+
 			json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
 			
 			real_pose = json_data["Pose"]
@@ -179,9 +178,10 @@ class Dataset(torch.utils.data.Dataset):
 			trans_matrix_rendered = self.transformations.get_transformation_matrix_from_pose(rendered_pose)
 			
 			image_real = self.crop_and_resize(image_real, rendered_bbox)
+			#cv2.imshow("images", np.concatenate([image_real, rendered_image]))
+			#cv2.waitKey(0)
 			"""print(real_pose["TransX"] - rendered_pose["TransX"], real_pose["TransY"] - rendered_pose["TransY"], real_pose["TransZ"] - rendered_pose["TransZ"])
-			cv2.imshow("images", np.concatenate([image_real, rendered_image]))
-			cv2.waitKey(0)"""
+			"""
 			"""trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
 
 			coarse_pose1 = self.distort_target_pose(target_pose)
