@@ -223,7 +223,7 @@ class DatasetRenderer:
 		self.io.save_json_file(path, json_data)
 	
 	def render_dataset(self):
-		for subset in ["Training"]#, "Validation"]:
+		for subset in ["Training"]:#, "Validation"]:
 			for data_index in range(4316, 4317):
 				pose6d = self.sample_pose()
 				transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
