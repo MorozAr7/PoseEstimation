@@ -91,9 +91,9 @@ class ProjectionLoss(nn.Module):
         elif self.ProjectionType == "2D":
             transformed_pc_prediction = self.camera_intrinsic @ transformed_pc_prediction
             transformed_pc_target = self.camera_intrinsic @ transformed_pc_target
-
-            xy_projected_predicted = transformed_pc_prediction[:, :2, :] / (transformed_pc_prediction[:, 2:3, :] + 1e-4)
-            xy_projected_target = transformed_pc_target[:, :2, :] / (transformed_pc_target[:, 2:3, :] + 1e-4)
+            #transformed_pc_prediction[:, 2:3, :][.where(homogenous_coords_2d[2, :] == 0)] = 1
+            xy_projected_predicted = transformed_pc_prediction[:, :2, :] / (transformed_pc_prediction[:, 2:3, :] + 1)
+            xy_projected_target = transformed_pc_target[:, :2, :] / (transformed_pc_target[:, 2:3, :] + 1)
             if vis:
                 self.visualize_projection(xy_projected_predicted, xy_projected_target)
             return self.L1_loss(xy_projected_predicted, xy_projected_target)
