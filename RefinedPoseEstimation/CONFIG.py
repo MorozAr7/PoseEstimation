@@ -12,10 +12,10 @@ sys.path.insert(1, CURR_DIR_PATH)
 CUDA_DEVICE = 2
 DEVICE = "mps" if getattr(torch, 'has_mps', False) else CUDA_DEVICE if torch.cuda.is_available() else "cpu"
 LR = 0.0002
-BATCH_SIZE = 1
-NUM_DATA = {"Training": 32, "Validation": 2}
+BATCH_SIZE = 256
+NUM_DATA = {"Training": 10000, "Validation": 2000}
 NUM_EPOCHS = 1000
-USE_AUGMENTATION = False
+USE_AUGMENTATION = True
 PROJECTION_TYPE_LOSS = "2D"
 DISENTANGLED_LOSS = True
 MODEL_NAME = ""

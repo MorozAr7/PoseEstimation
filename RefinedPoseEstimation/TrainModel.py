@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore")
 
 
 def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_training=True, epoch=0):
-	pose_refiner_model.eval() if is_training else pose_refiner_model.eval()
+	pose_refiner_model.train() if is_training else pose_refiner_model.eval()
 	epoch_loss_rotation = 0
 	epoch_loss_translation_z = 0
 	epoch_loss_translation_xy = 0
@@ -54,8 +54,8 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 				loss = loss_total
 				epoch_loss_rotation += loss_total.item()
     
-			#loss.backward()
-			#optimizer.step()
+			loss.backward()
+			optimizer.step()
 
 			torch.cuda.empty_cache()
 
@@ -126,7 +126,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelPureRotation"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelPrijection2d"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
  
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelPureRotation.pt", map_location="cpu"))
+	#pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelPureRotation.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")

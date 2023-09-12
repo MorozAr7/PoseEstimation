@@ -18,7 +18,7 @@ class TransposeConvBnActiv(nn.Module):
 		if self.apply_bn:
 			self.BN = nn.BatchNorm2d(num_features=out_channels)
 		if self.apply_relu:
-			self.Activation = nn.ReLU(inplace=True)
+			self.Activation = nn.SiLU(inplace=True)
 
 	def forward(self, x):
 
@@ -51,7 +51,7 @@ class ConvBnActiv(nn.Module):
 		if apply_bn:
 			self.BN = nn.BatchNorm2d(num_features=out_channels)
 		if apply_activation:
-			self.Activation = nn.ReLU(inplace=True) if activ_type == "silu" else nn.PReLU(num_parameters=out_channels)
+			self.Activation = nn.SiLU(inplace=True) if activ_type == "silu" else nn.PReLU(num_parameters=out_channels)
 
 	def forward(self, x):
 
@@ -109,7 +109,7 @@ class DepthWiseConvResidualBlock(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-	def __init__(self, in_channels, out_channels, apply_activ=False):
+	def __init__(self, in_channels, out_channels, apply_activ=True):
 		super(ResidualBlock, self).__init__()
 		self.apply_activ = apply_activ
   
@@ -117,7 +117,7 @@ class ResidualBlock(nn.Module):
 		self.Conv2 = ConvBnActiv(in_channels=in_channels, out_channels=out_channels, apply_activation=False)
   
 		if self.apply_activ:
-			self.Activation = nn.ReLU(inplace=True)
+			self.Activation = nn.SiLU(inplace=True)
 
 	def forward(self, x):
 		residual = x

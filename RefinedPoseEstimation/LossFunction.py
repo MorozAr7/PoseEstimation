@@ -57,7 +57,7 @@ class ProjectionLoss(nn.Module):
         T_updated[..., :2, -1] = updated_xy
         T_updated[..., 2:3, -1] = updated_z
         
-        return self.compute_projection_loss(T_target, T_updated, vis=True)
+        return self.compute_projection_loss(T_target, T_updated, vis=False)
     
     
     def visualize_projection(self, xy_projected_prediction, xy_projected_target):

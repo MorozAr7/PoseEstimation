@@ -159,7 +159,7 @@ class Dataset(torch.utils.data.Dataset):
 		try:
 			path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
 			self.index = index
-			image_real = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
+			real_image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
 
 			json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
 			
@@ -177,7 +177,7 @@ class Dataset(torch.utils.data.Dataset):
 			trans_matrix_real = self.transformations.get_transformation_matrix_from_pose(real_pose)
 			trans_matrix_rendered = self.transformations.get_transformation_matrix_from_pose(rendered_pose)
 			
-			image_real = self.crop_and_resize(image_real, rendered_bbox)
+			real_image = self.crop_and_resize(real_image, rendered_bbox)
 			#cv2.imshow("images", np.concatenate([image_real, rendered_image]))
 			#cv2.waitKey(0)
 			"""print(real_pose["TransX"] - rendered_pose["TransX"], real_pose["TransY"] - rendered_pose["TransY"], real_pose["TransZ"] - rendered_pose["TransZ"])
@@ -200,11 +200,11 @@ class Dataset(torch.utils.data.Dataset):
 			refinement_image1 = self.crop_and_resize(refinement_image1, bbox_crop)"""
 				
 			if self.data_augmentation:
-				image_real = self.data_augmentation(image=image_real)["image"]
-			image_tensor = NormalizeToTensor(image=image_real)["image"]
-			refinement_image_tensor1 = NormalizeToTensor(image=rendered_image)["image"]
+				real_image = self.data_augmentation(image=real_image)["image"]
+			image_tensor = NormalizeToTensor(image=real_image)["image"]
+			rendered_image_tensor = NormalizeToTensor(image=rendered_image)["image"]
 
-			return image_tensor, refinement_image_tensor1, \
+			return image_tensor, rendered_image_tensor, \
 				torch.tensor(trans_matrix_real, dtype=torch.float32), \
 				torch.tensor(trans_matrix_rendered, dtype=torch.float32)
 		except Exception as e:
