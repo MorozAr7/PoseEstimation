@@ -1,6 +1,5 @@
 import os
 import sys
-
 CURR_DIR_PATH = sys.path[0]
 MAIN_DIR_PATH = ""
 for i in CURR_DIR_PATH.split("/")[:-1]:
@@ -43,8 +42,8 @@ class DatasetRenderer:
 		self.pose_ranges = {"RotX": (-180, 180),
 		                    "RotY": (-180, 180),
 		                    "RotZ": (-180, 180),
-		                    "TransX": (-120, 120),
-		                    "TransY": (-70, 70),
+		                    "TransX": (-100, 100),
+		                    "TransY": (-50, 50),
 		                    "TransZ": (500, 1000)}
 
 		self.noise_threshold = 2
@@ -222,21 +221,15 @@ class DatasetRenderer:
 				self.io.save_numpy_file(path, data)
 		path = DATASET_PATH + subset + "/" + "Pose" + "/data_{}.json".format(index)
 		self.io.save_json_file(path, json_data)
-
-	def render_batch(self, index_start, subset):
-		for index in range(index_start, index_start + self.batch_size):
-			pose6d = self.sample_pose()
-			transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
-			rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
-			self.save_data(rendered_image_dict, index, subset)
-			print("{} image number {}/{} has been rendered".format(subset, index + 1, DATA_AMOUNT[subset])) 
-   
+	
 	def render_dataset(self):
-		self.batch_size = 250
-		for subset in ["Training", "Validation"]:
-			for data_index in range(0, DATA_AMOUNT[subset], self.batch_size):
-				self.render_batch(data_index, subset)
-				
+		for subset in ["Training"]#, "Validation"]:
+			for data_index in range(4316, 4317):
+				pose6d = self.sample_pose()
+				transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
+				rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
+				self.save_data(rendered_image_dict, data_index, subset)
+				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset])) 
 
 
 if __name__ == "__main__":
