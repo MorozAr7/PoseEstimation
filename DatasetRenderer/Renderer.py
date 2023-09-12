@@ -1,7 +1,6 @@
 import os
 import sys
 
-from torch import rand
 CURR_DIR_PATH = sys.path[0]
 MAIN_DIR_PATH = ""
 for i in CURR_DIR_PATH.split("/")[:-1]:
