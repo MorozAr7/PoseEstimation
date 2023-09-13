@@ -44,6 +44,7 @@ class ProjectionLoss(nn.Module):
     def get_z_loss(self, updated_z, T_target):
         T_updated = T_target.clone()
         T_updated[..., 2:3, -1] = updated_z
+        #print(T_updated[..., 2:3, -1])
         return self.compute_projection_loss(T_target, T_updated)
     
     def get_R_loss(self, updated_R, T_target):
@@ -56,7 +57,7 @@ class ProjectionLoss(nn.Module):
         T_updated[..., :3, :3] = updated_R
         T_updated[..., :2, -1] = updated_xy
         T_updated[..., 2:3, -1] = updated_z
-        
+        #print(T_updated, T_target)
         return self.compute_projection_loss(T_target, T_updated, vis=False)
     
     
@@ -69,7 +70,7 @@ class ProjectionLoss(nn.Module):
         y_target = np.clip(xy_projected_target[:, 1], 0, self.height - 1)
         x_target = np.clip(xy_projected_target[:, 0], 0, self.width - 1)
         
-        print(np.max(xy_projected_target), np.min(xy_projected_target))
+        #print(np.max(xy_projected_target), np.min(xy_projected_target))
         frame_prediction = np.zeros(shape=(self.height, self.width))
         frame_target = np.zeros(shape=(self.height, self.width))
         
@@ -85,16 +86,20 @@ class ProjectionLoss(nn.Module):
     def compute_projection_loss(self, T_target, T_coarse_updated, vis=False):
         transformed_pc_prediction = T_coarse_updated @ self.homogenous_point_cloud
         transformed_pc_target = T_target @ self.homogenous_point_cloud
-        
+       # print("Prediction T", transformed_pc_prediction[:, :2, :])
+       # print("Target T", torch.min(transformed_pc_target[:, :2, :])
         if self.ProjectionType == "3D":
             return self.L1_loss(transformed_pc_prediction[:, :3, :], transformed_pc_target[:, :3, :])
         elif self.ProjectionType == "2D":
-            transformed_pc_prediction = self.camera_intrinsic @ transformed_pc_prediction
-            transformed_pc_target = self.camera_intrinsic @ transformed_pc_target
-            #transformed_pc_prediction[:, 2:3, :][torch.where(transformed_pc_prediction[:, 2:3, :] == 0)] = 1
-            #transformed_pc_target[:, 2:3, :][torch.where(transformed_pc_target[:, 2:3, :] == 0)] = 1
-            xy_projected_predicted = transformed_pc_prediction[:, :3, :]# / (transformed_pc_prediction[:, 2:3, :])
-            xy_projected_target = transformed_pc_target[:, :3, :]# / (transformed_pc_target[:, 2:3, :])
+            transformed_camera_pc_prediction = self.camera_intrinsic @ transformed_pc_prediction
+            transformed_camera_pc_target = self.camera_intrinsic @ transformed_pc_target
+            
+            transformed_camera_pc_prediction[:, 2:3, :][torch.where(transformed_pc_prediction[:, 2:3, :] == 0)] = 1
+            transformed_camera_pc_target[:, 2:3, :][torch.where(transformed_pc_target[:, 2:3, :] == 0)] = 1
+      
+            xy_projected_predicted = transformed_camera_pc_prediction[:, :2, :] / (transformed_camera_pc_prediction[:, 2:3, :])
+            xy_projected_target = transformed_camera_pc_target[:, :2, :] / (transformed_camera_pc_target[:, 2:3, :])
+            
             if vis:
                 self.visualize_projection(xy_projected_predicted, xy_projected_target)
             return self.L1_loss(xy_projected_predicted, xy_projected_target)

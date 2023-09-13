@@ -40,7 +40,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			predicted_translation, predicted_rotation = pose_refiner_model(images_real, images_rendered)
 			#t_coarse = T_coarse[..., 0:3, -1]
 			#t_target = T_target[..., 0:3, -1]
-
+			#print(T_target, T_coarse)
 			loss_data = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
 			loss_R, loss_xy, loss_z, loss_total = loss_data["LossR"], loss_data["LossXY"], loss_data["LossZ"], loss_data["LossTotal"]
    
@@ -126,7 +126,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelPrijection2d"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelPrijection2D2D"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
@@ -149,8 +149,8 @@ if __name__ == "__main__":
 	subset = "Validation"
 	validation_dataset = Dataset(subset, NUM_DATA[subset], dataset_renderer, None)
 
-	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
-	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)
+	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
+	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
 
 	main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, l1_loss_function)
 	
