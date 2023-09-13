@@ -32,7 +32,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			images_rendered = images_rendered.to(DEVICE)
 			#print(images_real.shape, images_rendered.shape)
 			visualize = 255 * torch.cat([images_real, images_rendered], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
-			cv2.imwrite("image_test_1.png".format(epoch), visualize[0].astype(np.uint8))
+			cv2.imwrite("image_test_2.png".format(epoch), visualize[0].astype(np.uint8))
    
 			T_target = T_target.to(DEVICE)
 			T_coarse = T_coarse.to(DEVICE)
@@ -126,7 +126,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelPrijection2D2D"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelPrijection2d"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
