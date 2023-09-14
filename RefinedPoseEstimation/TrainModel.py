@@ -127,7 +127,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2dDisentangledAndEntagledLoss"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelProjection2dDisentangledAndEntagledLoss"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
@@ -137,7 +137,7 @@ if __name__ == "__main__":
  
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelPrijection2d.pt", map_location="cpu"))
+	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModelPrijection2d.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
@@ -150,8 +150,8 @@ if __name__ == "__main__":
 	subset = "Validation"
 	validation_dataset = Dataset(subset, NUM_DATA[subset], dataset_renderer, None)
 
-	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)#, num_workers=32)
-	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)#, num_workers=32)
+	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
+	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
 
 	main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, l1_loss_function)
 	
