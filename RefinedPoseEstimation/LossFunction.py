@@ -57,7 +57,6 @@ class ProjectionLoss(nn.Module):
         T_updated[..., :3, :3] = updated_R
         T_updated[..., :2, -1] = updated_xy
         T_updated[..., 2:3, -1] = updated_z
-        #print(T_updated, T_target)
         return self.compute_projection_loss(T_target, T_updated, vis=False)
     
     
@@ -86,8 +85,7 @@ class ProjectionLoss(nn.Module):
     def compute_projection_loss(self, T_target, T_coarse_updated, vis=False):
         transformed_pc_prediction = T_coarse_updated @ self.homogenous_point_cloud
         transformed_pc_target = T_target @ self.homogenous_point_cloud
-       # print("Prediction T", transformed_pc_prediction[:, :2, :])
-       # print("Target T", torch.min(transformed_pc_target[:, :2, :])
+ 
         if self.ProjectionType == "3D":
             return self.L1_loss(transformed_pc_prediction[:, :3, :], transformed_pc_target[:, :3, :])
         elif self.ProjectionType == "2D":
@@ -114,7 +112,7 @@ class ProjectionLoss(nn.Module):
         updated_z = self.get_updated_depth(cnn_translation[..., 2:], t_coarse)
         updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
         updated_R = self.get_updated_rotation(cnn_rotation, R_coarse)
-        
+        #print(updated_xy, T_target[..., :2, -1], T_coarse[..., :2, -1])
         if self.disentangle:
             loss_xy = self.get_xy_loss(updated_xy, T_target)/self.num_points
             loss_z = self.get_z_loss(updated_z, T_target)/self.num_points
