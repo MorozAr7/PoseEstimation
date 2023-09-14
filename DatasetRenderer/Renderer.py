@@ -224,7 +224,7 @@ class DatasetRenderer:
 	
 	def render_dataset(self):
 		for subset in ["Training", "Validation"]:
-			for data_index in range(0, DATA_AMOUNT[subset]):
+			for data_index in range(9620 if subset == "Training" else 0, DATA_AMOUNT[subset]):
 				pose6d = self.sample_pose()
 				transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
 				rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
