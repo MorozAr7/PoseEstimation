@@ -102,7 +102,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 def main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, loss_function) -> None:
 
 	smallest_loss = float("inf")
-	for epoch in range(60, NUM_EPOCHS):
+	for epoch in range(1, NUM_EPOCHS):
 		since: float = time.time()
 		change_learning_rate(optimizer, epoch, LR_DECAY_EPOCHS, LR_DECAY_FACTOR)
 		train_l_rotation, train_l_xy, train_l_z = one_epoch(
