@@ -43,7 +43,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			loss_R, loss_xy, loss_z, loss_total = loss_data["LossR"], loss_data["LossXY"], loss_data["LossZ"], loss_data["LossTotal"]
    
 			if LOSS_TYPE == 0:
-				loss = loss_R + loss_xy + loss_z
+				loss = LOSS_WEIGHTS["R"] * loss_R + LOSS_WEIGHTS["XY"] * loss_xy + LOSS_WEIGHTS["Z"] * loss_z
 				epoch_loss_rotation += loss_total.item()
 				epoch_loss_translation_xy += loss_xy.item()
 				epoch_loss_translation_z += loss_z.item()
@@ -81,7 +81,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 				loss_R, loss_xy, loss_z, loss_total = loss_data["LossR"], loss_data["LossXY"], loss_data["LossZ"], loss_data["LossTotal"]
 				
 				if LOSS_TYPE == 0:
-					loss = loss_R + loss_xy + loss_z
+					loss = LOSS_WEIGHTS["R"] * loss_R + LOSS_WEIGHTS["XY"] * loss_xy + LOSS_WEIGHTS["Z"] * loss_z
 					epoch_loss_rotation += loss_total.item()
 					epoch_loss_translation_xy += loss_xy.item()
 					epoch_loss_translation_z += loss_z.item()
@@ -113,7 +113,6 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		                           is_training=True,
 		                           epoch=epoch
 		                           )
-
 		valid_l_rotation, valid_l_xy, valid_l_z = one_epoch(
 		                           pose_refiner_model,
 		                           optimizer,
@@ -128,7 +127,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelProjection2D_DISENTANGLEDLoss_MoreData"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelProjection2Dweighted"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
@@ -138,7 +137,7 @@ if __name__ == "__main__":
  
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModelProjection2D_DISENTANGLEDLoss_MoreData.pt", map_location="cpu"))
+	pose_refiner_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2d.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
@@ -146,6 +145,7 @@ if __name__ == "__main__":
  
 	optimizer = torch.optim.Adam(lr=LR, params=pose_refiner_model.parameters())
 	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE, projection_type=PROJECTION_TYPE_LOSS, disentangle=LOSS_TYPE)
+ 
 	subset = "Training"
 	train_dataset = Dataset(subset, NUM_DATA[subset], dataset_renderer, PoseEstimationAugmentation if USE_AUGMENTATION else None)
 	subset = "Validation"

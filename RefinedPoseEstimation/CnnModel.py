@@ -69,7 +69,6 @@ class PoseRefinementNetwork(nn.Module):
 		self.rotation_linear_2 = nn.Linear(256, 6)
 
 		self.ReLU = nn.ReLU()
-		self.Tanh = nn.Tanh()
   
 	def orthonormalization(self, rotation_output):
 		v1 = rotation_output[..., :3]
