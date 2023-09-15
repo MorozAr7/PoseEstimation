@@ -93,9 +93,9 @@ def generate_refinement_image(subset, index):
         
 
 def generate_refinements_dataset():
-    for index in range(0, 10000):
+    for index in range(10000, 25000):
         generate_refinement_image(subset='Training', index=index)
-    for index in range(0, 2000):
+    for index in range(2000, 5000):
         generate_refinement_image(subset='Validation', index=index)
 
 
