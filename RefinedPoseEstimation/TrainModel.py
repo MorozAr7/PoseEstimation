@@ -19,7 +19,7 @@ warnings.filterwarnings("ignore")
 
 
 def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_training=True, epoch=0):
-	pose_refiner_model.eval() if is_training else pose_refiner_model.eval()
+	pose_refiner_model.train() if is_training else pose_refiner_model.eval()
 	epoch_loss_rotation = 0
 	epoch_loss_translation_z = 0
 	epoch_loss_translation_xy = 0
@@ -30,7 +30,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			optimizer.zero_grad()
 			images_real = images_real.to(DEVICE)
 			images_rendered = images_rendered.to(DEVICE)
-			#print(images_real.shape, images_rendered.shape)
+	
 			visualize = 255 * torch.cat([images_real, images_rendered], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
 			cv2.imwrite("image_test_2.png".format(epoch), visualize[0].astype(np.uint8))
    
@@ -38,21 +38,23 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			T_coarse = T_coarse.to(DEVICE)
 
 			predicted_translation, predicted_rotation = pose_refiner_model(images_real, images_rendered)
-			#t_coarse = T_coarse[..., 0:3, -1]
-			#t_target = T_target[..., 0:3, -1]
-			#print(T_target, T_coarse)
+
 			loss_data = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
 			loss_R, loss_xy, loss_z, loss_total = loss_data["LossR"], loss_data["LossXY"], loss_data["LossZ"], loss_data["LossTotal"]
    
-			if DISENTANGLED_LOSS:
-				loss = loss_R + loss_xy + loss_z + loss_total
-				#loss = loss_total
+			if LOSS_TYPE == 0:
+				loss = loss_R + loss_xy + loss_z
 				epoch_loss_rotation += loss_total.item()
 				epoch_loss_translation_xy += loss_xy.item()
 				epoch_loss_translation_z += loss_z.item()
-			else:
+			elif LOSS_TYPE == 1:
 				loss = loss_total
 				epoch_loss_rotation += loss_total.item()
+			elif LOSS_TYPE == 2:
+				loss = loss_R + loss_xy + loss_z + loss_total
+				epoch_loss_rotation += loss_total.item()
+				epoch_loss_translation_xy += loss_xy.item()
+				epoch_loss_translation_z += loss_z.item()
     
 			loss.backward()
 			optimizer.step()
@@ -69,29 +71,28 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 				optimizer.zero_grad()
 				images_real = images_real.to(DEVICE)
 				images_rendered = images_rendered.to(DEVICE)
-				#print(images_real.shape, images_rendered.shape)
-				#visualize = 255 * torch.cat([images_real, images_rendered], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
-				#cv2.imwrite("image_test_1.png".format(epoch), visualize[0].astype(np.uint8))
 	
 				T_target = T_target.to(DEVICE)
 				T_coarse = T_coarse.to(DEVICE)
 
 				predicted_translation, predicted_rotation = pose_refiner_model(images_real, images_rendered)
-				#t_coarse = T_coarse[..., 0:3, -1]
-				#t_target = T_target[..., 0:3, -1]
 
 				loss_data = loss_function(predicted_translation, predicted_rotation, T_coarse, T_target)
 				loss_R, loss_xy, loss_z, loss_total = loss_data["LossR"], loss_data["LossXY"], loss_data["LossZ"], loss_data["LossTotal"]
 				
-				if DISENTANGLED_LOSS:
-					loss = loss_R + loss_xy + loss_z
-					loss = loss_total
-					epoch_loss_rotation += loss.item()
-					epoch_loss_translation_xy += loss_xy.item()
-					epoch_loss_translation_z += loss_z.item()
-				else:
-					loss = loss_total
-					epoch_loss_rotation += loss_total.item()
+			if LOSS_TYPE == 0:
+				loss = loss_R + loss_xy + loss_z
+				epoch_loss_rotation += loss_total.item()
+				epoch_loss_translation_xy += loss_xy.item()
+				epoch_loss_translation_z += loss_z.item()
+			elif LOSS_TYPE == 1:
+				loss = loss_total
+				epoch_loss_rotation += loss_total.item()
+			elif LOSS_TYPE == 2:
+				loss = loss_R + loss_xy + loss_z + loss_total
+				epoch_loss_rotation += loss_total.item()
+				epoch_loss_translation_xy += loss_xy.item()
+				epoch_loss_translation_z += loss_z.item()
      
 				torch.cuda.empty_cache()
 
@@ -127,7 +128,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelProjection2dDisentangledAndEntagledLoss"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelProjection2DdisentangleLossMoreData"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
@@ -144,7 +145,7 @@ if __name__ == "__main__":
 	point_cloud_torch = torch.tensor(point_cloud).float().to(DEVICE)
  
 	optimizer = torch.optim.Adam(lr=LR, params=pose_refiner_model.parameters())
-	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE, projection_type=PROJECTION_TYPE_LOSS, disentangle=DISENTANGLED_LOSS)
+	l1_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE, projection_type=PROJECTION_TYPE_LOSS, disentangle=LOSS_TYPE)
 	subset = "Training"
 	train_dataset = Dataset(subset, NUM_DATA[subset], dataset_renderer, PoseEstimationAugmentation if USE_AUGMENTATION else None)
 	subset = "Validation"

@@ -44,7 +44,6 @@ class ProjectionLoss(nn.Module):
     def get_z_loss(self, updated_z, T_target):
         T_updated = T_target.clone()
         T_updated[..., 2:3, -1] = updated_z
-        #print(T_updated[..., 2:3, -1])
         return self.compute_projection_loss(T_target, T_updated)
     
     def get_R_loss(self, updated_R, T_target):
