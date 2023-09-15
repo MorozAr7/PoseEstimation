@@ -112,16 +112,11 @@ class ProjectionLoss(nn.Module):
         updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
         updated_R = self.get_updated_rotation(cnn_rotation, R_coarse)
         #print(updated_xy, T_target[..., :2, -1], T_coarse[..., :2, -1])
-        if self.disentangle:
-            loss_xy = self.get_xy_loss(updated_xy, T_target)/self.num_points
-            loss_z = self.get_z_loss(updated_z, T_target)/self.num_points
-            loss_R = self.get_R_loss(updated_R, T_target)/self.num_points
-            loss_projection = self.get_total_loss(updated_xy, updated_z, updated_R, T_target)/self.num_points
-            loss_data = {"LossR": loss_R, "LossXY": loss_xy, "LossZ": loss_z, "LossTotal": loss_projection}
-        
-            return loss_data
-        else:
-            loss_projection = self.get_total_loss(updated_xy, updated_z, updated_R, T_target)/self.num_points
-            loss_data = {"LossR": None, "LossXY": None, "LossZ": None, "LossTotal": loss_projection}
-            
-            return loss_data
+
+        loss_xy = self.get_xy_loss(updated_xy, T_target)/self.num_points
+        loss_z = self.get_z_loss(updated_z, T_target)/self.num_points
+        loss_R = self.get_R_loss(updated_R, T_target)/self.num_points
+        loss_projection = self.get_total_loss(updated_xy, updated_z, updated_R, T_target)/self.num_points
+        loss_data = {"LossR": loss_R, "LossXY": loss_xy, "LossZ": loss_z, "LossTotal": loss_projection}
+    
+        return loss_data
