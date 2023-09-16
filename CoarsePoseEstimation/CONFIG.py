@@ -9,10 +9,11 @@ for i in CURR_DIR_PATH.split("/")[:-1]:
 sys.path.insert(0, MAIN_DIR_PATH)
 sys.path.insert(1, CURR_DIR_PATH)
 
-CUDA_DEVICE = 5
+CUDA_DEVICE = 7
 DEVICE = "mps" if getattr(torch, 'has_mps', False) else CUDA_DEVICE if torch.cuda.is_available() else "cpu"
-LEARNING_RATE = 0.0005
+LEARNING_RATE = 0.001
+NUM_EPOCHS = 500
 BATCH_SIZE = 40
 SAVE_MODEL = True
-SUBSET_NUM_DATA = {"Training": 16, "Validation": 1}
+SUBSET_NUM_DATA = {"Training": 50000, "Validation": 5000}
 

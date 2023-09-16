@@ -95,9 +95,10 @@ class Dataset(torch.utils.data.Dataset):
 
 		image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
 		mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
-		u_map = self.io.load_numpy_file(path + "Umap/" + "data_{}.np".format(index))
-		v_map = self.io.load_numpy_file(path + "Vmap/" + "data_{}.np".format(index))
-		w_map = self.io.load_numpy_file(path + "Wmap/" + "data_{}.np".format(index))
+		uvw_map = self.io.load_numpy_file(path + "UVWmap/" + "data_{}.np".format(index))
+		u_map = uvw_map[..., 0]#self.io.load_numpy_file(path + "Umap/" + "data_{}.np".format(index))
+		v_map = uvw_map[..., 1]#self.io.load_numpy_file(path + "Vmap/" + "data_{}.np".format(index))
+		w_map = uvw_map[..., 2]#self.io.load_numpy_file(path + "Wmap/" + "data_{}.np".format(index))
 		json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
 
 		bbox = json_data["Box"]

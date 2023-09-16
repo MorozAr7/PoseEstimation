@@ -18,7 +18,7 @@ def init_weights(m):
 
 
 def change_learning_rate(optimizer, epoch):
-	epochs_to_change = list(range(15, 500, 15))
+	epochs_to_change = list(range(20, 500, 20))
 	if epoch in epochs_to_change:
 		optimizer.param_groups[0]["lr"] /= 2
 
@@ -44,7 +44,7 @@ def init_classification_model():
 	return model
 
 
-def one_epoch(model, optimizer, dataloader, l1_loss_function, is_training=True, epoch=0):
+def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epoch=0):
 	model.train() if is_training else model.eval()
 
 	epoch_loss_l1_u_map = 0
@@ -85,9 +85,9 @@ def one_epoch(model, optimizer, dataloader, l1_loss_function, is_training=True, 
 					cv2.imshow("image", visualize_np[i])
 					cv2.waitKey(0)"""
 
-			loss_u = l1_loss_function(predictions[0] * mask, u_map)
-			loss_v = l1_loss_function(predictions[1] * mask, v_map)
-			loss_w = l1_loss_function(predictions[2] * mask, w_map)
+			loss_u = loss_function(predictions[0] * mask, u_map)
+			loss_v = loss_function(predictions[1] * mask, v_map)
+			loss_w = loss_function(predictions[2] * mask, w_map)
 
 			l1_batch_loss = loss_u + loss_w + loss_v
 
@@ -117,9 +117,9 @@ def one_epoch(model, optimizer, dataloader, l1_loss_function, is_training=True, 
 
 				predictions = model(image)
 
-				loss_u = l1_loss_function(predictions[0] * mask, u_map)
-				loss_v = l1_loss_function(predictions[1] * mask, v_map)
-				loss_w = l1_loss_function(predictions[2] * mask, w_map)
+				loss_u = loss_function(predictions[0] * mask, u_map)
+				loss_v = loss_function(predictions[1] * mask, v_map)
+				loss_w = loss_function(predictions[2] * mask, w_map)
 
 				torch.cuda.empty_cache()
 
@@ -132,7 +132,7 @@ def one_epoch(model, optimizer, dataloader, l1_loss_function, is_training=True, 
 
 def main(model, optimizer, training_dataloader, validation_dataloader, loss_function):
 	smallest_loss = float("inf")
-	for epoch in range(1, 5000):
+	for epoch in range(1, NUM_EPOCHS):
 
 		since = time.time()
 		change_learning_rate(optimizer, epoch)
@@ -150,27 +150,21 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		                                         is_training=False
 		                                         )
 
-		print("Epoch: {}, "
-		      "Train loss u: {}, "
-		      "Train loss v: {}, "
-		      "Train loss w: {}, "
-		      "Valid loss u: {}, "
-		      "Valid loss v: {}, "
-		      "Valid loss w: {}".format(epoch,
-		                                loss_u_t,
-		                                loss_v_t,
-		                                loss_w_t,
-		                                loss_u_v,
-		                                loss_v_v,
-		                                loss_w_v))
+		print(f"Epoch: {epoch}, "
+		      "Train loss u: {loss_u_t}, "
+		      "Train loss v: {loss_v_t}, "
+		      "Train loss w: {loss_w_t}, "
+		      "Valid loss u: {loss_u_v}, "
+		      "Valid loss v: {loss_v_v}, "
+		      "Valid loss w: {loss_w_v}")
 
 		print("EPOCH RUNTIME", time.time() - since)
 
 		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
-			print("SAVING MODEL")
-			#torch.save(model.state_dict(), "{}.pt".format("./CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModel.pt"))
-			print("MODEL WAS SUCCESSFULLY SAVED!")
+		print("SAVING MODEL")
+		torch.save(model.state_dict(), "{}.pt".format("./CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt"))
+		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
@@ -189,7 +183,7 @@ if __name__ == "__main__":
 			      				num_images=list(SUBSET_NUM_DATA.values())[1], 
 				  				data_augmentation=None)
 
-	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
-	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)
+	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
+	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
 
 	main(model, optimizer, training_dataloader, validation_dataloader, loss_function)
