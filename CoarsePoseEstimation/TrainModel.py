@@ -165,13 +165,13 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
 		print("SAVING MODEL")
-		torch.save(model.state_dict(), "{}.pt".format("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt"))
+		torch.save(model.state_dict(), "{}.pt".format("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
 	model = AutoencoderPoseEstimationModel()
-	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt", map_location="cpu"))
+	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
