@@ -201,7 +201,7 @@ class DatasetRenderer:
 
 		
 		rendered_image_dict = {"ImageBackground": image_background,
-								"ImageBlack": image_background,
+								"ImageBlack": image_black,
 		                       "Mask": mask,
                          	   "UVWmap": uvw_map,
 		                       "Box": bbox,
