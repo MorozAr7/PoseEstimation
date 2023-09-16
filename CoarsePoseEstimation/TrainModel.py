@@ -24,7 +24,7 @@ def change_learning_rate(optimizer, epoch):
 
 
 def init_classification_model():
-	weights_path = "./CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModel.pt"
+	weights_path = "./TrainedModels/CoarsePoseEstimatorModel.pt"
 	model = AutoencoderPoseEstimationModel()
 	pretrained_dict = torch.load(weights_path, map_location="cpu")
 
