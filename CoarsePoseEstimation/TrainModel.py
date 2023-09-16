@@ -18,9 +18,9 @@ def init_weights(m):
 
 
 def change_learning_rate(optimizer, epoch):
-	epochs_to_change = list(range(20, 500, 20))
+	epochs_to_change = list(range(25, 500, 25))
 	if epoch in epochs_to_change:
-		optimizer.param_groups[0]["lr"] /= 2
+		optimizer.param_groups[0]["lr"] /= 1.5
 
 
 def init_classification_model():
@@ -64,7 +64,7 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 			w_map = w_map.to(DEVICE)
 
 			predictions = model(image)
-			if epoch == 1:
+			"""if epoch == 1:
 				argmax_u = torch.argmax(predictions[0], dim=1)
 				argmax_v = torch.argmax(predictions[1], dim=1)
 				argmax_w = torch.argmax(predictions[2], dim=1)
@@ -83,7 +83,7 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 					cv2.imshow("img", image[i].permute(1, 2, 0).detach().cpu().numpy())
 					cv2.waitKey(0)
 					cv2.imshow("image", visualize_np[i])
-					cv2.waitKey(0)
+					cv2.waitKey(0)"""
 
 			loss_u = loss_function(predictions[0] * mask, u_map)
 			loss_v = loss_function(predictions[1] * mask, v_map)
