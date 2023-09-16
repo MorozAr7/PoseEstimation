@@ -39,7 +39,6 @@ def init_classification_model():
 			pass
 			#pretrained_dict_updated[key] = torch.nn.init.xavier_uniform_(torch.rand((256, 32, 3, 3), requires_grad=True))
 		else:
-			print("param_loaded")
 			pretrained_dict_updated[key] = value
 
 	model.load_state_dict(pretrained_dict_updated, strict=False)
