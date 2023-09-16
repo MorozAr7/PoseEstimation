@@ -24,7 +24,7 @@ def change_learning_rate(optimizer, epoch):
 
 
 def init_classification_model():
-	weights_path = "./TrainedModels/CoarsePoseEstimationColorAug.pt"
+	weights_path = "./CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModel.pt"
 	model = AutoencoderPoseEstimationModel()
 	pretrained_dict = torch.load(weights_path, map_location="cpu")
 
@@ -34,7 +34,9 @@ def init_classification_model():
 
 	pretrained_dict_updated = {}
 	for key, value in pretrained_dict.items():
-		if "8" in key:
+		print(key)
+		if "ResLayer" in key:
+			print("11")
 			pretrained_dict_updated[key] = torch.nn.init.xavier_uniform_(torch.rand((256, 32, 3, 3), requires_grad=True))
 		else:
 			pretrained_dict_updated[key] = value
@@ -151,12 +153,12 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		                                         )
 
 		print(f"Epoch: {epoch}, "
-		      "Train loss u: {loss_u_t}, "
-		      "Train loss v: {loss_v_t}, "
-		      "Train loss w: {loss_w_t}, "
-		      "Valid loss u: {loss_u_v}, "
-		      "Valid loss v: {loss_v_v}, "
-		      "Valid loss w: {loss_w_v}")
+		      f"Train loss u: {loss_u_t}, "
+		    	f"Train loss v: {loss_v_t}, "
+		      f"Train loss w: {loss_w_t}, "
+		      f"Valid loss u: {loss_u_v}, "
+		      f"Valid loss v: {loss_v_v}, "
+		      f"Valid loss w: {loss_w_v}")
 
 		print("EPOCH RUNTIME", time.time() - since)
 
@@ -168,8 +170,8 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 
 if __name__ == "__main__":
-	model = AutoencoderPoseEstimationModel()#init_classification_model()
-	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModel.pt", map_location="cpu"))
+	model = AutoencoderPoseEstimationModel()
+	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
