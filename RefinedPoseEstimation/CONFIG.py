@@ -15,12 +15,12 @@ LR = 0.0002
 BATCH_SIZE = 320
 
 NUM_DATA = {"Training": 25000, "Validation": 5000}
-NUM_EPOCHS = 1000
+NUM_EPOCHS = 500
 USE_AUGMENTATION = True
 PROJECTION_TYPE_LOSS = "2D"
 LOSS_TYPE = 0 # 0 for disentangled, 1 for entangled, 2 for combined
-LOSS_WEIGHTS = {"R": 1, "XY": 1, "Z" : 5, "T": 1}
+LOSS_WEIGHTS = {"R": 1, "XY": 1, "Z" : 1, "T": 1}
 MODEL_NAME = ""
 
 LR_DECAY_EPOCHS = list(range(100, NUM_EPOCHS, 100))
-LR_DECAY_FACTOR = 1.75
+LR_DECAY_FACTOR = 2.5
