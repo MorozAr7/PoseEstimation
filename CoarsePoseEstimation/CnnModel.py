@@ -12,16 +12,16 @@ class EncoderModel(nn.Module):
 		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
 		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
-		self.ResLayer1 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
-		self.ResLayer2 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
+		self.ResLayer1 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
+		self.ResLayer2 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 
 		self.Conv2 = ConvBnActiv(in_channels=self.layer_channels[2], out_channels=self.layer_channels[3], stride=2)
-		self.ResLayer3 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
-		self.ResLayer4 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+		self.ResLayer3 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+		self.ResLayer4 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
 
 		self.Conv3 = ConvBnActiv(in_channels=self.layer_channels[3], out_channels=self.layer_channels[4], stride=2)
-		self.ResLayer5 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
-		self.ResLayer6 = DepthWiseConvResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+		self.ResLayer5 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+		self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
 		self.Conv4 = ConvBnActiv(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
 		self.DilatedConv1 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[5], dilation_rate=2, padding=2)

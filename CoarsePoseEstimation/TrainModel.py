@@ -34,14 +34,15 @@ def init_classification_model():
 
 	pretrained_dict_updated = {}
 	for key, value in pretrained_dict.items():
-		print(key)
 		if "ResLayer" in key:
-			print("11")
-			pretrained_dict_updated[key] = torch.nn.init.xavier_uniform_(torch.rand((256, 32, 3, 3), requires_grad=True))
+			#print(key)
+			pass
+			#pretrained_dict_updated[key] = torch.nn.init.xavier_uniform_(torch.rand((256, 32, 3, 3), requires_grad=True))
 		else:
+			print("param_loaded")
 			pretrained_dict_updated[key] = value
 
-	model.load_state_dict(pretrained_dict_updated)
+	model.load_state_dict(pretrained_dict_updated, strict=False)
 
 	return model
 
@@ -165,13 +166,13 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
 		print("SAVING MODEL")
-		torch.save(model.state_dict(), "{}.pt".format("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation"))
+		torch.save(model.state_dict(), "{}.pt".format("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
-	model = AutoencoderPoseEstimationModel()
-	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt.pt", map_location="cpu"))
+	model = init_classification_model()#AutoencoderPoseEstimationModel()
+	#model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
