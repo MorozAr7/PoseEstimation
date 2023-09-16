@@ -149,7 +149,7 @@ class DatasetRenderer:
 
 		return background
 
-	def render_image(self, transformation_matrix: np.array, use_constant_light_cond: bool = False, image_black: bool = False, image_background: bool = True) -> dict:
+	def render_image(self, transformation_matrix: np.array, use_constant_light_cond: bool = False, image_black: bool = True, image_background: bool = True) -> dict:
 		if use_constant_light_cond:
 			direction = [0, 0, 0]
 			intensity = 1000
@@ -184,7 +184,7 @@ class DatasetRenderer:
 		x_min, y_min, x_max, y_max = bbox
 		return cv2.resize(full_scale[y_min: y_max, x_min: x_max], (IMG_SIZE, IMG_SIZE))
 
-	def get_image(self, transformation_matrix: np.array = None, pose6d: dict = None, bbox: list = None, image_black: bool = False, image_background: bool = True, UVW: bool = True, constant_light: bool = False):
+	def get_image(self, transformation_matrix: np.array = None, pose6d: dict = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True, constant_light: bool = False):
 		images_dict = self.render_image(transformation_matrix, constant_light, image_black, image_background)
 		image_black = images_dict["black"]
 		image_background = images_dict["background"]
