@@ -18,9 +18,9 @@ def init_weights(m):
 
 
 def change_learning_rate(optimizer, epoch):
-	epochs_to_change = list(range(25, 500, 25))
+	epochs_to_change = list(range(15, 500, 15))
 	if epoch in epochs_to_change:
-		optimizer.param_groups[0]["lr"] /= 1.5
+		optimizer.param_groups[0]["lr"] /= 2
 
 
 def init_classification_model():
