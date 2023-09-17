@@ -48,7 +48,6 @@ def init_classification_model():
 
 def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epoch=0):
 	model.train() if is_training else model.eval()
-
 	epoch_loss_l1_u_map = 0
 	epoch_loss_l1_w_map = 0
 	epoch_loss_l1_v_map = 0
@@ -98,10 +97,19 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 			total_loss.backward()
 			optimizer.step()
 			torch.cuda.empty_cache()
+			mask = mask.reshape(-1, 1, 224, 224)
+   
+			argmax_u = torch.argmax(predictions[0], dim=1).reshape(-1, 1, 224, 224) * mask
+			argmax_v = torch.argmax(predictions[1], dim=1).reshape(-1, 1, 224, 224) * mask
+			argmax_w = torch.argmax(predictions[2], dim=1).reshape(-1, 1, 224, 224) * mask
 
-			epoch_loss_l1_u_map += loss_u.item()
-			epoch_loss_l1_v_map += loss_v.item()
-			epoch_loss_l1_w_map += loss_w.item()
+			diff_u = torch.sum(torch.abs(argmax_u - u_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+			diff_v = torch.sum(torch.abs(argmax_v - v_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+			diff_w = torch.sum(torch.abs(argmax_w - w_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+   
+			epoch_loss_l1_u_map += torch.sum(diff_u).item()
+			epoch_loss_l1_v_map += torch.sum(diff_v).item()
+			epoch_loss_l1_w_map += torch.sum(diff_w).item()
 
 		return epoch_loss_l1_u_map / (len(train_dataset)), epoch_loss_l1_v_map / (len(train_dataset)), epoch_loss_l1_w_map / (len(train_dataset))
 	else:
@@ -125,16 +133,26 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 
 				torch.cuda.empty_cache()
 
-				epoch_loss_l1_u_map += loss_u.item()
-				epoch_loss_l1_v_map += loss_v.item()
-				epoch_loss_l1_w_map += loss_w.item()
+				mask = mask.reshape(-1, 1, 224, 224)
+   
+				argmax_u = torch.argmax(predictions[0], dim=1).reshape(-1, 1, 224, 224) * mask
+				argmax_v = torch.argmax(predictions[1], dim=1).reshape(-1, 1, 224, 224) * mask
+				argmax_w = torch.argmax(predictions[2], dim=1).reshape(-1, 1, 224, 224) * mask
+
+				diff_u = torch.sum(torch.abs(argmax_u - u_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+				diff_v = torch.sum(torch.abs(argmax_v - v_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+				diff_w = torch.sum(torch.abs(argmax_w - w_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+	
+				epoch_loss_l1_u_map += torch.sum(diff_u).item()
+				epoch_loss_l1_v_map += torch.sum(diff_v).item()
+				epoch_loss_l1_w_map += torch.sum(diff_w).item()
 
 			return epoch_loss_l1_u_map / (len(validation_dataset)), epoch_loss_l1_v_map / (len(validation_dataset)), epoch_loss_l1_w_map / (len(validation_dataset))
 
 
 def main(model, optimizer, training_dataloader, validation_dataloader, loss_function):
 	smallest_loss = float("inf")
-	for epoch in range(1, NUM_EPOCHS):
+	for epoch in range(30, NUM_EPOCHS):
 
 		since = time.time()
 		change_learning_rate(optimizer, epoch)
@@ -170,8 +188,8 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 
 if __name__ == "__main__":
-	model = init_classification_model()#AutoencoderPoseEstimationModel()
-	#model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientation.pt.pt", map_location="cpu"))
+	model = AutoencoderPoseEstimationModel()
+	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
