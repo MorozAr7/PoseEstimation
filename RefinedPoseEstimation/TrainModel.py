@@ -138,7 +138,7 @@ if __name__ == "__main__":
  
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModelPrijection2d.pt", map_location="cpu"))
+	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModelProjection2DfasterLRreduction.pt", map_location="cpu"))
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
