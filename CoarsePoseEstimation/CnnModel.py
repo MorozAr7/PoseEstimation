@@ -52,7 +52,7 @@ class EncoderModel(nn.Module):
 class DecoderModel(nn.Module):
 	def __init__(self):
 		super(DecoderModel, self).__init__()
-		self.channel = [256, 192, 128, 64, 32, 256]
+		self.channel = [256, 192, 128, 64, 32, 1]#256]
 
 		self.TransConv1 = TransposeConvBnActiv(in_channels=self.channel[0], out_channels=self.channel[1])
 		self.Conv1 = ConvBnActiv(in_channels=self.channel[1], out_channels=self.channel[1])
@@ -82,7 +82,7 @@ class DecoderModel(nn.Module):
 		x = self.TransConv4(x + skip_connections[1])
 		x = self.Conv7(x + skip_connections[0])
 		x = self.Conv8(x)
-
+		x = self.Sigmoid(x)
 		return x
 
 

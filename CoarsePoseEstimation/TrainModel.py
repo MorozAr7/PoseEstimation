@@ -3,6 +3,7 @@ from CnnModel import AutoencoderPoseEstimationModel
 from LoadDataset import Dataset
 from Utils.DataAugmentationUtils import PoseEstimationAugmentation
 from torch.utils.data import DataLoader
+from LossFunction import MultiscaleSsimLossFunction
 import torch.nn as nn
 import time
 from warnings import filterwarnings
@@ -18,13 +19,13 @@ def init_weights(m):
 
 
 def change_learning_rate(optimizer, epoch):
-	epochs_to_change = list(range(15, 500, 15))
+	epochs_to_change = list(range(25, 500, 25))
 	if epoch in epochs_to_change:
-		optimizer.param_groups[0]["lr"] /= 2
+		optimizer.param_groups[0]["lr"] /= 1.75
 
 
 def init_classification_model():
-	weights_path = "./TrainedModels/CoarsePoseEstimatorModel.pt"
+	weights_path = MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt"
 	model = AutoencoderPoseEstimationModel()
 	pretrained_dict = torch.load(weights_path, map_location="cpu")
 
@@ -34,10 +35,8 @@ def init_classification_model():
 
 	pretrained_dict_updated = {}
 	for key, value in pretrained_dict.items():
-		if "ResLayer" in key:
-			#print(key)
-			pass
-			#pretrained_dict_updated[key] = torch.nn.init.xavier_uniform_(torch.rand((256, 32, 3, 3), requires_grad=True))
+		if "Conv8.Conv.weight" in key:
+			pretrained_dict_updated[key] = torch.nn.init.xavier_uniform_(torch.rand((1, 32, 3, 3), requires_grad=True))
 		else:
 			pretrained_dict_updated[key] = value
 
@@ -46,66 +45,52 @@ def init_classification_model():
 	return model
 
 
-def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epoch=0):
-	model.eval() if is_training else model.eval()
+def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, epoch=0):
+	model.train() if is_training else model.eval()
 	epoch_loss_l1_u_map = 0
 	epoch_loss_l1_w_map = 0
 	epoch_loss_l1_v_map = 0
-
+	l1_loss_function = loss_functions[0]
+	ssim_loss_function = loss_functions[1]
 	if is_training:
 		for index, (image, mask, u_map, v_map, w_map) in enumerate(dataloader):
 			print("BATCH TRAINING: ", index)
 			optimizer.zero_grad()
 
 			image = image.to(DEVICE)
-			mask = mask.to(DEVICE)
+			mask = mask.to(DEVICE).reshape(-1, 1, 224, 224)
 
-			u_map = u_map.to(DEVICE)
-			v_map = v_map.to(DEVICE)
-			w_map = w_map.to(DEVICE)
+			u_map = u_map.to(DEVICE).reshape(-1, 1, 224, 224) / 255
+			v_map = v_map.to(DEVICE).reshape(-1, 1, 224, 224) / 255
+			w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224) / 255
 
 			predictions = model(image)
-			if epoch == 1:
-				argmax_u = torch.argmax(predictions[0], dim=1)
-				argmax_v = torch.argmax(predictions[1], dim=1)
-				argmax_w = torch.argmax(predictions[2], dim=1)
-				visualize_predictions = torch.cat([argmax_u.reshape(-1, 1, 224, 224) * mask, argmax_v.reshape(-1, 1, 224, 224) * mask, argmax_w.reshape(-1, 1, 224, 224) * mask, ], dim=1).reshape(
-					-1,
-					224
-					* 3,
-					224,
-					1)
-				print(argmax_w.shape, mask.shape)
-				visualize_gt = torch.cat([u_map, v_map, w_map], dim=1).reshape(-1, 224 * 3, 224, 1)
 
-				visualize = torch.cat([visualize_gt, visualize_predictions], dim=2)/255  # .resize(8, 128, 128, 1)
-				visualize_np = visualize.detach().cpu().numpy()
-				for i in range(BATCH_SIZE):
-					cv2.imshow("img", image[i].permute(1, 2, 0).detach().cpu().numpy())
-					cv2.waitKey(0)
-					cv2.imshow("image", visualize_np[i])
-					cv2.waitKey(0)
+			l1_u = l1_loss_function(predictions[0] * mask, u_map)
+			l1_v = l1_loss_function(predictions[1] * mask, v_map)
+			l1_w = l1_loss_function(predictions[2] * mask, w_map)
+			
+			ssim_loss_u = ssim_loss_function.get_multiscale_structural_sim_loss(predictions[0] * mask, u_map)
+			ssim_loss_v = ssim_loss_function.get_multiscale_structural_sim_loss(predictions[1] * mask, v_map)
+			ssim_loss_w = ssim_loss_function.get_multiscale_structural_sim_loss(predictions[2] * mask, w_map)
+   
+			grad_ssim_loss_u = ssim_loss_function.get_gradient_ssim_loss(predictions[0] * mask, u_map)
+			grad_ssim_loss_v = ssim_loss_function.get_gradient_ssim_loss(predictions[1] * mask, v_map)
+			grad_ssim_loss_w = ssim_loss_function.get_gradient_ssim_loss(predictions[2] * mask, w_map)
 
-			loss_u = loss_function(predictions[0] * mask, u_map)
-			loss_v = loss_function(predictions[1] * mask, v_map)
-			loss_w = loss_function(predictions[2] * mask, w_map)
+			l1_total = l1_u + l1_v + l1_w
+			ssim_total = ssim_loss_u + ssim_loss_v + ssim_loss_w
+			grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
+			total_loss = 4 * l1_total + ssim_total + grad_total
 
-			l1_batch_loss = loss_u + loss_w + loss_v
-
-			total_loss = l1_batch_loss
-
-			#total_loss.backward()
-			#optimizer.step()
+			total_loss.backward()
+			optimizer.step()
 			torch.cuda.empty_cache()
 			mask = mask.reshape(-1, 1, 224, 224)
-   
-			argmax_u = torch.argmax(predictions[0], dim=1).reshape(-1, 1, 224, 224) * mask
-			argmax_v = torch.argmax(predictions[1], dim=1).reshape(-1, 1, 224, 224) * mask
-			argmax_w = torch.argmax(predictions[2], dim=1).reshape(-1, 1, 224, 224) * mask
 
-			diff_u = torch.sum(torch.abs(argmax_u - u_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
-			diff_v = torch.sum(torch.abs(argmax_v - v_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
-			diff_w = torch.sum(torch.abs(argmax_w - w_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+			diff_u = torch.sum(torch.abs(predictions[0] * mask * 255 - 255 * u_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+			diff_v = torch.sum(torch.abs(predictions[1] * mask * 255 - 255 * v_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+			diff_w = torch.sum(torch.abs(predictions[2] * mask * 255 - 255 * w_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
    
 			epoch_loss_l1_u_map += torch.sum(diff_u).item()
 			epoch_loss_l1_v_map += torch.sum(diff_v).item()
@@ -120,28 +105,21 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 				optimizer.zero_grad()
 
 				image = image.to(DEVICE)
-				mask = mask.to(DEVICE)
-				u_map = u_map.to(DEVICE)
-				v_map = v_map.to(DEVICE)
-				w_map = w_map.to(DEVICE)
+				
+				mask = mask.to(DEVICE).reshape(-1, 1, 224, 224)
+
+				u_map = u_map.to(DEVICE).reshape(-1, 1, 224, 224) / 255
+				v_map = v_map.to(DEVICE).reshape(-1, 1, 224, 224) / 255
+				w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224) / 255
 
 				predictions = model(image)
 
-				loss_u = loss_function(predictions[0] * mask, u_map)
-				loss_v = loss_function(predictions[1] * mask, v_map)
-				loss_w = loss_function(predictions[2] * mask, w_map)
-
 				torch.cuda.empty_cache()
-
 				mask = mask.reshape(-1, 1, 224, 224)
-   
-				argmax_u = torch.argmax(predictions[0], dim=1).reshape(-1, 1, 224, 224) * mask
-				argmax_v = torch.argmax(predictions[1], dim=1).reshape(-1, 1, 224, 224) * mask
-				argmax_w = torch.argmax(predictions[2], dim=1).reshape(-1, 1, 224, 224) * mask
 
-				diff_u = torch.sum(torch.abs(argmax_u - u_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
-				diff_v = torch.sum(torch.abs(argmax_v - v_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
-				diff_w = torch.sum(torch.abs(argmax_w - w_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+				diff_u = torch.sum(torch.abs(predictions[0] * mask * 255 - 255 * u_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+				diff_v = torch.sum(torch.abs(predictions[1] * mask * 255 - 255 * v_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
+				diff_w = torch.sum(torch.abs(predictions[2] * mask * 255 - 255 * w_map.reshape(-1, 1, 224, 224)), dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
 	
 				epoch_loss_l1_u_map += torch.sum(diff_u).item()
 				epoch_loss_l1_v_map += torch.sum(diff_v).item()
@@ -183,18 +161,18 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
 		print("SAVING MODEL")
-		torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt"))
+		torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionNewMeshOrientationNewResLayer.pt"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
-	model = AutoencoderPoseEstimationModel()
-	model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt", map_location="cpu"))
+	model = init_classification_model()#AutoencoderPoseEstimationModel()
+	#model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
 	loss_function = nn.CrossEntropyLoss(reduction="sum")
-
+	loss_functions = [nn.L1Loss(reduction="sum"), MultiscaleSsimLossFunction(DEVICE)]
 	train_dataset = Dataset(subset=list(SUBSET_NUM_DATA.keys())[0], 
 			 				num_images=list(SUBSET_NUM_DATA.values())[0], 
 			 				data_augmentation=PoseEstimationAugmentation)
@@ -203,7 +181,7 @@ if __name__ == "__main__":
 			      				num_images=list(SUBSET_NUM_DATA.values())[1], 
 				  				data_augmentation=None)
 
-	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=1)
-	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=1)
+	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
+	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
 
-	main(model, optimizer, training_dataloader, validation_dataloader, loss_function)
+	main(model, optimizer, training_dataloader, validation_dataloader, loss_functions)
