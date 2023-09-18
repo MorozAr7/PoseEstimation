@@ -29,7 +29,7 @@ class EvaluateOnDataset:
         self.image_size = 224
     
     def init_cnn(self):
-        self.pose_ref_model.load_state_dict(torch.load("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DfasterLRreduction.pt", map_location="cpu"))
+        self.pose_ref_model.load_state_dict(torch.load("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2D_DISENTANGLEDLoss_MoreData.pt", map_location="cpu"))
         
         self.pose_ref_model.to("mps")
         self.pose_ref_model.eval()

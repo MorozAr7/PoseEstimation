@@ -47,7 +47,7 @@ def init_classification_model():
 
 
 def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epoch=0):
-	model.train() if is_training else model.eval()
+	model.eval() if is_training else model.eval()
 	epoch_loss_l1_u_map = 0
 	epoch_loss_l1_w_map = 0
 	epoch_loss_l1_v_map = 0
@@ -65,7 +65,7 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 			w_map = w_map.to(DEVICE)
 
 			predictions = model(image)
-			"""if epoch == 1:
+			if epoch == 1:
 				argmax_u = torch.argmax(predictions[0], dim=1)
 				argmax_v = torch.argmax(predictions[1], dim=1)
 				argmax_w = torch.argmax(predictions[2], dim=1)
@@ -84,7 +84,7 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 					cv2.imshow("img", image[i].permute(1, 2, 0).detach().cpu().numpy())
 					cv2.waitKey(0)
 					cv2.imshow("image", visualize_np[i])
-					cv2.waitKey(0)"""
+					cv2.waitKey(0)
 
 			loss_u = loss_function(predictions[0] * mask, u_map)
 			loss_v = loss_function(predictions[1] * mask, v_map)
@@ -94,8 +94,8 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 
 			total_loss = l1_batch_loss
 
-			total_loss.backward()
-			optimizer.step()
+			#total_loss.backward()
+			#optimizer.step()
 			torch.cuda.empty_cache()
 			mask = mask.reshape(-1, 1, 224, 224)
    
@@ -152,7 +152,7 @@ def one_epoch(model, optimizer, dataloader, loss_function, is_training=True, epo
 
 def main(model, optimizer, training_dataloader, validation_dataloader, loss_function):
 	smallest_loss = float("inf")
-	for epoch in range(30, NUM_EPOCHS):
+	for epoch in range(1, NUM_EPOCHS):
 
 		since = time.time()
 		change_learning_rate(optimizer, epoch)
@@ -183,13 +183,13 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
 		print("SAVING MODEL")
-		torch.save(model.state_dict(), "{}.pt".format("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer"))
+		torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
 	model = AutoencoderPoseEstimationModel()
-	model.load_state_dict(torch.load("./TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt", map_location="cpu"))
+	model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelNewMeshOrientationNewResLayer.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 			      				num_images=list(SUBSET_NUM_DATA.values())[1], 
 				  				data_augmentation=None)
 
-	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
-	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
+	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=1)
+	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=1)
 
 	main(model, optimizer, training_dataloader, validation_dataloader, loss_function)
