@@ -120,7 +120,7 @@ class ResidualBlock(nn.Module):
 			self.Activation = nn.SiLU(inplace=True)
 
 	def forward(self, x):
-		residual = x.copy()
+		residual = x.clone()
 		x = self.Conv1(x)
 		x = self.Conv2(x)
 		if self.apply_activ:
