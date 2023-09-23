@@ -27,7 +27,7 @@ class EncoderModel(nn.Module):
 		self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
 		self.Conv4 = ConvBnActiv(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
-		self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_activation=True, padding=0, apply_bias=True, activ_type="prelu")
+		self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=True, apply_activation=True, padding=0, apply_bias=True, activ_type="prelu")
 		
 	def forward(self, x):
 		x = self.Conv0(x)
