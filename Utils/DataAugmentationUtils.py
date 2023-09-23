@@ -35,4 +35,7 @@ NormalizeToTensor = A.Compose([
 		ToTensorV2()
 ])
 
-
+NormalizeToTensorGray = A.Compose([
+		A.Normalize(0, 1, max_pixel_value=255),
+		ToTensorV2()
+])

@@ -13,6 +13,7 @@ import numpy as np
 import random
 import cv2
 import sys
+import json
 
 
 from Utils.MathUtils import Transformations
@@ -32,13 +33,12 @@ class DatasetRenderer:
 		self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/DensePointCloud250k.npy")
 		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj")
 
-		self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/UVWmapping.json")
+		self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/ChassisUVWmapping.json")
 
 		self.renderer = o3d.visualization.rendering.OffscreenRenderer(self.image_w, self.image_h)
 		self.renderer.scene.add_model(OBJECT_TYPE + "Model", self.model3d)
 
 		self.uvw_coords = self.create_uvw_mapping(self.point_cloud)
-
 		self.pose_ranges = {"RotX": (-180, 180),
 		                    "RotY": (-180, 180),
 		                    "RotZ": (-180, 180),
@@ -109,7 +109,12 @@ class DatasetRenderer:
 		u = np.floor(x_scaled * (UVW_RANGE - 1))
 		v = np.floor(y_scaled * (UVW_RANGE - 1))
 		w = np.floor(z_scaled * (UVW_RANGE - 1))
+		uvw_mapping_dict = dict()
+		"""file = open("ChassisUVWmapping.json", "w")
 
+		for index in range(coords3d.shape[0]):
+			uvw_mapping_dict[str((int(u[index]), int(v[index]), int(w[index])))] = coords3d[index, :].reshape(-1).tolist()
+		json.dump(uvw_mapping_dict, file)"""
 		return u, v, w
 
 	def project_point_cloud(self, coords3d: np.array, transformation_matrix: np.array) -> tuple:
@@ -236,7 +241,7 @@ if __name__ == "__main__":
 	dataset_renderer = DatasetRenderer()
 	#dataset_renderer.sample_point_cloud(5000)
 	#exit()
-	dataset_renderer.render_dataset()
+	#dataset_renderer.render_dataset()
 	"""while True:
 		#sampled_pose = dataset_renderer.sample_pose()
 		#sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}

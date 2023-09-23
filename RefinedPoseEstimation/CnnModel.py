@@ -10,7 +10,7 @@ from CONFIG import DEVICE
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [3 * 2, 32, 64, 128, 256, 512, 512 * 3]
+		self.layer_channels = [2, 32, 64, 128, 256, 512, 512 * 3]
 
 		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 

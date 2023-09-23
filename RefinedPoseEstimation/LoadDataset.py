@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import torch
 from Utils.IOUtils import IOUtils
-from Utils.DataAugmentationUtils import NormalizeToTensor
+from Utils.DataAugmentationUtils import NormalizeToTensorGray
 from Utils.MathUtils import Transformations
 
 
@@ -201,8 +201,10 @@ class Dataset(torch.utils.data.Dataset):
 				
 			if self.data_augmentation:
 				real_image = self.data_augmentation(image=real_image)["image"]
-			image_tensor = NormalizeToTensor(image=real_image)["image"]
-			rendered_image_tensor = NormalizeToTensor(image=rendered_image)["image"]
+			real_image = cv2.cvtColor(real_image, cv2.COLOR_RGB2GRAY)
+			rendered_image = cv2.cvtColor(rendered_image, cv2.COLOR_RGB2GRAY)
+			image_tensor = NormalizeToTensorGray(image=real_image)["image"]
+			rendered_image_tensor = NormalizeToTensorGray(image=rendered_image)["image"]
 
 			return image_tensor, rendered_image_tensor, \
 				torch.tensor(trans_matrix_real, dtype=torch.float32), \

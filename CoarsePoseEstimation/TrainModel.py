@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from LossFunction import MultiscaleSsimLossFunction
 import torch.nn as nn
 import time
+import numpy as np
 from warnings import filterwarnings
 import cv2
 filterwarnings("ignore")
@@ -46,7 +47,7 @@ def init_classification_model():
 
 
 def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, epoch=0):
-	model.train() if is_training else model.eval()
+	model.eval() if is_training else model.eval()
 	epoch_loss_l1_u_map = 0
 	epoch_loss_l1_w_map = 0
 	epoch_loss_l1_v_map = 0
@@ -65,7 +66,19 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 			w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224) / 255
 
 			predictions = model(image)
-
+			vis_u = (predictions[0] * mask).permute(0, 2, 3, 1).detach().cpu().numpy()
+			vis_v = (predictions[1] * mask).permute(0, 2, 3, 1).detach().cpu().numpy()
+			vis_w = (predictions[2] * mask).permute(0, 2, 3, 1).detach().cpu().numpy()
+			vis_u_gt = u_map.permute(0, 2, 3, 1).detach().cpu().numpy()
+			vis_v_gt = v_map.permute(0, 2, 3, 1).detach().cpu().numpy()
+			vis_w_gt = w_map.permute(0, 2, 3, 1).detach().cpu().numpy()
+			visualize_pred = np.concatenate([vis_u, vis_v, vis_w], axis=2)
+			visualize_gt = np.concatenate([vis_u_gt, vis_v_gt, vis_w_gt], axis=2)
+   
+			visualize_all = np.concatenate([visualize_gt, visualize_pred], axis=1)
+			for i in range(image.shape[0]):
+				cv2.imshow("uvw maps", visualize_all[i, ...])
+				cv2.waitKey(0)
 			l1_u = l1_loss_function(predictions[0] * mask, u_map)
 			l1_v = l1_loss_function(predictions[1] * mask, v_map)
 			l1_w = l1_loss_function(predictions[2] * mask, w_map)
@@ -83,8 +96,8 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 			grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
 			total_loss = 4 * l1_total + ssim_total + grad_total
 
-			total_loss.backward()
-			optimizer.step()
+			#total_loss.backward()
+			#optimizer.step()
 			torch.cuda.empty_cache()
 			mask = mask.reshape(-1, 1, 224, 224)
 
@@ -167,7 +180,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 if __name__ == "__main__":
 	model = AutoencoderPoseEstimationModel()
-	model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionNewMeshOrientationNewResLayer.pt.pt", map_location="cpu"))
+	model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionNewMeshOrientationNewResLayer.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())

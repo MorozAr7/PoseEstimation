@@ -111,11 +111,6 @@ class ProjectionLoss(nn.Module):
         updated_z = self.get_updated_depth(cnn_translation[..., 2:], t_coarse)
         updated_xy = self.get_updated_translation(cnn_translation[..., :2], t_coarse, t_target)
         updated_R = self.get_updated_rotation(cnn_rotation, R_coarse)
-        #print(updated_xy.reshape(-1) - T_target[..., :2, -1].reshape(-1))
-        ##print(T_coarse[..., :2, -1].reshape(-1) - T_target[..., :2, -1].reshape(-1))
-        #print(torch.sum(torch.abs(updated_xy.reshape(-1) - T_target[..., :2, -1].reshape(-1))).item()/updated_z.shape[0])
-        #print(T_target[..., 2:3, -1].reshape(-1))
-        #print(T_coarse[..., 2:3, -1].reshape(-1))
 
         loss_xy = self.get_xy_loss(updated_xy, T_target)/self.num_points
         loss_z = self.get_z_loss(updated_z, T_target)/self.num_points

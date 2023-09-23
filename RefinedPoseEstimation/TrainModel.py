@@ -32,8 +32,11 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 			images_rendered = images_rendered.to(DEVICE)
 	
 			visualize = 255 * torch.cat([images_real, images_rendered], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
-			cv2.imwrite("image_test_10.png".format(epoch), visualize[0].astype(np.uint8))
-   
+			
+			cv2.imwrite("image_test_11.png".format(epoch), visualize[0].astype(np.uint8))
+			"""for i in range(images_real.shape[0]):
+				cv2.imshow("img", visualize[i]/255)
+				cv2.waitKey(0)"""
 			T_target = T_target.to(DEVICE)
 			T_coarse = T_coarse.to(DEVICE)
 
@@ -103,7 +106,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 def main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, loss_function) -> None:
 
 	smallest_loss = float("inf")
-	for epoch in range(140, NUM_EPOCHS):
+	for epoch in range(1, NUM_EPOCHS):
 		since: float = time.time()
 		change_learning_rate(optimizer, epoch, LR_DECAY_EPOCHS, LR_DECAY_FACTOR)
 		train_l_rotation, train_l_xy, train_l_z = one_epoch(
@@ -128,7 +131,7 @@ def main(pose_refiner_model, optimizer, training_dataloader, validation_dataload
 		if valid_l_rotation + valid_l_xy + valid_l_z < smallest_loss:
 			smallest_loss = valid_l_rotation + valid_l_xy + valid_l_z
 		print("SAVING MODEL")
-		torch.save(pose_refiner_model.state_dict(), "{}.pt".format("./TrainedModels/RefinedPoseEstimationModelProjection2DLastDataset"))
+		torch.save(pose_refiner_model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DGrayScale"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
@@ -138,7 +141,7 @@ if __name__ == "__main__":
  
 	dataset_renderer = DatasetRenderer()
 	pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-	pose_refiner_model.load_state_dict(torch.load("./TrainedModels/RefinedPoseEstimationModelProjection2DLastDataset.pt", map_location="cpu"))
+	#pose_refiner_model.load_state_dict(torch.load(MAIN_DIR_PATH + "RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DLastDataset.pt", map_location="cpu"), strict=False)
 	
 	io = IOUtils()
 	point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")

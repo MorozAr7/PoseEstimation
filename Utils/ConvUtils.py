@@ -43,7 +43,7 @@ class ConvBnActiv(nn.Module):
 		                      out_channels=out_channels,
 		                      kernel_size=kernel_size,
 		                      stride=stride,
-		                      padding=padding,#kernel_size // 2,
+		                      padding=padding,
 		                      groups=groups,
 		                      bias=not apply_bn and apply_bias,
 		                      dilation=dilation_rate)
@@ -109,18 +109,18 @@ class DepthWiseConvResidualBlock(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-	def __init__(self, in_channels, out_channels, apply_activ=True):
+	def __init__(self, in_channels, out_channels, apply_activ=False):
 		super(ResidualBlock, self).__init__()
 		self.apply_activ = apply_activ
   
 		self.Conv1 = ConvBnActiv(in_channels=in_channels, out_channels=out_channels)
-		self.Conv2 = ConvBnActiv(in_channels=in_channels, out_channels=out_channels, apply_activation=False)
+		self.Conv2 = ConvBnActiv(in_channels=in_channels, out_channels=out_channels)
   
 		if self.apply_activ:
 			self.Activation = nn.SiLU(inplace=True)
 
 	def forward(self, x):
-		residual = x
+		residual = x.copy()
 		x = self.Conv1(x)
 		x = self.Conv2(x)
 		if self.apply_activ:

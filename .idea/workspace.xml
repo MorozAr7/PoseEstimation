@@ -5,17 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CameraData/camera_data_1.json" beforeDir="false" afterPath="$PROJECT_DIR$/CameraData/camera_data_1.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/RendererConfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/RendererConfig.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ObjectSegmentation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/ObjectSegmentation/CONFIG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ObjectSegmentation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/ObjectSegmentation/CnnModel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/try_error_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/try_error_code.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

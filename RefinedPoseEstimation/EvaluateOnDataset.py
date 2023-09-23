@@ -29,7 +29,7 @@ class EvaluateOnDataset:
         self.image_size = 224
     
     def init_cnn(self):
-        self.pose_ref_model.load_state_dict(torch.load("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2D_DISENTANGLEDLoss_MoreData.pt", map_location="cpu"))
+        self.pose_ref_model.load_state_dict(torch.load("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DLastDataset.pt", map_location="cpu"))
         
         self.pose_ref_model.to("mps")
         self.pose_ref_model.eval()
@@ -105,6 +105,7 @@ class EvaluateOnDataset:
             real_image, real_image_cropped, rendered_image_cropped, trans_matrix_real, trans_matrix_rendered, rendered_bbox = self.load_image(index)
             #cv2.imshow("img", np.hstack([real_image_cropped, rendered_image_cropped]))
             #cv2.waitKey(0)
+            real_image_cropped = PoseEstimationAugmentation(image=real_image_cropped)["image"]
             real_image_torch = NormalizeToTensor(image=real_image_cropped)["image"].unsqueeze(0).to("mps")
             rendered_image_torch = NormalizeToTensor(image=rendered_image_cropped)["image"].unsqueeze(0).to("mps")
             
@@ -122,7 +123,7 @@ class EvaluateOnDataset:
             
             visualize_refined = real_image * (1 - mask) + rendered_image_refined
             visualize_refined = self.crop_and_resize(visualize_refined.astype(np.uint8), rendered_bbox)
-            cv2.imshow("video", np.vstack([visualize_refined, visualize_coarse])/255)
+            cv2.imshow("video", np.hstack([visualize_refined, visualize_coarse, real_image_cropped])/255)
             cv2.waitKey(0)
 
 

@@ -18,17 +18,17 @@ def distort_target_pose(pose):
     distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
     for param in pose.keys():
         if param == "RotX":
-            distorted_pose[param] = pose[param] + random.randint(-15, 15)
+            distorted_pose[param] = pose[param] + random.randint(-5, 5)
         elif param == "RotY":
-            distorted_pose[param] = pose[param] + random.randint(-15, 15)
+            distorted_pose[param] = pose[param] + random.randint(-5, 5)
         elif param == "RotZ":
-            distorted_pose[param] = pose[param] + random.randint(-15, 15)
+            distorted_pose[param] = pose[param] + random.randint(-5, 5)
         elif param == "TransX":
-            distorted_pose[param] = pose[param] + random.randint(-25, 25)
+            distorted_pose[param] = pose[param] + random.randint(-7, 7)
         elif param == "TransY":
-            distorted_pose[param] = pose[param] + random.randint(-25, 25)
+            distorted_pose[param] = pose[param] + random.randint(-7, 7)
         elif param == "TransZ":
-            distorted_pose[param] = pose[param] + random.randint(-65, 65)
+            distorted_pose[param] = pose[param] + random.randint(-25, 25)
 
     return distorted_pose
 
@@ -93,10 +93,10 @@ def generate_refinement_image(subset, index):
         
 
 def generate_refinements_dataset():
-    for index in range(21548, 25000):
+    for index in range(0, 256):
         generate_refinement_image(subset='Training', index=index)
-    for index in range(0, 5000):
-        generate_refinement_image(subset='Validation', index=index)
+    """or index in range(0, 5000):
+        generate_refinement_image(subset='Validation', index=index)"""
 
 
 if __name__ == "__main__":

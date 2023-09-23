@@ -13,7 +13,7 @@ class CoarsePoseEvaluation:
 	def __init__(self, device):
 		self.pose_estimation_model = AutoencoderPoseEstimationModel()
 		self.io = IOUtils()
-		self.correspondence_uvw_mapping = self.io.load_json_file("./DatasetRenderer/Models3D/Chassis/UVWmapping.json")
+		self.correspondence_uvw_mapping = self.io.load_json_file("./DatasetRenderer/Models3D/Chassis/ChassisUVWmapping.json")
 		self.camera_intrinsic = np.array(self.io.load_json_file("./CameraData/camera_data_1.json")["K"])[0:3, 0:3]
 		self.input_size = 224
 		self.distortion_coefficients = np.array(self.io.load_json_file("./CameraData/camera_data_1.json")["dist_coef"])
@@ -21,7 +21,7 @@ class CoarsePoseEvaluation:
 		self.init_pose_estimation_model()
 
 	def init_pose_estimation_model(self):
-		self.pose_estimation_model.load_state_dict(torch.load("./CoarsePoseEstimation/TrainedModels/AutoencoderClassificationMoreAugmentation.pt",
+		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionNewMeshOrientationNewResLayer.pt",
 		                                                      map_location="cpu"))
 		self.pose_estimation_model.eval()
 		self.pose_estimation_model.to(self.device)
@@ -73,13 +73,19 @@ class CoarsePoseEvaluation:
 		coarse_pose_predictions = np.array([])
 		for index in range(images.shape[0]):
 			mask = np.array(masks[index, ...], dtype=bool).reshape(self.input_size, self.input_size)
+			print(mask.shape)
 			bbox = bboxes[index, ...]
+			u_predicted = np.floor(255 * uvw_predicted[0].permute(0, 2, 3, 1).detach().cpu().numpy()[index])
+			v_predicted = np.floor(255 * uvw_predicted[1].permute(0, 2, 3, 1).detach().cpu().numpy()[index])
+			w_predicted = np.floor(255 * uvw_predicted[2].permute(0, 2, 3, 1).detach().cpu().numpy()[index])
+			u_predicted = np.array(u_predicted, dtype=int)
+			v_predicted = np.array(v_predicted, dtype=int)
+			w_predicted = np.array(w_predicted, dtype=int)
+			#u_predicted = torch.argmax(uvw_predicted[0], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
+			#v_predicted = torch.argmax(uvw_predicted[1], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
+			#w_predicted = torch.argmax(uvw_predicted[2], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
 
-			u_predicted = torch.argmax(uvw_predicted[0], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
-			v_predicted = torch.argmax(uvw_predicted[1], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
-			w_predicted = torch.argmax(uvw_predicted[2], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
-
-			visualize = np.concatenate([u_predicted * masks[index, ...], v_predicted* masks[index, ...], w_predicted* masks[index, ...]], axis=0)/255
+			#visualize = np.concatenate([u_predicted * masks[index, ...], v_predicted* masks[index, ...], w_predicted* masks[index, ...]], axis=0)/255
 
 			#cv2.imshow("image", visualize)
 			#cv2.waitKey(0)
