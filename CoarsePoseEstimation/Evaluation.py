@@ -85,10 +85,10 @@ class CoarsePoseEvaluation:
 			#v_predicted = torch.argmax(uvw_predicted[1], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
 			#w_predicted = torch.argmax(uvw_predicted[2], dim=1, keepdim=True).permute(0, 2, 3, 1).detach().cpu().numpy()[index]
 
-			#visualize = np.concatenate([u_predicted * masks[index, ...], v_predicted* masks[index, ...], w_predicted* masks[index, ...]], axis=0)/255
+			visualize = np.concatenate([u_predicted * masks[index, ...], v_predicted* masks[index, ...], w_predicted* masks[index, ...]], axis=0)/255
 
-			#cv2.imshow("image", visualize)
-			#cv2.waitKey(0)
+			cv2.imshow("image", visualize)
+			cv2.waitKey(0)
 			u_masked = np.array(u_predicted)[mask].reshape(-1, 1)
 			v_masked = np.array(v_predicted)[mask].reshape(-1, 1)
 			w_masked = np.array(w_predicted)[mask].reshape(-1, 1)

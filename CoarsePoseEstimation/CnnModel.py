@@ -7,7 +7,7 @@ from Utils.ConvUtils import *
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [3, 32, 64, 128, 192, 256]
+		self.layer_channels = [1, 64, 96, 128, 192, 256]
 
 		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
@@ -52,17 +52,17 @@ class EncoderModel(nn.Module):
 class DecoderModel(nn.Module):
 	def __init__(self):
 		super(DecoderModel, self).__init__()
-		self.channel = [256, 192, 128, 64, 32, 1]#256]
+		self.channel = [256, 192, 128, 96, 64, 3]
 
 		self.TransConv1 = TransposeConvBnActiv(in_channels=self.channel[0], out_channels=self.channel[1])
-		self.Conv1 = ConvBnActiv(in_channels=self.channel[1], out_channels=self.channel[1])
-		self.Conv2 = ConvBnActiv(in_channels=self.channel[1], out_channels=self.channel[1])
+		self.ResLayer1 = ResidualBlock(in_channels=self.channel[1], out_channels=self.channel[1])
+		self.ResLayer2 = ResidualBlock(in_channels=self.channel[1], out_channels=self.channel[1])
 		self.TransConv2 = TransposeConvBnActiv(in_channels=self.channel[1], out_channels=self.channel[2])
-		self.Conv3 = ConvBnActiv(in_channels=self.channel[2], out_channels=self.channel[2])
-		self.Conv4 = ConvBnActiv(in_channels=self.channel[2], out_channels=self.channel[2])
+		self.ResLayer3 = ResidualBlock(in_channels=self.channel[2], out_channels=self.channel[2])
+		self.ResLayer4 = ResidualBlock(in_channels=self.channel[2], out_channels=self.channel[2])
 		self.TransConv3 = TransposeConvBnActiv(in_channels=self.channel[2], out_channels=self.channel[3])
-		self.Conv5 = ConvBnActiv(in_channels=self.channel[3], out_channels=self.channel[3])
-		self.Conv6 = ConvBnActiv(in_channels=self.channel[3], out_channels=self.channel[3])
+		self.ResLayer5 = ResidualBlock(in_channels=self.channel[3], out_channels=self.channel[3])
+		self.ResLayer6 = ResidualBlock(in_channels=self.channel[3], out_channels=self.channel[3])
 		self.TransConv4 = TransposeConvBnActiv(in_channels=self.channel[3], out_channels=self.channel[4])
 		self.Conv7 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[4])
 		self.Conv8 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[5], apply_bn=False, apply_activation=False, apply_bias=False)
@@ -71,14 +71,14 @@ class DecoderModel(nn.Module):
 
 	def forward(self, x, skip_connections):
 		x = self.TransConv1(x)
-		x = self.Conv1(x)
-		x = self.Conv2(x)
+		x = self.ResLayer1(x)
+		x = self.ResLayer2(x)
 		x = self.TransConv2(x + skip_connections[3])
-		x = self.Conv3(x)
-		x = self.Conv4(x)
+		x = self.ResLayer3(x)
+		x = self.ResLayer4(x)
 		x = self.TransConv3(x + skip_connections[2])
-		x = self.Conv5(x)
-		x = self.Conv6(x)
+		x = self.ResLayer5(x)
+		x = self.ResLayer6(x)
 		x = self.TransConv4(x + skip_connections[1])
 		x = self.Conv7(x + skip_connections[0])
 		x = self.Conv8(x)
@@ -90,16 +90,16 @@ class AutoencoderPoseEstimationModel(nn.Module):
 	def __init__(self):
 		super(AutoencoderPoseEstimationModel, self).__init__()
 		self.Encoder = EncoderModel()
-		self.DecoderU = DecoderModel()
-		self.DecoderV = DecoderModel()
-		self.DecoderW = DecoderModel()
+		self.Decoder = DecoderModel()
 
 	def forward(self, x):
 		feature_vector, skip_connections = self.Encoder(x)
-		u_prediction = self.DecoderU(feature_vector, skip_connections)
-		v_prediction = self.DecoderV(feature_vector, skip_connections)
-		w_prediction = self.DecoderW(feature_vector, skip_connections)
-
+		prediction = self.Decoder(feature_vector, skip_connections)
+		#v_prediction = self.DecoderV(feature_vector, skip_connections)
+		#w_prediction = self.DecoderW(feature_vector, skip_connections)
+		u_prediction = prediction[:, 0:1, ...]
+		v_prediction = prediction[:, 1:2, ...]
+		w_prediction = prediction[:, 2:3, ...]
 		return u_prediction, v_prediction, w_prediction
 
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 	model_parameters = filter(lambda p: p.requires_grad, ae_model.parameters())
 	params = sum([np.prod(p.size()) for p in model_parameters])
 	print("NUMBER PARAMS GENERATOR:", params)
-	input_tensor = torch.ones(size=(8, 3, 224, 224)).to(device)
+	input_tensor = torch.ones(size=(8, 1, 224, 224)).to(device)
 	u = ae_model(input_tensor)
 	#print(pose_ref_cnn(input_tensor).shape)
 	print(u[0].shape)

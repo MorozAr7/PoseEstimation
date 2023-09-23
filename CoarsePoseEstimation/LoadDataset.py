@@ -5,7 +5,7 @@ sys.path.insert(0, MAIN_DIR_PATH)
 import cv2
 import torch
 from Utils.IOUtils import IOUtils
-from Utils.DataAugmentationUtils import NormalizeToTensor
+from Utils.DataAugmentationUtils import NormalizeToTensorGray
 
 
 class Dataset(torch.utils.data.Dataset):
@@ -116,7 +116,8 @@ class Dataset(torch.utils.data.Dataset):
 
 		if self.data_augmentation:
 			image = self.data_augmentation(image=image)["image"]
-		image_tensor = NormalizeToTensor(image=image)["image"]
+		image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+		image_tensor = NormalizeToTensorGray(image=image)["image"]
 
 		return image_tensor, \
 		       torch.tensor(np.expand_dims(mask, axis=2), dtype=torch.float32).permute(2, 0, 1), \
