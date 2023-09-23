@@ -57,11 +57,14 @@ class Evaluation:
 
 	def evaluate_video(self):
 		num_frames = len(os.listdir(self.video_path + "images"))
+		#num_frames = range(115, 150)
 		for index in range(num_frames):
 			
 			frame, json_data = self.load_video_frame(index)
 			bbox = json_data[0]["bbox_modal"]
 			cropepd_image, bbox = self.crop_image(frame, bbox)
+			#cv2.imshow("img", cropepd_image)
+			#cv2.waitKey()
 			cropepd_image = cv2.resize(cropepd_image, (self.img_size, self.img_size))
 
 			segmentation = self.object_segmentation.segment_image(np.expand_dims(cropepd_image, axis=0))
@@ -70,18 +73,20 @@ class Evaluation:
 			refined_pose_prediction = self.pose_refinement.get_refined_pose(frame, np.expand_dims(pose_prediction, axis=0), bboxes=[bbox])
 			if refined_pose_prediction is None:
 				continue
-			
+			print("Coarse prediction", pose_prediction)
+			print()
+			print("Refined prediction", pose_prediction)
 			img_dict_coarse = self.dataset_renderer.get_image(transformation_matrix=pose_prediction, image_black=True, image_background=False, constant_light=True)
 			img_rendered_coarse = img_dict_coarse["ImageBlack"]
 			mask = np.expand_dims(img_dict_coarse["Mask"], axis=-1)
 			visualize_coarse = frame * (1 - mask) + img_rendered_coarse
-			
+			#pose_prediction[0:3, -1] = refined_pose_prediction[0, 0:3]
 			img_dict_refined = self.dataset_renderer.get_image(transformation_matrix=refined_pose_prediction, image_black=True, image_background=False, constant_light=True)
 			img_rendered_refined = img_dict_refined["ImageBlack"]
 			mask = np.expand_dims(img_dict_refined["Mask"], axis=-1)
 			visualize_refined = frame * (1 - mask) + img_rendered_refined
 			cv2.imshow("video", np.vstack([visualize_coarse, visualize_refined])/255)
-			cv2.waitKey(0)
+			cv2.waitKey(1)
 
 
 if __name__ == "__main__":

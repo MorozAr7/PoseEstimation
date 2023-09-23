@@ -12,7 +12,7 @@ sys.path.insert(1, CURR_DIR_PATH)
 CUDA_DEVICE = 7
 DEVICE = "mps" if getattr(torch, 'has_mps', False) else CUDA_DEVICE if torch.cuda.is_available() else "cpu"
 LR = 0.0001
-BATCH_SIZE = 512
+BATCH_SIZE = 448
 
 NUM_DATA = {"Training": 25000, "Validation": 5000}
 NUM_EPOCHS = 1000
