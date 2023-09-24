@@ -27,7 +27,7 @@ class EncoderModel(nn.Module):
 		self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
 		self.Conv4 = ConvBnActiv(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
-		self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=True, apply_activation=True, padding=0, apply_bias=True, activ_type="prelu")
+		self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_activation=True, padding=0, apply_bias=True)
 		
 	def forward(self, x):
 		x = self.Conv0(x)
@@ -135,6 +135,6 @@ if __name__ == "__main__":
 	model_parameters = filter(lambda p: p.requires_grad, pose_ref_cnn.parameters())
 	params = sum([np.prod(p.size()) for p in model_parameters])
 	print("NUMBER PARAMS GENERATOR:", params)
-	input_tensor = torch.ones(size=(8, 3, 224, 224)).to(DEVICE)
+	input_tensor = torch.ones(size=(8, 1, 224, 224)).to(DEVICE)
 	u = pose_ref_cnn(input_tensor, input_tensor)
 	print(u[0].shape)

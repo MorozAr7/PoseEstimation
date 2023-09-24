@@ -178,26 +178,6 @@ class Dataset(torch.utils.data.Dataset):
 			trans_matrix_rendered = self.transformations.get_transformation_matrix_from_pose(rendered_pose)
 			
 			real_image = self.crop_and_resize(real_image, rendered_bbox)
-			#cv2.imshow("images", np.concatenate([image_real, rendered_image]))
-			#cv2.waitKey(0)
-			"""print(real_pose["TransX"] - rendered_pose["TransX"], real_pose["TransY"] - rendered_pose["TransY"], real_pose["TransZ"] - rendered_pose["TransZ"])
-			"""
-			"""trans_matrix_target = self.transformations.get_transformation_matrix_from_pose(target_pose)
-
-			coarse_pose1 = self.distort_target_pose(target_pose)
-			trans_matrix_coarse1 = self.transformations.get_transformation_matrix_from_pose(coarse_pose1) 
-
-			rendered_image_dict1 = self.dataset_renderer.get_image(trans_matrix_coarse1, coarse_pose1, image_black=True, image_background=False, UVW=False, constant_light=True)
-
-			refinement_image1 = rendered_image_dict1["ImageBlack"] * np.expand_dims(rendered_image_dict1["Mask"], axis=-1)
-		
-			bbox_image = json_data["Box"]
-			bbox_rendered = rendered_image_dict1["Box"]
-			bbox_crop = self.get_centered_bbox(trans_matrix_coarse1, bbox_rendered=bbox_rendered, bbox_image=bbox_image)
-   
-			real_image = self.crop_and_resize(real_image, bbox_crop)
-			
-			refinement_image1 = self.crop_and_resize(refinement_image1, bbox_crop)"""
 				
 			if self.data_augmentation:
 				real_image = self.data_augmentation(image=real_image)["image"]
@@ -208,7 +188,7 @@ class Dataset(torch.utils.data.Dataset):
 
 			return image_tensor, rendered_image_tensor, \
 				torch.tensor(trans_matrix_real, dtype=torch.float32), \
-				torch.tensor(trans_matrix_rendered, dtype=torch.float32)
+				torch.tensor(trans_matrix_rendered, dtype=torch.float32), 
 		except Exception as e:
 			print(e)
 			print("IMAGE ERROR IS: ", index)
