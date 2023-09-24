@@ -96,7 +96,7 @@ class ProjectionLoss(nn.Module):
       
             xy_projected_predicted = transformed_camera_pc_prediction[:, :2, :] / (transformed_camera_pc_prediction[:, 2:3, :])
             xy_projected_target = transformed_camera_pc_target[:, :2, :] / (transformed_camera_pc_target[:, 2:3, :])
-            print(xy_projected_predicted.shape, xy_projected_target.shape)
+            #print(xy_projected_predicted.shape, xy_projected_target.shape)
             if vis:
                 self.visualize_projection(xy_projected_predicted, xy_projected_target)
             return self.L1_loss(xy_projected_predicted, xy_projected_target)
