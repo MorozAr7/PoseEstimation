@@ -66,9 +66,9 @@ class Evaluation:
 			#cv2.imshow("img", cropepd_image)
 			#cv2.waitKey()
 			cropepd_image = cv2.resize(cropepd_image, (self.img_size, self.img_size))
-
-			segmentation = self.object_segmentation.segment_image(np.expand_dims(cropepd_image, axis=0))
 			
+			segmentation = self.object_segmentation.segment_image(np.expand_dims(cropepd_image, axis=0))
+			cropepd_image = np.expand_dims(cv2.cvtColor(cropepd_image, cv2.COLOR_BGR2GRAY), axis=-1)
 			pose_prediction = self.coarse_pose_eval.get_coarse_pose_estimate(np.expand_dims(cropepd_image, axis=0), np.expand_dims(segmentation, axis=0), torch.tensor(bbox).unsqueeze(0))[0]
 			#refined_pose_prediction = self.pose_refinement.get_refined_pose(frame, np.expand_dims(pose_prediction, axis=0), bboxes=[bbox])
 			#if refined_pose_prediction is None:

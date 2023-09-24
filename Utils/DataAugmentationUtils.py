@@ -3,9 +3,9 @@ from albumentations.pytorch import ToTensorV2
 import cv2
 
 PoseEstimationAugmentation = A.Compose([
-		A.ChannelShuffle(p=0.8),
+		A.ChannelShuffle(p=0.75),
 
-		A.ColorJitter(brightness=(0.75, 1.75), contrast=(0.5, 2), saturation=(1, 5), hue=(0, 0), always_apply=False, p=0.8),
+		A.ColorJitter(brightness=(0.75, 1.75), contrast=(0.5, 2), saturation=(1, 5), hue=(0, 0), always_apply=False, p=0.75),
 		A.OneOf([
 			A.GaussNoise(var_limit=(25.0, 40.0), mean=0, per_channel=True, always_apply=False, p=1),
 			A.MultiplicativeNoise(multiplier=(0.925, 1.075), per_channel=True, elementwise=True, always_apply=False, p=1),

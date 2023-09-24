@@ -1,6 +1,6 @@
 from CONFIG import *
 from CoarsePoseEstimation.CnnModel import AutoencoderPoseEstimationModel
-from Utils.DataAugmentationUtils import NormalizeToTensor
+from Utils.DataAugmentationUtils import NormalizeToTensorGray
 from Utils.IOUtils import IOUtils
 import cv2
 import albumentations as A
@@ -21,7 +21,7 @@ class CoarsePoseEvaluation:
 		self.init_pose_estimation_model()
 
 	def init_pose_estimation_model(self):
-		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionNewMeshOrientationNewResLayer.pt",
+		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt",
 		                                                      map_location="cpu"))
 		self.pose_estimation_model.eval()
 		self.pose_estimation_model.to(self.device)
@@ -36,7 +36,7 @@ class CoarsePoseEvaluation:
 
 	@staticmethod
 	def normalize_convert_to_tensor(image):
-		return NormalizeToTensor(image=image)["image"]
+		return NormalizeToTensorGray(image=image)["image"]
 
 	def get_uwv_predictions(self, image):
 		image = cv2.resize(image, (self.input_size, self.input_size))
@@ -87,8 +87,8 @@ class CoarsePoseEvaluation:
 
 			visualize = np.concatenate([u_predicted * masks[index, ...], v_predicted* masks[index, ...], w_predicted* masks[index, ...]], axis=0)/255
 
-			cv2.imshow("image", visualize)
-			cv2.waitKey(0)
+			#cv2.imshow("image", visualize)
+			#cv2.waitKey(0)
 			u_masked = np.array(u_predicted)[mask].reshape(-1, 1)
 			v_masked = np.array(v_predicted)[mask].reshape(-1, 1)
 			w_masked = np.array(w_predicted)[mask].reshape(-1, 1)

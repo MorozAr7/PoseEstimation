@@ -22,7 +22,7 @@ def init_weights(m):
 def change_learning_rate(optimizer, epoch):
 	epochs_to_change = list(range(25, 500, 25))
 	if epoch in epochs_to_change:
-		optimizer.param_groups[0]["lr"] /= 1.75
+		optimizer.param_groups[0]["lr"] /= 2
 
 
 def init_classification_model():
@@ -47,7 +47,7 @@ def init_classification_model():
 
 
 def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, epoch=0):
-	model.eval() if is_training else model.eval()
+	model.train() if is_training else model.eval()
 	epoch_loss_l1_u_map = 0
 	epoch_loss_l1_w_map = 0
 	epoch_loss_l1_v_map = 0
@@ -94,7 +94,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 			l1_total = l1_u + l1_v + l1_w
 			ssim_total = ssim_loss_u + ssim_loss_v + ssim_loss_w
 			grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
-			total_loss = 1 * l1_total + 0.25 * ssim_total + 0.1 * grad_total
+			total_loss = 5 * l1_total + 1 * ssim_total + 0.1 * grad_total
 
 			total_loss.backward()
 			optimizer.step()
@@ -143,7 +143,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 
 def main(model, optimizer, training_dataloader, validation_dataloader, loss_function):
 	smallest_loss = float("inf")
-	for epoch in range(1, NUM_EPOCHS):
+	for epoch in range(76, NUM_EPOCHS):
 
 		since = time.time()
 		change_learning_rate(optimizer, epoch)
@@ -179,8 +179,8 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 
 if __name__ == "__main__":
-	model = AutoencoderPoseEstimationModel().apply(init_weights)
-	#model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionNewMeshOrientationNewResLayer.pt", map_location="cpu"))
+	model = AutoencoderPoseEstimationModel()#.apply(init_weights)
+	model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
@@ -194,7 +194,7 @@ if __name__ == "__main__":
 			      				num_images=list(SUBSET_NUM_DATA.values())[1], 
 				  				data_augmentation=None)
 
-	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
-	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
+	training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=1)
+	validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=1)
 
 	main(model, optimizer, training_dataloader, validation_dataloader, loss_functions)

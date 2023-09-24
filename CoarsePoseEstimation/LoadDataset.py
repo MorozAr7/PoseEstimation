@@ -86,7 +86,7 @@ class Dataset(torch.utils.data.Dataset):
 	def get_bbox(self, bbox):
 		square_bbox = self.get_square_bbox(bbox)
 		p = random.random()
-		if p > 0.9 or self.subset == "Validation":
+		if p > 0.4 or self.subset == "Validation":
 			return square_bbox
 		else:
 			check_results = self.is_inside_image(square_bbox)
