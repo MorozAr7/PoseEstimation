@@ -143,7 +143,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 
 def main(model, optimizer, training_dataloader, validation_dataloader, loss_function):
 	smallest_loss = float("inf")
-	for epoch in range(76, NUM_EPOCHS):
+	for epoch in range(1, NUM_EPOCHS):
 
 		since = time.time()
 		change_learning_rate(optimizer, epoch)
