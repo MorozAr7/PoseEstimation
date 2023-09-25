@@ -23,4 +23,4 @@ LOSS_WEIGHTS = {"R": 1, "XY": 1, "Z" : 1, "T": 1}
 MODEL_NAME = ""
 
 LR_DECAY_EPOCHS = list(range(100, NUM_EPOCHS, 100))
-LR_DECAY_FACTOR = 2
+LR_DECAY_FACTOR = 0
