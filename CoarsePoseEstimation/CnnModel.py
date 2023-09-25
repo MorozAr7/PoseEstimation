@@ -7,7 +7,7 @@ from Utils.ConvUtils import *
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [1, 64, 96, 128, 192, 256]
+		self.layer_channels = [1, 64, 128, 256, 256, 256]
 
 		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
 
@@ -52,7 +52,7 @@ class EncoderModel(nn.Module):
 class DecoderModel(nn.Module):
 	def __init__(self):
 		super(DecoderModel, self).__init__()
-		self.channel = [256, 192, 128, 96, 64, 3]
+		self.channel = [256, 256, 256, 128, 64, 3]
 
 		self.TransConv1 = TransposeConvBnActiv(in_channels=self.channel[0], out_channels=self.channel[1])
 		self.ResLayer1 = ResidualBlock(in_channels=self.channel[1], out_channels=self.channel[1])
