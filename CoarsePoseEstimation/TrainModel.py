@@ -203,7 +203,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 if __name__ == "__main__":
 	model = init_classification_model()#AutoencoderPoseEstimationModel()#.apply(init_weights)
-	model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt", map_location="cpu"))
+	#model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt", map_location="cpu"))
 	model.to(DEVICE)
 
 	optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
