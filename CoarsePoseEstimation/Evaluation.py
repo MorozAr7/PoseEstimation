@@ -21,7 +21,7 @@ class CoarsePoseEvaluation:
 		self.init_pose_estimation_model()
 
 	def init_pose_estimation_model(self):
-		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt",
+		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoderSmallModelSegmentation.pt",
 		                                                      map_location="cpu"))
 		self.pose_estimation_model.eval()
 		self.pose_estimation_model.to(self.device)
@@ -48,7 +48,7 @@ class CoarsePoseEvaluation:
 		try:
 			_, rvecs, tvecs, inliers = cv2.solvePnPRansac(np.array(points3d, dtype=float),
 			                                              np.array(points2d, dtype=float), self.camera_intrinsic,
-			                                              iterationsCount=250, reprojectionError=1, flags=cv2.SOLVEPNP_P3P, distCoeffs=self.distortion_coefficients)
+			                                              iterationsCount=100, reprojectionError=1, flags=cv2.SOLVEPNP_P3P,distCoeffs=self.distortion_coefficients)
 
 			rot, _ = cv2.Rodrigues(rvecs, jacobian=None)
 

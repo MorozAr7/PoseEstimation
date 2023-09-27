@@ -1,21 +1,23 @@
 from CONFIG import *
 from RefinedPoseEstimation.CnnModel import PoseRefinementNetwork
+from ObjectSegmentation.Evaluation import ObjectSegmentationEvaluation
 import torch
 import cv2
 import numpy as np
-from Utils.DataAugmentationUtils import NormalizeToTensor, PoseEstimationAugmentation
+from Utils.DataAugmentationUtils import NormalizeToTensorGray, PoseEstimationAugmentation
 from DatasetRenderer.Renderer import DatasetRenderer
 
 class RefinedPoseEstimation:
 	def __init__(self, device):
+		self.device = device
 		self.pose_refinement_model = PoseRefinementNetwork()
 		self.dataset_renderer = DatasetRenderer()
+		self.object_segmentation = ObjectSegmentationEvaluation(self.device)
 		self.input_size = 224
-		self.device = device
 		self.load_model_weights()
 
 	def load_model_weights(self):
-		self.pose_refinement_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DLastDataset.pt",
+		self.pose_refinement_model.load_state_dict(torch.load("./RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DGrayScale.pt",
 		                                                      map_location="cpu"))
 		self.pose_refinement_model.eval()
 		self.pose_refinement_model.to(self.device)
@@ -23,15 +25,19 @@ class RefinedPoseEstimation:
 	@staticmethod
 	def normalize_convert_to_tensor(image):
 		
-		return NormalizeToTensor(image=image)["image"]
+		return NormalizeToTensorGray(image=image)["image"]
 
 	def convert_images_to_tensors(self, images, bbox):
 		batch_tensor = torch.tensor([])
 		for index in range(images.shape[0]):
 			image = images[index, ...]
 	
-			print("Real", bbox)
 			image = self.crop_and_resize(image, bbox)
+			#resized_image = image.reshape(1, 224, 224, 1)
+			#resized_image = np.repeat(resized_image, axis=-1, repeats=3)
+			#segmentation = self.object_segmentation.segment_image(resized_image)
+			#print(image.shape, segmentation.shape)
+			#image = image# * segmentation.reshape(224, 224)
 			if image is None:
 				return None
 			image_torch = self.normalize_convert_to_tensor(image)
@@ -67,17 +73,17 @@ class RefinedPoseEstimation:
 			image = img_dict["ImageBlack"]
 			bbox_rendered = img_dict["Box"]
 			bbox = self.get_centered_bbox(poses[index, ...], bbox_rendered=bbox_rendered, bbox_image=bboxes[index])
-			print("Rendered", bbox)
+
 			cropped_image = self.crop_and_resize(image, bbox)
-			'''cv2.imshow("img", cropped_image)
-			cv2.waitKey(0)'''
+			cropped_image = cv2.cvtColor(cropped_image, cv2.COLOR_RGB2GRAY)
 			if cropped_image is None:
 				return None, None
 			image_torch = self.normalize_convert_to_tensor(cropped_image)
 		batch_tensor = torch.cat([batch_tensor, image_torch], dim=0)
+
 		return batch_tensor.unsqueeze(0), bbox
 
-	def get_refined_pose(self, real_images, coarse_poses, bboxes):
+	def get_refined_pose(self, real_images, coarse_poses, bboxes, index):
 		rendered_images_batch, box = self.render_refinement_images(coarse_poses, bboxes)
 		if rendered_images_batch is None:
 			return None
@@ -86,10 +92,11 @@ class RefinedPoseEstimation:
 		if real_images_batch is None:
 			return None
 		#print(real_images_batch.shape, rendered_images_batch.shape)
-		visualize = torch.cat([real_images_batch, rendered_images_batch], dim=-1)[0].permute(1, 2, 0).detach().cpu().numpy()
-
-		cv2.imshow('vis', visualize)
+		vis = torch.cat([real_images_batch, rendered_images_batch], dim=-1).permute(0, 2, 3, 1)[0].detach().cpu().numpy()
+		cv2.imwrite("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/SavedImagesReal/image_{}.png".format(index), vis * 255)
+		cv2.imshow("input", vis)
 		cv2.waitKey(1)
+		print(rendered_images_batch.shape, real_images_batch.shape)
 		with torch.no_grad():
 			prediction_t, prediction_R = self.pose_refinement_model(real_images_batch, rendered_images_batch)
 			coarse_poses = torch.tensor(coarse_poses, dtype=torch.float32).to(self.device)

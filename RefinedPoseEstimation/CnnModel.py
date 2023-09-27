@@ -12,9 +12,9 @@ class EncoderModel(nn.Module):
 		super(EncoderModel, self).__init__()
 		self.layer_channels = [2, 64, 96, 128, 256, 512, 512 * 3]
 
-		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
+		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1], kernel_size=7, padding=3)
 
-		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
+		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2, kernel_size=5, padding=2)
 		self.ResLayer1 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 		self.ResLayer2 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 
@@ -31,9 +31,9 @@ class EncoderModel(nn.Module):
 		
 	def forward(self, x):
 		x = self.Conv0(x)
-  
+		print(x.shape)
 		x = self.Conv1(x)
-		
+		print(x.shape)
 		x = self.ResLayer1(x)
 		x = self.ResLayer2(x)
 		

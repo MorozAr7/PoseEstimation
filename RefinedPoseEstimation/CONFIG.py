@@ -11,7 +11,7 @@ sys.path.insert(1, CURR_DIR_PATH)
 
 CUDA_DEVICE = 7
 DEVICE = "mps" if getattr(torch, 'has_mps', False) else CUDA_DEVICE if torch.cuda.is_available() else "cpu"
-LR = 0.00025
+LR = 0.0005
 BATCH_SIZE = 250
 
 NUM_DATA = {"Training": 25000, "Validation": 5000}
@@ -23,4 +23,4 @@ LOSS_WEIGHTS = {"R": 1, "XY": 1, "Z" : 1, "T": 1}
 MODEL_NAME = ""
 
 LR_DECAY_EPOCHS = list(range(100, NUM_EPOCHS, 100))
-LR_DECAY_FACTOR = 0
+LR_DECAY_FACTOR = 1.8

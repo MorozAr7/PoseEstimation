@@ -18,17 +18,17 @@ def distort_target_pose(pose):
     distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
     for param in pose.keys():
         if param == "RotX":
-            distorted_pose[param] = pose[param] + random.randint(-5, 5)
+            distorted_pose[param] = pose[param] + random.randint(-15, 15)
         elif param == "RotY":
-            distorted_pose[param] = pose[param] + random.randint(-5, 5)
+            distorted_pose[param] = pose[param] + random.randint(-15, 15)
         elif param == "RotZ":
-            distorted_pose[param] = pose[param] + random.randint(-5, 5)
+            distorted_pose[param] = pose[param] + random.randint(-15, 15)
         elif param == "TransX":
-            distorted_pose[param] = pose[param] + random.randint(-7, 7)
-        elif param == "TransY":
-            distorted_pose[param] = pose[param] + random.randint(-7, 7)
-        elif param == "TransZ":
             distorted_pose[param] = pose[param] + random.randint(-25, 25)
+        elif param == "TransY":
+            distorted_pose[param] = pose[param] + random.randint(-25, 25)
+        elif param == "TransZ":
+            distorted_pose[param] = pose[param] + random.randint(-65, 65)
 
     return distorted_pose
 
