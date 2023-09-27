@@ -31,9 +31,9 @@ class EncoderModel(nn.Module):
 		
 	def forward(self, x):
 		x = self.Conv0(x)
-		print(x.shape)
+		#print(x.shape)
 		x = self.Conv1(x)
-		print(x.shape)
+		#print(x.shape)
 		x = self.ResLayer1(x)
 		x = self.ResLayer2(x)
 		
