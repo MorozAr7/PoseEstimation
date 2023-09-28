@@ -116,8 +116,8 @@ class Dataset(torch.utils.data.Dataset):
 
 		if self.data_augmentation:
 			image = self.data_augmentation(image=image)["image"]
-		image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-		image_tensor = NormalizeToTensorGray(image=image)["image"]
+		#image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+		image_tensor = NormalizeToTensor(image=image)["image"]
 
 		return image_tensor, \
 		       torch.tensor(np.expand_dims(mask, axis=2), dtype=torch.float32).permute(2, 0, 1), \

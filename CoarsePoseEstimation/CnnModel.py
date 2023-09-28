@@ -7,7 +7,7 @@ from Utils.ConvUtils import *
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [1, 64, 96, 128, 192, 256]
+		self.layer_channels = [3, 64, 96, 128, 192, 256]
 
 		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1], kernel_size=7, padding=3)
 

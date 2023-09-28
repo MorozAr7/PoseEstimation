@@ -193,7 +193,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
 		print("SAVING MODEL")
-		torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoderSmallModelSegmentationNew"))
+		torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionRGBOneDecoderSmallModelSegmentationNew"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
