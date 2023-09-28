@@ -104,8 +104,6 @@ class MultiscaleSsimLossFunction(nn.Module):
 		target_multiscale = self.get_multiscale_representation(target_image_tensor)
 		structural_similarity_loss = 0
 		for i in range(len(target_image_tensor)):
-			print(i)
-			#vis = torch.cat([predicted_multiscale[i], target_multiscale[i]], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
 			
 			structural_similarity_loss += self.get_ssim_maps(predicted_multiscale[i], target_multiscale[i], window_size)
 
