@@ -103,7 +103,7 @@ class MultiscaleSsimLossFunction(nn.Module):
 		predicted_multiscale = self.get_multiscale_representation(predicted_image_tensor)
 		target_multiscale = self.get_multiscale_representation(target_image_tensor)
 		structural_similarity_loss = 0
-		for i in range(len(target_image_tensor)):
+		for i in range(self.num_scales):
 			
 			structural_similarity_loss += self.get_ssim_maps(predicted_multiscale[i], target_multiscale[i], window_size)
 
