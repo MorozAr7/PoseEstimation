@@ -13,7 +13,7 @@ CUDA_DEVICE = 6
 DEVICE = "mps" if getattr(torch, 'has_mps', False) else CUDA_DEVICE if torch.cuda.is_available() else "cpu"
 LEARNING_RATE = 0.0025
 NUM_EPOCHS = 500
-BATCH_SIZE = 100
+BATCH_SIZE = 96
 SAVE_MODEL = True
 SUBSET_NUM_DATA = {"Training": 50000, "Validation": 5000}
 

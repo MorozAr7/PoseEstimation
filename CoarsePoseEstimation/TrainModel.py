@@ -106,15 +106,11 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 			ssim_loss_u = ssim_loss_function.get_multiscale_structural_sim_loss(predictions[0] * mask, u_map)
 			ssim_loss_v = ssim_loss_function.get_multiscale_structural_sim_loss(predictions[1] * mask, v_map)
 			ssim_loss_w = ssim_loss_function.get_multiscale_structural_sim_loss(predictions[2] * mask, w_map)
-   
-			grad_ssim_loss_u = ssim_loss_function.get_gradient_ssim_loss(predictions[0] * mask, u_map)
-			grad_ssim_loss_v = ssim_loss_function.get_gradient_ssim_loss(predictions[1] * mask, v_map)
-			grad_ssim_loss_w = ssim_loss_function.get_gradient_ssim_loss(predictions[2] * mask, w_map)
 
 			l1_total = l1_u + l1_v + l1_w
 			ssim_total = ssim_loss_u + ssim_loss_v + ssim_loss_w
-			grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
-			total_loss = 5 * l1_total + 1 * ssim_total + 0.1 * grad_total + 2.5 * mask_loss
+			#grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
+			total_loss = 5 * l1_total + 1 * ssim_total + 1 * mask_loss
 
 			total_loss.backward()
 			optimizer.step()
@@ -197,12 +193,12 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 		if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
 			smallest_loss = loss_u_v + loss_v_v + loss_w_v
 		print("SAVING MODEL")
-		torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoderSmallModelSegmentation"))
+		torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoderSmallModelSegmentationNew"))
 		print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
-	model = init_classification_model()#AutoencoderPoseEstimationModel()#.apply(init_weights)
+	model = AutoencoderPoseEstimationModel().apply(init_weights)
 	#model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt", map_location="cpu"))
 	model.to(DEVICE)
 

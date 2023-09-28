@@ -9,7 +9,7 @@ class EncoderModel(nn.Module):
 		super(EncoderModel, self).__init__()
 		self.layer_channels = [1, 64, 96, 128, 192, 256]
 
-		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1])
+		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1], kernel_size=7, padding=3)
 
 		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
 		self.ResLayer1 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
@@ -65,7 +65,8 @@ class DecoderModel(nn.Module):
 		self.ResLayer6 = ResidualBlock(in_channels=self.channel[3], out_channels=self.channel[3])
 		self.TransConv4 = TransposeConvBnActiv(in_channels=self.channel[3], out_channels=self.channel[4])
 		self.Conv7 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[4])
-		self.Conv8 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[5], apply_bn=False, apply_activation=False, apply_bias=False)
+		self.Conv8 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[4])
+		self.Conv9 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[5], kernel_size=1, stride=1, padding=0, apply_activation=False, apply_bias=False, apply_bn=False)
 
 		self.Sigmoid = nn.Sigmoid()
 
@@ -82,6 +83,7 @@ class DecoderModel(nn.Module):
 		x = self.TransConv4(x + skip_connections[1])
 		x = self.Conv7(x + skip_connections[0])
 		x = self.Conv8(x)
+		x = self.Conv9(x)
 		x = self.Sigmoid(x)
 		return x
 

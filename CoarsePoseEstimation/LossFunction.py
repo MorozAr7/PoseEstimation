@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.nn.functional import conv2d
+from torch.nn.functional import conv2d, avg_pool2d
 import torchvision
 import cv2
 
@@ -25,6 +25,7 @@ class MultiscaleSsimLossFunction(nn.Module):
 		self.C1 = (self.K1 * 1) ** 2
 		self.C2 = (self.K2 * 1) ** 2
 		self.DEVICE = DEVICE
+		self.num_scales = 3
 
 	def compute_patches_mean(self, image_tensor: torch.tensor) -> torch.tensor:
 		convolved = conv2d(input=image_tensor, weight=self.ones_filter / (self.window_size ** 2), stride=1)
@@ -42,7 +43,7 @@ class MultiscaleSsimLossFunction(nn.Module):
 		multiscale_images = []
 		for scale in range(self.num_scales):
 			multiscale_images.append(images_tensor)
-			images_tensor = nn.functional.avg_pool2d(images_tensor, kernel_size=2, stride=2)
+			images_tensor = avg_pool2d(images_tensor, kernel_size=2, stride=2)
 
 		return multiscale_images
 
@@ -99,8 +100,16 @@ class MultiscaleSsimLossFunction(nn.Module):
 		return gradient_similarity_loss
 
 	def get_multiscale_structural_sim_loss(self, predicted_image_tensor, target_image_tensor, window_size=7):
-
-		structural_similarity_loss = self.get_ssim_maps(predicted_image_tensor, target_image_tensor, window_size)
+		predicted_multiscale = self.get_multiscale_representation(predicted_image_tensor)
+		target_multiscale = self.get_multiscale_representation(target_image_tensor)
+		structural_similarity_loss = 0
+		for i in range(len(target_image_tensor)):
+			print(i)
+			vis = torch.cat([predicted_multiscale[i], target_multiscale[i]], dim=-1).permute(0, 2, 3, 1).detach().cpu().numpy()
+			for j in range(vis.shape[0]):
+				cv2.imshow("image", vis[j, ...])
+				cv2.waitKey(0)
+			structural_similarity_loss += self.get_ssim_maps(predicted_multiscale[i], target_multiscale[i], window_size)
 
 		return structural_similarity_loss
 

@@ -5,7 +5,7 @@ sys.path.insert(0, MAIN_DIR_PATH)
 import cv2
 import torch
 from Utils.IOUtils import IOUtils
-from Utils.DataAugmentationUtils import NormalizeToTensorGray
+from Utils.DataAugmentationUtils import NormalizeToTensorGray, NormalizeToTensor
 
 
 class Dataset(torch.utils.data.Dataset):
