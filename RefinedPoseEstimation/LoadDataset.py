@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import torch
 from Utils.IOUtils import IOUtils
-from Utils.DataAugmentationUtils import NormalizeToTensorGray
+from Utils.DataAugmentationUtils import NormalizeToTensor
 from Utils.MathUtils import Transformations
 
 
@@ -21,12 +21,6 @@ class Dataset(torch.utils.data.Dataset):
 		self.io = IOUtils()
 		self.dataset_renderer = dataset_renderer
 		self.index = None
-		self.z_displacements = [[random.randint(-75, 75) for j in range(2)] for i in range(self.dataset_len)]
-		self.x_displacements = [[random.randint(-25, 25) for j in range(2)] for i in range(self.dataset_len)]
-		self.y_displacements = [[random.randint(-25, 25) for j in range(2)] for i in range(self.dataset_len)]
-		self.A_displacements = [[random.randint(-15, 15) for j in range(2)] for i in range(self.dataset_len)]
-		self.B_displacements = [[random.randint(-15, 15) for j in range(2)] for i in range(self.dataset_len)]
-		self.C_displacements = [[random.randint(-15, 15) for j in range(2)] for i in range(self.dataset_len)]
 		self.transformations = Transformations()
  
 	def __len__(self):
@@ -101,38 +95,6 @@ class Dataset(torch.utils.data.Dataset):
 		shifted_bbox = self.shift_bbox(square_bbox, limits)
 		return shifted_bbox
 
-	def distort_target_pose(self, pose):
-		distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
-		for param in pose.keys():
-			if param == "RotX":
-				distorted_pose[param] = pose[param] + random.randint(-15, 15)
-			elif param == "RotY":
-				distorted_pose[param] = pose[param] + random.randint(-15, 15)
-			elif param == "RotZ":
-				distorted_pose[param] = pose[param] + random.randint(-15, 15)
-			elif param == "TransX":
-				distorted_pose[param] = pose[param] + random.randint(-25, 25)
-			elif param == "TransY":
-				distorted_pose[param] = pose[param] + random.randint(-25, 25)
-			elif param == "TransZ":
-				distorted_pose[param] = pose[param] + random.randint(-65, 65)
-
-		return distorted_pose
-
-	def distort_ref_poses(self, pose):
-		distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}
-		for param in pose.keys():
-			if "Rot" in param:
-				distorted_pose[param] = pose[param] + random.randint(-180, 180)
-			elif param == "TransX":
-				distorted_pose[param] = pose[param]
-			elif param == "TransY":
-				distorted_pose[param] = pose[param]
-			elif param == "TransZ":
-				distorted_pose[param] = pose[param]#random.randint(-50, 50) #* self.index
-
-		return distorted_pose
-
 	def get_bbox_from_mask(self, mask: np.array) -> tuple:
 		mask_positive_pixels = np.where(mask == 1)
 		x_min = np.min(mask_positive_pixels[1])
@@ -164,8 +126,10 @@ class Dataset(torch.utils.data.Dataset):
 			json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
 			
 			real_pose = json_data["Pose"]
-   
+
 			refinement_pose_number = random.randint(0, 9)
+			if self.subset == "Validation":
+				refinement_pose_number = 0
 			path_datapoint = path + "ImageRefinement/" + "Data_{}/".format(index)
 			refinement_image_path = path_datapoint + "Image/" + "data_{}.npy".format(refinement_pose_number)
 			refinement_data_path = path_datapoint + "Pose/" + "data_{}.json".format(refinement_pose_number)
@@ -181,10 +145,8 @@ class Dataset(torch.utils.data.Dataset):
 				
 			if self.data_augmentation:
 				real_image = self.data_augmentation(image=real_image)["image"]
-			real_image = cv2.cvtColor(real_image, cv2.COLOR_RGB2GRAY)
-			rendered_image = cv2.cvtColor(rendered_image, cv2.COLOR_RGB2GRAY)
-			image_tensor = NormalizeToTensorGray(image=real_image)["image"]
-			rendered_image_tensor = NormalizeToTensorGray(image=rendered_image)["image"]
+			image_tensor = NormalizeToTensor(image=real_image)["image"]
+			rendered_image_tensor = NormalizeToTensor(image=rendered_image)["image"]
 
 			return image_tensor, rendered_image_tensor, \
 				torch.tensor(trans_matrix_real, dtype=torch.float32), \

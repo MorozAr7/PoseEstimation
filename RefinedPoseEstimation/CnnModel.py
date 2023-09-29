@@ -10,11 +10,11 @@ from CONFIG import DEVICE
 class EncoderModel(nn.Module):
 	def __init__(self):
 		super(EncoderModel, self).__init__()
-		self.layer_channels = [2, 64, 96, 128, 256, 512, 512 * 3]
+		self.layer_channels = [6, 64, 96, 128, 256, 512, 512 * 3]
 
 		self.Conv0 = ConvBnActiv(in_channels=self.layer_channels[0], out_channels=self.layer_channels[1], kernel_size=7, padding=3)
 
-		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2, kernel_size=5, padding=2)
+		self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
 		self.ResLayer1 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 		self.ResLayer2 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 
@@ -27,13 +27,11 @@ class EncoderModel(nn.Module):
 		self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
 		self.Conv4 = ConvBnActiv(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
-		self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_activation=True, padding=0, apply_bias=True)
+		self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1, stride=1, apply_bn=False, apply_activation=True, padding=0, apply_bias=False)
 		
 	def forward(self, x):
 		x = self.Conv0(x)
-		#print(x.shape)
 		x = self.Conv1(x)
-		#print(x.shape)
 		x = self.ResLayer1(x)
 		x = self.ResLayer2(x)
 		
