@@ -58,7 +58,6 @@ class ProjectionLoss(nn.Module):
         T_updated[..., 2:3, -1] = updated_z
         return self.compute_projection_loss(T_target, T_updated, vis=False)
     
-    
     def visualize_projection(self, xy_projected_prediction, xy_projected_target):
         xy_projected_prediction = torch.tensor(xy_projected_prediction, dtype=torch.int)[0].permute(1, 0).detach().cpu().numpy()
         xy_projected_target = torch.tensor(xy_projected_target, dtype=torch.int)[0].permute(1, 0).detach().cpu().numpy()
@@ -96,7 +95,7 @@ class ProjectionLoss(nn.Module):
       
             xy_projected_predicted = transformed_camera_pc_prediction[:, :2, :] / (transformed_camera_pc_prediction[:, 2:3, :])
             xy_projected_target = transformed_camera_pc_target[:, :2, :] / (transformed_camera_pc_target[:, 2:3, :])
-            #print(xy_projected_predicted.shape, xy_projected_target.shape)
+
             if vis:
                 self.visualize_projection(xy_projected_predicted, xy_projected_target)
             return self.L1_loss(xy_projected_predicted, xy_projected_target)
