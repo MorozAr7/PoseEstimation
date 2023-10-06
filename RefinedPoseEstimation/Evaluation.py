@@ -4,7 +4,7 @@ from ObjectSegmentation.Evaluation import ObjectSegmentationEvaluation
 import torch
 import cv2
 import numpy as np
-from Utils.DataAugmentationUtils import NormalizeToTensorGray, PoseEstimationAugmentation
+from Utils.DataAugmentationUtils import NormalizeToTensor, PoseEstimationAugmentation
 from DatasetRenderer.Renderer import DatasetRenderer
 
 class RefinedPoseEstimation:
@@ -25,7 +25,7 @@ class RefinedPoseEstimation:
 	@staticmethod
 	def normalize_convert_to_tensor(image):
 		
-		return NormalizeToTensorGray(image=image)["image"]
+		return NormalizeToTensor(image=image)["image"]
 
 	def convert_images_to_tensors(self, images, bbox):
 		batch_tensor = torch.tensor([])

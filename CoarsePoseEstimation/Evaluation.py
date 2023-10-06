@@ -1,6 +1,6 @@
 from CONFIG import *
 from CoarsePoseEstimation.CnnModel import AutoencoderPoseEstimationModel
-from Utils.DataAugmentationUtils import NormalizeToTensorGray
+from Utils.DataAugmentationUtils import NormalizeToTensor
 from Utils.IOUtils import IOUtils
 import cv2
 import albumentations as A
@@ -21,7 +21,7 @@ class CoarsePoseEvaluation:
 		self.init_pose_estimation_model()
 
 	def init_pose_estimation_model(self):
-		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoderSmallModelSegmentation.pt",
+		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionRGBOneDecoderSmallModelSegmentationNew.pt",
 		                                                      map_location="cpu"))
 		self.pose_estimation_model.eval()
 		self.pose_estimation_model.to(self.device)
@@ -36,7 +36,7 @@ class CoarsePoseEvaluation:
 
 	@staticmethod
 	def normalize_convert_to_tensor(image):
-		return NormalizeToTensorGray(image=image)["image"]
+		return NormalizeToTensor(image=image)["image"]
 
 	def get_uwv_predictions(self, image):
 		image = cv2.resize(image, (self.input_size, self.input_size))
@@ -72,9 +72,10 @@ class CoarsePoseEvaluation:
 		              
 		coarse_pose_predictions = np.array([])
 		for index in range(images.shape[0]):
-			mask = np.array(masks[index, ...], dtype=bool).reshape(self.input_size, self.input_size)
+			mask = np.array(uvw_predicted[3][index, ...].detach().cpu().numpy() > 0.5, dtype=bool).reshape(self.input_size, self.input_size)#np.array(masks[index, ...], dtype=bool).reshape(self.input_size, self.input_size)
 			print(mask.shape)
 			bbox = bboxes[index, ...]
+
 			u_predicted = np.floor(255 * uvw_predicted[0].permute(0, 2, 3, 1).detach().cpu().numpy()[index])
 			v_predicted = np.floor(255 * uvw_predicted[1].permute(0, 2, 3, 1).detach().cpu().numpy()[index])
 			w_predicted = np.floor(255 * uvw_predicted[2].permute(0, 2, 3, 1).detach().cpu().numpy()[index])
