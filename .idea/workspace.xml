@@ -5,25 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/OpticalFlow/CONFIG.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OpticalFlow/CnnModel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OpticalFlow/Evaluation.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OpticalFlow/LoadDataset.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OpticalFlow/LossFunction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OpticalFlow/TrainModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/Evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Evaluation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/Evaluation/CONFIG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Evaluation/Evaluate.py" beforeDir="false" afterPath="$PROJECT_DIR$/Evaluation/Evaluate.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/Evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utils/ConvUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/ConvUtils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Utils/DataAugmentationUtils.py" beforeDir="false" afterPath="$PROJECT_DIR$/Utils/DataAugmentationUtils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpticalFlow/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/OpticalFlow/CONFIG.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
