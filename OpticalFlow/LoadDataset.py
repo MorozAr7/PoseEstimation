@@ -124,9 +124,6 @@ class Dataset(torch.utils.data.Dataset):
             self.index = index
             real_image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
             mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
-            json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
-
-            real_pose = json_data["Pose"]
 
             refinement_pose_number = random.randint(0, 9)
             if self.subset == "Validation":
@@ -137,27 +134,22 @@ class Dataset(torch.utils.data.Dataset):
 
             rendered_image = self.io.load_numpy_file(refinement_image_path)
             rendered_data = self.io.load_json_file(refinement_data_path)
-            rendered_pose = rendered_data["Pose"]
             rendered_bbox = rendered_data["Box"]
-            trans_matrix_real = self.transformations.get_transformation_matrix_from_pose(real_pose)
-            trans_matrix_rendered = self.transformations.get_transformation_matrix_from_pose(rendered_pose)
-            optical_flow_map = self.dataset_renderer.get_optical_flow(trans_matrix_real, trans_matrix_rendered).reshape(1039, 1865, 3)
 
             real_image = self.crop_and_resize(real_image, rendered_bbox)
-            reshaped_flow = self.crop_and_resize(optical_flow_map, rendered_bbox)
-            #p#rint(mask.dtype)
+            flow_map = self.io.load_numpy_file(path_datapoint + "Flow/" + f"data_{refinement_pose_number}.npy")
+
             mask = self.crop_and_resize(mask.astype(float), rendered_bbox)
             if self.data_augmentation:
                 real_image = self.data_augmentation(image=real_image)["image"]
-            #cv2.imshow("mask", mask)
-            #cv2.imshow("flow", np.concatenate([reshaped_flow[..., 0:3], real_image/255, rendered_image/255], axis=0))
+            cv2.imshow("flow", np.concatenate([flow_map, real_image/255, rendered_image/255], axis=0))
 
-            #cv2.waitKey(0)
+            cv2.waitKey(0)
             image_tensor = NormalizeToTensor(image=real_image)["image"]
             rendered_image_tensor = NormalizeToTensor(image=rendered_image)["image"]
 
             return image_tensor, rendered_image_tensor, \
-                   torch.tensor(reshaped_flow, dtype=torch.float32).permute(2, 0, 1), \
+                   torch.tensor(flow_map, dtype=torch.float32).permute(2, 0, 1), \
                     torch.tensor(mask, dtype=torch.float32)
         except Exception as e:
             print(e)
