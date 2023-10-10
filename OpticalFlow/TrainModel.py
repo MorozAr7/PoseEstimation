@@ -162,7 +162,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 if __name__ == "__main__":
     model = FlowEstimationCnn().apply(init_weights)
-    # model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt", map_location="cpu"))
+    model.load_state_dict(torch.load(MAIN_DIR_PATH + "OpticalFlow/TrainedModels/FlowEstimationEncoder.pt", map_location="cpu"))
     model.to(DEVICE)
     optical_flow_renderer = OpticalFlowRenderer()
     optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
@@ -177,9 +177,7 @@ if __name__ == "__main__":
                                  dataset_renderer=optical_flow_renderer,
                                  data_augmentation=None)
 
-    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)  # ,
-    # num_workers=32)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)  # ,
-    # num_workers=32)
+    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
 
     main(model, optimizer, training_dataloader, validation_dataloader, loss_functions)
