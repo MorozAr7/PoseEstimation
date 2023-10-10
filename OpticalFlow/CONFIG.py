@@ -15,5 +15,5 @@ LEARNING_RATE = 0.0025
 NUM_EPOCHS = 500
 BATCH_SIZE = 64
 SAVE_MODEL = True
-SUBSET_NUM_DATA = {"Training": 25000, "Validation": 5000}
+SUBSET_NUM_DATA = {"Training": 10000, "Validation": 2000}
 
