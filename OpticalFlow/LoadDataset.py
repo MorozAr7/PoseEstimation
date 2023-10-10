@@ -142,9 +142,9 @@ class Dataset(torch.utils.data.Dataset):
             mask = self.crop_and_resize(mask.astype(float), rendered_bbox)
             if self.data_augmentation:
                 real_image = self.data_augmentation(image=real_image)["image"]
-            cv2.imshow("flow", np.concatenate([flow_map, real_image/255, rendered_image/255], axis=0))
+            #cv2.imshow("flow", np.concatenate([flow_map, real_image/255, rendered_image/255], axis=0))
 
-            cv2.waitKey(0)
+            #cv2.waitKey(0)
             image_tensor = NormalizeToTensor(image=real_image)["image"]
             rendered_image_tensor = NormalizeToTensor(image=rendered_image)["image"]
 
