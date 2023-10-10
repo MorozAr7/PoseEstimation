@@ -142,7 +142,6 @@ class OpticalFlowRenderer:
 
     def project_point_cloud(self, coords3d: np.array, transformation_matrix: np.array) -> tuple:
         homogenous_coords_3d = self.get_homogenous_coords(coords3d)
-
         homogenous_coords_2d = self.camera_intrinsic @ (transformation_matrix @ homogenous_coords_3d.T)
         homogenous_coords_2d[2, :][np.where(homogenous_coords_2d[2, :] == 0)] = 1
 
@@ -170,12 +169,12 @@ class OpticalFlowRenderer:
         flow_channel_2 = np.zeros((self.image_h, self.image_w, 1))
         #flow_channel_3 = np.zeros((self.image_h, self.image_w, 1))
         magnitude = np.zeros((self.image_h, self.image_w, 1))
-        
+
         flow_channel_1[y_2d, x_2d] = flow_x.reshape(-1, 1)
         flow_channel_2[y_2d, x_2d] = flow_y.reshape(-1, 1)
         #flow_channel_3[y_2d, x_2d] = flow_y.reshape(-1, 1)
         magnitude[y_2d, x_2d] = magn.reshape(-1, 1)
-        return np.stack([flow_channel_1, flow_channel_2, magnitude], axis=2)#,
+        return np.stack([flow_channel_1, flow_channel_2, magnitude], axis=2)
 
     def setup_renderer_scene(self, direction: list, color: list, intensity: int) -> None:
         self.renderer.scene.scene.set_sun_light(direction, color, intensity)
