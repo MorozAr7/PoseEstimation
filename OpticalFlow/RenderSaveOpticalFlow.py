@@ -41,7 +41,7 @@ def render_and_save(subset, index_real, optical_flow_renderer, io_utils, transfo
         io_utils.save_numpy_file(path_flow + f"data_{index_rendered}.npy", reshaped_flow)
 
 def main():
-    data_num_dict = {"Training": 256, "Validation": 1}
+    data_num_dict = SUBSET_NUM_DATA#{"Training": 256, "Validation": 1}
     optic_flow_renderer = OpticalFlowRenderer()
     io = IOUtils()
     transformations = Transformations()
