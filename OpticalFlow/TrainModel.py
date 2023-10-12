@@ -62,7 +62,7 @@ def init_classification_model():
 
 
 def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, epoch=0):
-    model.train() if is_training else model.eval()
+    model.eval() if is_training else model.eval()
 
     epoch_loss_x = 0
     epoch_loss_y = 0
@@ -81,6 +81,14 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             mask = mask.to(DEVICE)
 
             predictions = model(image_real, image_rendered)
+            visualize_x = torch.cat([predictions[:, 0, ...] * mask, optical_flow[:, 0, ...]], dim=2).cpu().detach().numpy()
+            visualize_y = torch.cat([predictions[:, 1, ...] * mask, optical_flow[:, 1, ...]], dim=2).cpu().detach().numpy()
+            visualize_magn = torch.cat([predictions[:, 2, ...] * mask, optical_flow[:, 2, ...]], dim=2).cpu().detach().numpy()
+            print(visualize_magn.shape)
+            for i in range(predictions.shape[0]):
+
+                cv2.imshow("img", np.concatenate([visualize_magn[i, ...], visualize_x[i, ...], visualize_y[i, ...]], axis=0))
+                cv2.waitKey(0)
             #print(mask.shape)
             #print(torch.min(predictions[:, 0:1, ...]), torch.max(predictions[:, 0:1, ...]), torch.min(predictions[:, 1:2, ...]), torch.max(predictions[:, 1:2, ...]), torch.min(predictions[:, 2:3, ...]), torch.max(predictions[:, 2:3, ...]))
             #print(torch.min(optical_flow[:, 0:1, ...]), torch.max(optical_flow[:, 0:1, ...]), torch.min(optical_flow[:, 1:2, ...]), torch.max(optical_flow[:, 1:2, ...]), torch.min(optical_flow[:, 2:3, ...]), torch.max(optical_flow[:, 2:3, ...]))
@@ -162,7 +170,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 if __name__ == "__main__":
     model = FlowEstimationCnn().apply(init_weights)
-    model.load_state_dict(torch.load(MAIN_DIR_PATH + "OpticalFlow/TrainedModels/FlowEstimationEncoder.pt", map_location="cpu"))
+    #model.load_state_dict(torch.load(MAIN_DIR_PATH + "OpticalFlow/TrainedModels/FlowEstimationEncoder.pt", map_location="cpu"))
     model.to(DEVICE)
     optical_flow_renderer = OpticalFlowRenderer()
     optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
@@ -177,7 +185,7 @@ if __name__ == "__main__":
                                  dataset_renderer=optical_flow_renderer,
                                  data_augmentation=None)
 
-    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
+    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)#, num_workers=32)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)#, num_workers=32)
 
     main(model, optimizer, training_dataloader, validation_dataloader, loss_functions)

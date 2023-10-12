@@ -8,6 +8,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpticalFlow/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/OpticalFlow/CONFIG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpticalFlow/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/OpticalFlow/TrainModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpticalFlow/TrainedModels/FlowEstimationEncoder.pt" beforeDir="false" afterPath="$PROJECT_DIR$/OpticalFlow/TrainedModels/FlowEstimationEncoder.pt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,34 +37,34 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "true",
-    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/OpticalFlow",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.keymap"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/OpticalFlow/TrainedModels&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/OpticalFlow/TrainedModels" />
       <recent name="$PROJECT_DIR$/OpticalFlow" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Utils" />
       <recent name="$PROJECT_DIR$/RefinedPoseEstimation" />
-      <recent name="$PROJECT_DIR$/ObjectSegmentation" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/RefinedPoseEstimation" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.RenderSaveOpticalFlow">
+  <component name="RunManager" selected="Python.TrainModel (3)">
     <configuration name="CnnModel" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PoseEstimation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -169,10 +172,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.TrainModel (3)" />
         <item itemvalue="Python.RenderSaveOpticalFlow" />
         <item itemvalue="Python.RenderOpticalFLow" />
         <item itemvalue="Python._tensor" />
-        <item itemvalue="Python.TrainModel (3)" />
         <item itemvalue="Python.CnnModel" />
       </list>
     </recent_temporary>

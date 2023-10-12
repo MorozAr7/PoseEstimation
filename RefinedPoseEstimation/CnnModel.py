@@ -17,16 +17,25 @@ class EncoderModel(nn.Module):
                                  padding=3)
 
         self.Conv1 = ConvBnActiv(in_channels=self.layer_channels[1], out_channels=self.layer_channels[2], stride=2)
+
         self.ResLayer1 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
         self.ResLayer2 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
+        self.ResLayer3 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
+        self.ResLayer4 = ResidualBlock(in_channels=self.layer_channels[2], out_channels=self.layer_channels[2])
 
         self.Conv2 = ConvBnActiv(in_channels=self.layer_channels[2], out_channels=self.layer_channels[3], stride=2)
-        self.ResLayer3 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
-        self.ResLayer4 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+
+        self.ResLayer5 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+        self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+        self.ResLayer7 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
+        self.ResLayer8 = ResidualBlock(in_channels=self.layer_channels[3], out_channels=self.layer_channels[3])
 
         self.Conv3 = ConvBnActiv(in_channels=self.layer_channels[3], out_channels=self.layer_channels[4], stride=2)
-        self.ResLayer5 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
-        self.ResLayer6 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+
+        self.ResLayer9 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+        self.ResLayer10 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+        self.ResLayer11 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
+        self.ResLayer12 = ResidualBlock(in_channels=self.layer_channels[4], out_channels=self.layer_channels[4])
 
         self.Conv4 = ConvBnActiv(in_channels=self.layer_channels[4], out_channels=self.layer_channels[5], stride=2)
         self.Conv5 = ConvBnActiv(in_channels=self.layer_channels[5], out_channels=self.layer_channels[6], kernel_size=1,
@@ -35,18 +44,25 @@ class EncoderModel(nn.Module):
     def forward(self, x):
         x = self.Conv0(x)
         x = self.Conv1(x)
+
         x = self.ResLayer1(x)
         x = self.ResLayer2(x)
-
-        x = self.Conv2(x)
-
         x = self.ResLayer3(x)
         x = self.ResLayer4(x)
 
-        x = self.Conv3(x)
+        x = self.Conv2(x)
 
         x = self.ResLayer5(x)
         x = self.ResLayer6(x)
+        x = self.ResLayer7(x)
+        x = self.ResLayer8(x)
+
+        x = self.Conv3(x)
+
+        x = self.ResLayer9(x)
+        x = self.ResLayer10(x)
+        x = self.ResLayer11(x)
+        x = self.ResLayer12(x)
 
         x = self.Conv4(x)
         x = self.Conv5(x)
@@ -135,6 +151,6 @@ if __name__ == "__main__":
     model_parameters = filter(lambda p: p.requires_grad, pose_ref_cnn.parameters())
     params = sum([np.prod(p.size()) for p in model_parameters])
     print("NUMBER PARAMS GENERATOR:", params)
-    input_tensor = torch.ones(size=(8, 1, 224, 224)).to(DEVICE)
+    input_tensor = torch.ones(size=(8, 3, 224, 224)).to(DEVICE)
     u = pose_ref_cnn(input_tensor, input_tensor)
     print(u[0].shape)
