@@ -111,7 +111,7 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 
 def main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, loss_function) -> None:
     smallest_loss = float("inf")
-    for epoch in range(1, NUM_EPOCHS):
+    for epoch in range(200, NUM_EPOCHS):
         since: float = time.time()
         change_learning_rate(optimizer, epoch, LR_DECAY_EPOCHS, LR_DECAY_FACTOR)
         train_l_rotation, train_l_xy, train_l_z = one_epoch(
@@ -146,7 +146,7 @@ if __name__ == "__main__":
 
     dataset_renderer = DatasetRenderer()
     pose_refiner_model = PoseRefinementNetwork().to(DEVICE).apply(init_weights)
-    # pose_refiner_model.load_state_dict(torch.load(MAIN_DIR_PATH + "RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DLastDataset.pt", map_location="cpu"), strict=False)
+    pose_refiner_model.load_state_dict(torch.load(MAIN_DIR_PATH + "RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationBigModel.pt", map_location="cpu"), strict=False)
 
     io = IOUtils()
     point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
@@ -162,9 +162,9 @@ if __name__ == "__main__":
     subset = "Validation"
     validation_dataset = Dataset(subset, NUM_DATA[subset], dataset_renderer, None)
 
-    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)#,
-                                    # num_workers=32)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)#,
-                                       #num_workers=32)
+    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)  # ,
+    # num_workers=32)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)  # ,
+    # num_workers=32)
 
     main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, l1_loss_function)
