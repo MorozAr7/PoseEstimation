@@ -162,9 +162,7 @@ if __name__ == "__main__":
     subset = "Validation"
     validation_dataset = Dataset(subset, NUM_DATA[subset], dataset_renderer, None)
 
-    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)  # ,
-    # num_workers=32)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)  # ,
-    # num_workers=32)
+    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True, num_workers=32)
 
     main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader, l1_loss_function)
