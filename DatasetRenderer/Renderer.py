@@ -59,7 +59,7 @@ class DatasetRenderer:
         pcd = np.array(pcd.points)
   
         print(pcd.shape)
-        self.io.save_numpy_file("SparcePointCloud5k.npy", pcd)
+        self.io.save_numpy_file("/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy", pcd)
 
     @staticmethod
     def get_homogenous_coords(cartesian_coords: np.array) -> np.array:

@@ -29,9 +29,9 @@ class EvaluateOnDataset:
         self.image_size = 224
     
     def init_cnn(self):
-        self.pose_ref_model.load_state_dict(torch.load("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationModelProjection2DRGBBiggerKernels.pt", map_location="cpu"))
+        self.pose_ref_model.load_state_dict(torch.load("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationBigModel.pt", map_location="cpu"))
         
-        self.pose_ref_model.to("mps")
+        self.pose_ref_model.to(DEVICE)
         self.pose_ref_model.eval()
     
     def crop_and_resize(self, array, bbox_corner):
@@ -83,9 +83,7 @@ class EvaluateOnDataset:
     
     
     def update_pose_prediction(self, coarse_T, predicted_R, predicted_t):
-        print(predicted_t)
-        print(predicted_R)
-        print(coarse_T)
+
         coarse_xy = coarse_T[:2, -1]
         coarse_R = coarse_T[:3, :3]
         coarse_z = coarse_T[2:3, -1]
@@ -94,8 +92,7 @@ class EvaluateOnDataset:
         T_predicted = coarse_T.copy()
         T_predicted[0:3, 0:3] = predicted_R @ coarse_R
         T_predicted[:2, -1] = updated_xy
-        T_predicted[2:3, -1] = updated_z 
-        print(T_predicted)
+        T_predicted[2:3, -1] = updated_z
         return T_predicted
         
         
@@ -107,8 +104,8 @@ class EvaluateOnDataset:
             #real_image = np.expand_dims(cv2.cvtColor(real_image, cv2.COLOR_RGB2GRAY), axis=-1)
             #real_image_cropped = np.expand_dims(cv2.cvtColor(real_image_cropped, cv2.COLOR_RGB2GRAY), axis=-1)
             #rendered_image_cropped = np.expand_dims(cv2.cvtColor(rendered_image_cropped, cv2.COLOR_RGB2GRAY), axis=-1)
-            real_image_torch = NormalizeToTensor(image=real_image_cropped)["image"].unsqueeze(0).to("mps")
-            rendered_image_torch = NormalizeToTensor(image=rendered_image_cropped)["image"].unsqueeze(0).to("mps")
+            real_image_torch = NormalizeToTensor(image=real_image_cropped)["image"].unsqueeze(0).to(DEVICE)
+            rendered_image_torch = NormalizeToTensor(image=rendered_image_cropped)["image"].unsqueeze(0).to(DEVICE)
 
             vis = torch.cat([real_image_torch, rendered_image_torch], dim=-1).permute(0, 2, 3, 1)[0].detach().cpu().numpy() * 255
             #cv2.imwrite("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/SavedImages/image_{}.png".format(index), vis)
@@ -122,7 +119,7 @@ class EvaluateOnDataset:
             rendered_image_coarse = rendered_image_dict["ImageBlack"] * mask
             rendered_image_coarse = np.expand_dims(cv2.cvtColor(rendered_image_coarse, cv2.COLOR_RGB2GRAY), axis=-1)
             visualize_coarse = real_image * (1 - mask) + rendered_image_coarse
-            print(visualize_coarse.shape)
+
             visualize_coarse = self.crop_and_resize(visualize_coarse.astype(np.uint8), rendered_bbox)
             visualize_coarse = np.expand_dims(visualize_coarse, axis=-1)
             rendered_image_dict = self.renderer.get_image(T_predicted, None, image_black=True, image_background=False, UVW=False, constant_light=True)
@@ -133,8 +130,6 @@ class EvaluateOnDataset:
             visualize_refined = real_image * (1 - mask) + rendered_image_refined
             visualize_refined = self.crop_and_resize(visualize_refined.astype(np.uint8), rendered_bbox)
             visualize_refined = np.expand_dims(visualize_refined, axis=-1)
-            print(visualize_refined.shape, visualize_coarse.shape, real_image_cropped.shape)
-            # print(visualize_refined.shape, visualize_coarse.shape, real_image_cropped.shape)
             cv2.imshow("video", np.hstack([visualize_refined.reshape(224, 224, 3), visualize_coarse.reshape(224, 224, 3), real_image_cropped])/255)
             cv2.waitKey(0)
 

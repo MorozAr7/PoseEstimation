@@ -5,12 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/opttritri.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/tribox3.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/python/open3d/ml/tf/layers/__init__.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/python/open3d/ml/tf/ops/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODO.txt" beforeDir="false" afterPath="$PROJECT_DIR$/TODO.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +53,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "true",
-    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation",
+    "last_opened_file_path": "/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -57,18 +64,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/RefinedPoseEstimation/TrainedModels" />
       <recent name="$PROJECT_DIR$/OpticalFlow/TrainedModels" />
       <recent name="$PROJECT_DIR$/OpticalFlow" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Utils" />
-      <recent name="$PROJECT_DIR$/RefinedPoseEstimation" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/RefinedPoseEstimation" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.TrainModel (1)">
+  <component name="RunManager" selected="Python.EvaluateOnDataset">
     <configuration name="Evaluate" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PoseEstimation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -91,6 +98,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="EvaluateOnDataset" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PoseEstimation" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/RefinedPoseEstimation" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Evaluation (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PoseEstimation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -105,28 +134,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CoarsePoseEstimation/Evaluation.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Evaluation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="PoseEstimation" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/RefinedPoseEstimation" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RefinedPoseEstimation/Evaluation.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -181,11 +188,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.EvaluateOnDataset" />
         <item itemvalue="Python.TrainModel (1)" />
         <item itemvalue="Python.LossFunction" />
         <item itemvalue="Python.Evaluate" />
         <item itemvalue="Python.Evaluation (1)" />
-        <item itemvalue="Python.Evaluation" />
       </list>
     </recent_temporary>
   </component>
@@ -207,7 +214,7 @@
       <workItem from="1697200060061" duration="35000" />
       <workItem from="1697206997523" duration="46000" />
       <workItem from="1697211122395" duration="42000" />
-      <workItem from="1697444759796" duration="11427000" />
+      <workItem from="1697444759796" duration="14546000" />
     </task>
     <servers />
   </component>
@@ -244,6 +251,7 @@
     <SUITE FILE_PATH="coverage/PoseEstimation$RendererConfig__1_.coverage" NAME="RendererConfig (1) Coverage Results" MODIFIED="1693059723503" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/DatasetRenderer" />
     <SUITE FILE_PATH="coverage/PoseEstimation$Evaluation__1_.coverage" NAME="Evaluation (1) Coverage Results" MODIFIED="1697451875117" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$Evaluate.coverage" NAME="Evaluate Coverage Results" MODIFIED="1697451930945" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Evaluation" />
+    <SUITE FILE_PATH="coverage/PoseEstimation$EvaluateOnDataset.coverage" NAME="EvaluateOnDataset Coverage Results" MODIFIED="1697540884047" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/RefinedPoseEstimation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$TrainModel__2_.coverage" NAME="TrainModel (2) Coverage Results" MODIFIED="1693147981005" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ObjectSegmentation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$TrainModel__1_.coverage" NAME="TrainModel (1) Coverage Results" MODIFIED="1697534436108" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$LoadDataset.coverage" NAME="LoadDataset Coverage Results" MODIFIED="1693134698876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />

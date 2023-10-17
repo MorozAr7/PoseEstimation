@@ -1,3 +1,8 @@
 Coarse model
 1. Try training with GAN
 2. Try change the predicted range from [0, 1] to [-1, 1] via tanh function
+
+
+Refiner model
+1. Try resample 3d points at every iteration
+2. Try 2 backbone tails instead of 1 which further concatenate or summ their features

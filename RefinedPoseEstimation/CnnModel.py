@@ -7,7 +7,6 @@ from Utils.ConvUtils import *
 import numpy as np
 from CONFIG import DEVICE
 
-
 class EncoderModel(nn.Module):
     def __init__(self):
         super(EncoderModel, self).__init__()
