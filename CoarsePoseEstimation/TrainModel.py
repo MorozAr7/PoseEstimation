@@ -210,9 +210,9 @@ if __name__ == "__main__":
                                  num_images=list(SUBSET_NUM_DATA.values())[1],
                                  data_augmentation=None)
 
-    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)#,
-                                     #num_workers=32)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)#,
-                                       #num_workers=32)
+    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True,
+                                     num_workers=32)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True,
+                                       num_workers=32)
 
     main(model, optimizer, training_dataloader, validation_dataloader, loss_functions)

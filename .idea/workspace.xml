@@ -5,20 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/TODO.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/PoseEstimation.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PoseEstimation.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/CnnModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/Evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/LoadDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/LossFunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/LossFunction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Evaluation/Evaluate.py" beforeDir="false" afterPath="$PROJECT_DIR$/Evaluation/Evaluate.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ObjectSegmentation/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/ObjectSegmentation/Evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/opttritri.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/tribox3.h" beforeDir="false" />
@@ -221,7 +207,7 @@
       <workItem from="1697200060061" duration="35000" />
       <workItem from="1697206997523" duration="46000" />
       <workItem from="1697211122395" duration="42000" />
-      <workItem from="1697444759796" duration="10349000" />
+      <workItem from="1697444759796" duration="11427000" />
     </task>
     <servers />
   </component>
@@ -259,7 +245,7 @@
     <SUITE FILE_PATH="coverage/PoseEstimation$Evaluation__1_.coverage" NAME="Evaluation (1) Coverage Results" MODIFIED="1697451875117" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$Evaluate.coverage" NAME="Evaluate Coverage Results" MODIFIED="1697451930945" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Evaluation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$TrainModel__2_.coverage" NAME="TrainModel (2) Coverage Results" MODIFIED="1693147981005" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ObjectSegmentation" />
-    <SUITE FILE_PATH="coverage/PoseEstimation$TrainModel__1_.coverage" NAME="TrainModel (1) Coverage Results" MODIFIED="1697533424818" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />
+    <SUITE FILE_PATH="coverage/PoseEstimation$TrainModel__1_.coverage" NAME="TrainModel (1) Coverage Results" MODIFIED="1697534436108" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$LoadDataset.coverage" NAME="LoadDataset Coverage Results" MODIFIED="1693134698876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$LossFunction.coverage" NAME="LossFunction Coverage Results" MODIFIED="1697531108646" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoarsePoseEstimation" />
     <SUITE FILE_PATH="coverage/PoseEstimation$RendererConfig.coverage" NAME="RendererConfig Coverage Results" MODIFIED="1692290968499" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/DatasetRenderer" />
