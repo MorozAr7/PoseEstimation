@@ -5,19 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/opttritri.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/tribox3.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/examples/python/visualization/vis_gui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/python/open3d/ml/tf/layers/__init__.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/python/open3d/ml/tf/ops/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CONFIG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/CnnModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/TrainModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TODO.txt" beforeDir="false" afterPath="$PROJECT_DIR$/TODO.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -214,7 +207,7 @@
       <workItem from="1697200060061" duration="35000" />
       <workItem from="1697206997523" duration="46000" />
       <workItem from="1697211122395" duration="42000" />
-      <workItem from="1697444759796" duration="14546000" />
+      <workItem from="1697444759796" duration="14885000" />
     </task>
     <servers />
   </component>
