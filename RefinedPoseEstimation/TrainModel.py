@@ -109,11 +109,13 @@ def one_epoch(pose_refiner_model, optimizer, dataloader, loss_function, is_train
 
 def main(pose_refiner_model, optimizer, training_dataloader, validation_dataloader) -> None:
     smallest_loss = float("inf")
+    global dataset_renderer
     for epoch in range(0, NUM_EPOCHS):
         since: float = time.time()
         change_learning_rate(optimizer, epoch, LR_DECAY_EPOCHS, LR_DECAY_FACTOR)
         dataset_renderer.sample_point_cloud(10000)
-        point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparcePointCloud5k.npy")
+        print("Point cloud is sampled")
+        point_cloud = io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/SparsePointCloud10k.npy")
         point_cloud_torch = torch.tensor(point_cloud).float().to(DEVICE)
         projection_loss_function = ProjectionLoss(point_cloud=point_cloud_torch, device=DEVICE,
                                           projection_type=PROJECTION_TYPE_LOSS, disentangle=LOSS_TYPE)
