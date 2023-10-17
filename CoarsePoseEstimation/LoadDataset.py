@@ -114,6 +114,10 @@ class Dataset(torch.utils.data.Dataset):
 		v_map = self.crop_and_resize(v_map, bbox_crop)
 		w_map = self.crop_and_resize(w_map, bbox_crop)
 
+		u_map = 2 * (u_map/255) - 1
+		v_map = 2 * (v_map/255) - 1
+		w_map = 2 * (w_map/255) - 1
+
 		if self.data_augmentation:
 			image = self.data_augmentation(image=image)["image"]
 		#image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -121,5 +125,5 @@ class Dataset(torch.utils.data.Dataset):
 
 		return image_tensor, \
 		       torch.tensor(np.expand_dims(mask, axis=2), dtype=torch.float32).permute(2, 0, 1), \
-		       torch.tensor(u_map, dtype=torch.int64), torch.tensor(v_map, dtype=torch.int64), torch.tensor(w_map, dtype=torch.int64),
+		       torch.tensor(u_map, dtype=torch.float32), torch.tensor(v_map, dtype=torch.float32), torch.tensor(w_map, dtype=torch.float32),
 

@@ -22,231 +22,231 @@ o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel(0))
 
 
 class DatasetRenderer:
-	def __init__(self):
-		self.transformations = Transformations()
-		self.io = IOUtils()
+    def __init__(self):
+        self.transformations = Transformations()
+        self.io = IOUtils()
 
-		self.camera_data = self.io.load_json_file(MAIN_DIR_PATH + "/CameraData/" + CAM_DATA_FILE)
-		self.camera_intrinsic = np.array(self.camera_data["K"])
+        self.camera_data = self.io.load_json_file(MAIN_DIR_PATH + "/CameraData/" + CAM_DATA_FILE)
+        self.camera_intrinsic = np.array(self.camera_data["K"])
 
-		self.image_h, self.image_w = self.camera_data["res_undist"]
-		self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/DensePointCloud250k.npy")
-		self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj")
+        self.image_h, self.image_w = self.camera_data["res_undist"]
+        self.point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/DensePointCloud250k.npy")
+        self.model3d = o3d.io.read_triangle_model(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj")
 
-		self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/ChassisUVWmapping.json")
+        self.uvw_mapping = self.io.load_json_file(MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/ChassisUVWmapping.json")
 
-		self.renderer = o3d.visualization.rendering.OffscreenRenderer(self.image_w, self.image_h)
-		self.renderer.scene.add_model(OBJECT_TYPE + "Model", self.model3d)
+        self.renderer = o3d.visualization.rendering.OffscreenRenderer(self.image_w, self.image_h)
+        self.renderer.scene.add_model(OBJECT_TYPE + "Model", self.model3d)
 
-		self.uvw_coords = self.create_uvw_mapping(self.point_cloud)
-		self.pose_ranges = {"RotX": (-180, 180),
-		                    "RotY": (-180, 180),
-		                    "RotZ": (-180, 180),
-		                    "TransX": (-100, 100),
-		                    "TransY": (-50, 50),
-		                    "TransZ": (500, 1000)}
+        self.uvw_coords = self.create_uvw_mapping(self.point_cloud)
+        self.pose_ranges = {"RotX": (-180, 180),
+                            "RotY": (-180, 180),
+                            "RotZ": (-180, 180),
+                            "TransX": (-100, 100),
+                            "TransY": (-50, 50),
+                            "TransZ": (500, 1000)}
 
-		self.noise_threshold = 2
+        self.noise_threshold = 2
 
-		self.backgrounds_path = MAIN_DIR_PATH + "/DatasetRenderer" + "/Backgrounds/"
-		self.backgrounds_list = os.listdir(self.backgrounds_path)
+        self.backgrounds_path = MAIN_DIR_PATH + "/DatasetRenderer" + "/Backgrounds/"
+        self.backgrounds_list = os.listdir(self.backgrounds_path)
 
-	def sample_point_cloud(self, num_points):
-		file = MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj"
-		mesh = o3d.io.read_triangle_mesh(file)
-		pcd = mesh.sample_points_poisson_disk(num_points)
-		#help(pcd)
-		pcd = np.array(pcd.points)
+    def sample_point_cloud(self, num_points):
+        file = MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj"
+        mesh = o3d.io.read_triangle_mesh(file)
+        pcd = mesh.sample_points_poisson_disk(num_points)
+        #help(pcd)
+        pcd = np.array(pcd.points)
   
-		print(pcd.shape)
-		self.io.save_numpy_file("SparcePointCloud5k.npy", pcd)
-	
-	@staticmethod
-	def get_homogenous_coords(cartesian_coords: np.array) -> np.array:
-		ones = np.ones(shape=(cartesian_coords.shape[0], 1))
-		return np.concatenate([cartesian_coords, ones], axis=-1)
+        print(pcd.shape)
+        self.io.save_numpy_file("SparcePointCloud5k.npy", pcd)
 
-	def sample_pose(self) -> dict:
-		pose_params = {}
-		for key, value in self.pose_ranges.items():
-			pose_params[key] = random.randint(value[0], value[1])
+    @staticmethod
+    def get_homogenous_coords(cartesian_coords: np.array) -> np.array:
+        ones = np.ones(shape=(cartesian_coords.shape[0], 1))
+        return np.concatenate([cartesian_coords, ones], axis=-1)
 
-		return pose_params
+    def sample_pose(self) -> dict:
+        pose_params = {}
+        for key, value in self.pose_ranges.items():
+            pose_params[key] = random.randint(value[0], value[1])
 
-	def get_object_mask(self, rendered_image: np.array) -> np.array:
-		mask = rendered_image > self.noise_threshold
-		return np.array((mask[..., 0] * mask[..., 1] * mask[..., 2]), dtype=bool)
+        return pose_params
 
-	@staticmethod
-	def get_bbox_from_mask(mask: np.array) -> tuple:
-		mask_positive_pixels = np.where(mask == 1)
-		x_min = np.min(mask_positive_pixels[1])
-		x_max = np.max(mask_positive_pixels[1])
-		y_min = np.min(mask_positive_pixels[0])
-		y_max = np.max(mask_positive_pixels[0])
+    def get_object_mask(self, rendered_image: np.array) -> np.array:
+        mask = rendered_image > self.noise_threshold
+        return np.array((mask[..., 0] * mask[..., 1] * mask[..., 2]), dtype=bool)
 
-		return int(x_min), int(y_min), int(x_max), int(y_max)
+    @staticmethod
+    def get_bbox_from_mask(mask: np.array) -> tuple:
+        mask_positive_pixels = np.where(mask == 1)
+        x_min = np.min(mask_positive_pixels[1])
+        x_max = np.max(mask_positive_pixels[1])
+        y_min = np.min(mask_positive_pixels[0])
+        y_max = np.max(mask_positive_pixels[0])
 
-	@staticmethod
-	def get_min_max_scaling(coords: np.array) -> np.array:
-		min_val = np.min(coords)
-		max_val = np.max(coords)
+        return int(x_min), int(y_min), int(x_max), int(y_max)
 
-		scaled_coords = (coords - min_val) / (max_val - min_val)
+    @staticmethod
+    def get_min_max_scaling(coords: np.array) -> np.array:
+        min_val = np.min(coords)
+        max_val = np.max(coords)
 
-		return scaled_coords
+        scaled_coords = (coords - min_val) / (max_val - min_val)
 
-	def create_uvw_mapping(self, coords3d: np.array) -> tuple:
-		centroid = np.mean(coords3d, axis=0)
-		x_centered = coords3d[..., 0] - centroid[0]
-		y_centered = coords3d[..., 1] - centroid[1]
-		z_centered = coords3d[..., 2] - centroid[2]
+        return scaled_coords
 
-		x_scaled = self.get_min_max_scaling(x_centered)
-		y_scaled = self.get_min_max_scaling(y_centered)
-		z_scaled = self.get_min_max_scaling(z_centered)
+    def create_uvw_mapping(self, coords3d: np.array) -> tuple:
+        centroid = np.mean(coords3d, axis=0)
+        x_centered = coords3d[..., 0] - centroid[0]
+        y_centered = coords3d[..., 1] - centroid[1]
+        z_centered = coords3d[..., 2] - centroid[2]
 
-		u = np.floor(x_scaled * (UVW_RANGE - 1))
-		v = np.floor(y_scaled * (UVW_RANGE - 1))
-		w = np.floor(z_scaled * (UVW_RANGE - 1))
-		uvw_mapping_dict = dict()
-		"""file = open("ChassisUVWmapping.json", "w")
+        x_scaled = self.get_min_max_scaling(x_centered)
+        y_scaled = self.get_min_max_scaling(y_centered)
+        z_scaled = self.get_min_max_scaling(z_centered)
 
-		for index in range(coords3d.shape[0]):
-			uvw_mapping_dict[str((int(u[index]), int(v[index]), int(w[index])))] = coords3d[index, :].reshape(-1).tolist()
-		json.dump(uvw_mapping_dict, file)"""
-		return u, v, w
+        u = np.floor(x_scaled * (UVW_RANGE - 1))
+        v = np.floor(y_scaled * (UVW_RANGE - 1))
+        w = np.floor(z_scaled * (UVW_RANGE - 1))
+        uvw_mapping_dict = dict()
+        """file = open("ChassisUVWmapping.json", "w")
 
-	def project_point_cloud(self, coords3d: np.array, transformation_matrix: np.array) -> tuple:
-		homogenous_coords_3d = self.get_homogenous_coords(coords3d)
+        for index in range(coords3d.shape[0]):
+            uvw_mapping_dict[str((int(u[index]), int(v[index]), int(w[index])))] = coords3d[index, :].reshape(-1).tolist()
+        json.dump(uvw_mapping_dict, file)"""
+        return u, v, w
 
-		homogenous_coords_2d = self.camera_intrinsic @ (transformation_matrix @ homogenous_coords_3d.T)
-		homogenous_coords_2d[2, :][np.where(homogenous_coords_2d[2, :] == 0)] = 1
+    def project_point_cloud(self, coords3d: np.array, transformation_matrix: np.array) -> tuple:
+        homogenous_coords_3d = self.get_homogenous_coords(coords3d)
 
-		coords_2d = homogenous_coords_2d[:2, ...] / homogenous_coords_2d[2, ...]
-		pixel_coords = (np.floor(coords_2d)).T.astype(int)
+        homogenous_coords_2d = self.camera_intrinsic @ (transformation_matrix @ homogenous_coords_3d.T)
+        homogenous_coords_2d[2, :][np.where(homogenous_coords_2d[2, :] == 0)] = 1
 
-		x_2d = np.clip(pixel_coords[:, 0], 0, self.image_w - 1)
-		y_2d = np.clip(pixel_coords[:, 1], 0, self.image_h - 1)
+        coords_2d = homogenous_coords_2d[:2, ...] / homogenous_coords_2d[2, ...]
+        pixel_coords = (np.floor(coords_2d)).T.astype(int)
 
-		return x_2d, y_2d
+        x_2d = np.clip(pixel_coords[:, 0], 0, self.image_w - 1)
+        y_2d = np.clip(pixel_coords[:, 1], 0, self.image_h - 1)
 
-	def get_rendered_uvw_maps(self, x_2d: np.array, y_2d: np.array, uvw_maps: tuple) -> tuple:
-		u_map = np.zeros((self.image_h, self.image_w, 1))
-		v_map = np.zeros((self.image_h, self.image_w, 1))
-		w_map = np.zeros((self.image_h, self.image_w, 1))
+        return x_2d, y_2d
 
-		u_map[y_2d, x_2d] = uvw_maps[0].reshape(-1, 1)
-		v_map[y_2d, x_2d] = uvw_maps[1].reshape(-1, 1)
-		w_map[y_2d, x_2d] = uvw_maps[2].reshape(-1, 1)
+    def get_rendered_uvw_maps(self, x_2d: np.array, y_2d: np.array, uvw_maps: tuple) -> tuple:
+        u_map = np.zeros((self.image_h, self.image_w, 1))
+        v_map = np.zeros((self.image_h, self.image_w, 1))
+        w_map = np.zeros((self.image_h, self.image_w, 1))
 
-		return np.stack([u_map.astype(np.uint8), v_map.astype(np.uint8), w_map.astype(np.uint8)], axis=-1)
+        u_map[y_2d, x_2d] = uvw_maps[0].reshape(-1, 1)
+        v_map[y_2d, x_2d] = uvw_maps[1].reshape(-1, 1)
+        w_map[y_2d, x_2d] = uvw_maps[2].reshape(-1, 1)
 
-	def setup_renderer_scene(self, direction: list, color: list, intensity: int) -> None:
-		self.renderer.scene.scene.set_sun_light(direction, color, intensity)
-		self.renderer.scene.scene.enable_sun_light(True)
-		self.renderer.scene.scene.enable_light_shadow("directional", True)
+        return np.stack([u_map.astype(np.uint8), v_map.astype(np.uint8), w_map.astype(np.uint8)], axis=-1)
 
-	def load_random_background(self) -> o3d.geometry.Image:
-		index = random.randint(0, len(self.backgrounds_list) - 1)
-		background = cv2.imread(self.backgrounds_path + self.backgrounds_list[index])
-		background = o3d.geometry.Image(background)
+    def setup_renderer_scene(self, direction: list, color: list, intensity: int) -> None:
+        self.renderer.scene.scene.set_sun_light(direction, color, intensity)
+        self.renderer.scene.scene.enable_sun_light(True)
+        self.renderer.scene.scene.enable_light_shadow("directional", True)
 
-		return background
+    def load_random_background(self) -> o3d.geometry.Image:
+        index = random.randint(0, len(self.backgrounds_list) - 1)
+        background = cv2.imread(self.backgrounds_path + self.backgrounds_list[index])
+        background = o3d.geometry.Image(background)
 
-	def render_image(self, transformation_matrix: np.array, use_constant_light_cond: bool = False, image_black: bool = True, image_background: bool = True) -> dict:
-		if use_constant_light_cond:
-			direction = [0, 0, 0]
-			intensity = 1000
-			color = [255, 255, 255]
-		else:
-			direction = [0, 0, 0]
-			intensity = random.randint(500, 2500)
-			r = random.randint(100, 205)
-			g = r + random.randint(-50, 50)
-			b = r + random.randint(-50, 50)
-			color = [r, g, b]
+        return background
 
-		self.setup_renderer_scene(direction, color, intensity)
-		self.renderer.setup_camera(self.camera_intrinsic[0:3, 0:3], transformation_matrix, self.image_w, self.image_h)
+    def render_image(self, transformation_matrix: np.array, use_constant_light_cond: bool = False, image_black: bool = True, image_background: bool = True) -> dict:
+        if use_constant_light_cond:
+            direction = [0, 0, 0]
+            intensity = 1000
+            color = [255, 255, 255]
+        else:
+            direction = [0, 0, 0]
+            intensity = random.randint(500, 2500)
+            r = random.randint(100, 205)
+            g = r + random.randint(-50, 50)
+            b = r + random.randint(-50, 50)
+            color = [r, g, b]
 
-		images_dict = {"black": None, "background": None}
+        self.setup_renderer_scene(direction, color, intensity)
+        self.renderer.setup_camera(self.camera_intrinsic[0:3, 0:3], transformation_matrix, self.image_w, self.image_h)
 
-		if image_black:
-			self.renderer.scene.set_background(np.array([0, 0, 0, 1]))
-			image_no_background = np.array(self.renderer.render_to_image())
-			images_dict["black"] = image_no_background
-		if image_background:
-			background_image = self.load_random_background()
-			self.renderer.scene.set_background(np.array([0, 0, 0, 1]), image=background_image)
-			image_background = np.array(self.renderer.render_to_image())
-			images_dict["background"] = image_background
+        images_dict = {"black": None, "background": None}
 
-		return images_dict
+        if image_black:
+            self.renderer.scene.set_background(np.array([0, 0, 0, 1]))
+            image_no_background = np.array(self.renderer.render_to_image())
+            images_dict["black"] = image_no_background
+        if image_background:
+            background_image = self.load_random_background()
+            self.renderer.scene.set_background(np.array([0, 0, 0, 1]), image=background_image)
+            image_background = np.array(self.renderer.render_to_image())
+            images_dict["background"] = image_background
 
-	@staticmethod
-	def crop_and_resize(full_scale, bbox):
-		x_min, y_min, x_max, y_max = bbox
-		return cv2.resize(full_scale[y_min: y_max, x_min: x_max], (IMG_SIZE, IMG_SIZE))
+        return images_dict
 
-	def get_image(self, transformation_matrix: np.array = None, pose6d: dict = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True, constant_light: bool = False):
-		images_dict = self.render_image(transformation_matrix, constant_light, image_black, image_background)
-		image_black = images_dict["black"]
-		image_background = images_dict["background"]
-		#cv2.imshow("image", image_background)
-		#cv2.waitKey(0)
-		mask = self.get_object_mask(image_black)
-		if bbox is None:
-			bbox = self.get_bbox_from_mask(mask)
+    @staticmethod
+    def crop_and_resize(full_scale, bbox):
+        x_min, y_min, x_max, y_max = bbox
+        return cv2.resize(full_scale[y_min: y_max, x_min: x_max], (IMG_SIZE, IMG_SIZE))
+
+    def get_image(self, transformation_matrix: np.array = None, pose6d: dict = None, bbox: list = None, image_black: bool = True, image_background: bool = True, UVW: bool = True, constant_light: bool = False):
+        images_dict = self.render_image(transformation_matrix, constant_light, image_black, image_background)
+        image_black = images_dict["black"]
+        image_background = images_dict["background"]
+        #cv2.imshow("image", image_background)
+        #cv2.waitKey(0)
+        mask = self.get_object_mask(image_black)
+        if bbox is None:
+            bbox = self.get_bbox_from_mask(mask)
 
 
-		x_2d, y_2d = self.project_point_cloud(self.point_cloud, transformation_matrix)
-		#print(x_2d, y_2d)
-		uvw_map = self.get_rendered_uvw_maps(x_2d, y_2d, self.uvw_coords)
+        x_2d, y_2d = self.project_point_cloud(self.point_cloud, transformation_matrix)
+        #print(x_2d, y_2d)
+        uvw_map = self.get_rendered_uvw_maps(x_2d, y_2d, self.uvw_coords)
 
-		
-		rendered_image_dict = {"ImageBackground": image_background,
-								"ImageBlack": image_black,
-		                       "Mask": mask,
-                         	   "UVWmap": uvw_map,
-		                       "Box": bbox,
-		                       "Pose": pose6d
-		                       }
-		#cv2.imshow("image", image_background )
-		#cv2.waitKey(1)
-		return rendered_image_dict
 
-	def save_data(self, img_object, index, subset):
-		json_data = {"Pose": None, "Box": None}
-		for key, data in img_object.items():
-			if key in ["Box", "Pose"]:
-				json_data[key] = data
-			else:
-				path = DATASET_PATH + subset + "/" + key + "/data_{}.np".format(index)
-				self.io.save_numpy_file(path, data)
-		path = DATASET_PATH + subset + "/" + "Pose" + "/data_{}.json".format(index)
-		self.io.save_json_file(path, json_data)
-	
-	def render_dataset(self):
-		for subset in ["Training", "Validation"]:
-			for data_index in range(DATA_AMOUNT[subset]):
-				pose6d = self.sample_pose()
-				transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
-				rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
-				self.save_data(rendered_image_dict, data_index, subset)
-				print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset])) 
+        rendered_image_dict = {"ImageBackground": image_background,
+                                "ImageBlack": image_black,
+                               "Mask": mask,
+                               "UVWmap": uvw_map,
+                               "Box": bbox,
+                               "Pose": pose6d
+                               }
+        #cv2.imshow("image", image_background )
+        #cv2.waitKey(1)
+        return rendered_image_dict
+
+    def save_data(self, img_object, index, subset):
+        json_data = {"Pose": None, "Box": None}
+        for key, data in img_object.items():
+            if key in ["Box", "Pose"]:
+                json_data[key] = data
+            else:
+                path = DATASET_PATH + subset + "/" + key + "/data_{}.np".format(index)
+                self.io.save_numpy_file(path, data)
+        path = DATASET_PATH + subset + "/" + "Pose" + "/data_{}.json".format(index)
+        self.io.save_json_file(path, json_data)
+
+    def render_dataset(self):
+        for subset in ["Training", "Validation"]:
+            for data_index in range(DATA_AMOUNT[subset]):
+                pose6d = self.sample_pose()
+                transf_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
+                rendered_image_dict = self.get_image(transformation_matrix=transf_matrix, pose6d=pose6d)
+                self.save_data(rendered_image_dict, data_index, subset)
+                print("{} image number {}/{} has been rendered".format(subset, data_index, DATA_AMOUNT[subset]))
 
 
 if __name__ == "__main__":
-	dataset_renderer = DatasetRenderer()
-	#dataset_renderer.sample_point_cloud(5000)
-	#exit()
-	#dataset_renderer.render_dataset()
-	"""while True:
-		#sampled_pose = dataset_renderer.sample_pose()
-		#sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}
-		transf_matrix = dataset_renderer.transformations.get_transformation_matrix_from_pose(sampled_pose)
-		rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True, UVW=True)"""
+    dataset_renderer = DatasetRenderer()
+    #dataset_renderer.sample_point_cloud(5000)
+    #exit()
+    #dataset_renderer.render_dataset()
+    """while True:
+        #sampled_pose = dataset_renderer.sample_pose()
+        #sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}
+        transf_matrix = dataset_renderer.transformations.get_transformation_matrix_from_pose(sampled_pose)
+        rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True, UVW=True)"""
 
-		#cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
-		#cv2.waitKey(0)
+        #cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
+        #cv2.waitKey(0)

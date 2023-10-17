@@ -10,11 +10,5 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Open3D" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Open3D/build/jsoncpp/src/ext_jsoncpp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Open3D/build/tbb/src/ext_tbb" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Open3D/build/uvatlas/src/ext_directxheaders" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Open3D/build/uvatlas/src/ext_directxmath" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Open3D/build/zlib/src/ext_zlib" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/pytorch3d" vcs="Git" />
   </component>
 </project>

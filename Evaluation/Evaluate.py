@@ -16,7 +16,7 @@ class Evaluation:
 		self.object_segmentation = ObjectSegmentationEvaluation(self.device)
 		#self.pose_refinement = RefinedPoseEstimation(self.device)
 		self.dataset_renderer = DatasetRenderer()
-		self.video_path = "./Evaluation/ChassisTestVideos/Chassis_{}/".format(VIDEO)
+		self.video_path = MAIN_DIR_PATH + "/Evaluation/ChassisTestVideos/Chassis_{}/".format(VIDEO)
 		self.io = IOUtils()
 		self.img_size = 224
 

@@ -14,7 +14,7 @@ class ObjectSegmentationEvaluation:
 		self.load_model_weights()
 
 	def load_model_weights(self):
-		self.segmentation_model.load_state_dict(torch.load("./ObjectSegmentation/TrainedModels/ObjectSegmentationModel.pt",
+		self.segmentation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "/ObjectSegmentation/TrainedModels/ObjectSegmentationModel.pt",
 		                                                      map_location="cpu"))
 		self.segmentation_model.eval()
 		self.segmentation_model.to(self.device)

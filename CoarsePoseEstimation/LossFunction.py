@@ -112,8 +112,8 @@ class MultiscaleSsimLossFunction(nn.Module):
 
 if __name__ == "__main__":
 	ssim_api = MultiscaleSsimLossFunction("cpu")
-	predicted_tensor = torch.cat([torch.ones(size=(1, 1, 32, 32)), torch.ones(size=(1, 1, 32, 32)), -torch.ones(size=(1, 1, 32, 32)), 2 * torch.ones(size=(1, 1, 32, 32))], dim=0)
-	target_tensor = torch.cat([torch.ones(size=(1, 1, 32, 32)), torch.ones(size=(1, 1, 32, 32)), -torch.zeros(size=(1, 1, 32, 32)), 0 * torch.ones(size=(1, 1, 32, 32))], dim=0)
+	predicted_tensor = torch.cat([-2*torch.ones(size=(1, 1, 32, 32)), torch.ones(size=(1, 1, 32, 32)), -torch.ones(size=(1, 1, 32, 32)), 0 * torch.ones(size=(1, 1, 32, 32))], dim=0)
+	target_tensor = torch.cat([-2 * torch.ones(size=(1, 1, 32, 32)), torch.ones(size=(1, 1, 32, 32)), -torch.ones(size=(1, 1, 32, 32)), 0 * torch.ones(size=(1, 1, 32, 32))], dim=0)
 
 	loss = ssim_api.get_multiscale_structural_sim_loss(predicted_tensor, target_tensor)
 	print(loss)

@@ -69,6 +69,7 @@ class DecoderModel(nn.Module):
 		self.Conv9 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[5], kernel_size=1, stride=1, padding=0, apply_activation=False, apply_bias=False, apply_bn=False)
 
 		self.Sigmoid = nn.Sigmoid()
+		self.Tanh = nn.Tanh()
 
 	def forward(self, x, skip_connections):
 		x = self.TransConv1(x)
@@ -84,7 +85,10 @@ class DecoderModel(nn.Module):
 		x = self.Conv7(x + skip_connections[0])
 		x = self.Conv8(x)
 		x = self.Conv9(x)
-		x = self.Sigmoid(x)
+
+		mask = self.Sigmoid(x[:, 3:4, ...])
+		uvw = self.Tanh(x[:, :3, ...])
+		x = torch.cat([uvw, mask], dim=1)
 		return x
 
 

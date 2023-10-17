@@ -1,0 +1,3 @@
+Coarse model
+1. Try training with GAN
+2. Try change the predicted range from [0, 1] to [-1, 1] via tanh function
