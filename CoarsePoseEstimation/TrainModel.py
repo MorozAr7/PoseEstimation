@@ -100,7 +100,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             l1_total = l1_u + l1_v + l1_w
             ssim_total = ssim_loss_u + ssim_loss_v + ssim_loss_w
             # grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
-            total_loss = 5 * l1_total + 1 * ssim_total + 1 * mask_loss
+            total_loss = 1 * l1_total + 0.25 * ssim_total + 0.5 * mask_loss
 
             total_loss.backward()
             optimizer.step()
@@ -191,7 +191,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
             smallest_loss = loss_u_v + loss_v_v + loss_w_v
         print("SAVING MODEL")
         torch.save(model.state_dict(), "{}.pt".format(
-            MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorNegativeRange"))
+            MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorNegativeRangeLowLossCoeff"))
         print("MODEL WAS SUCCESSFULLY SAVED!")
 
 

@@ -6,3 +6,5 @@ Coarse model
 Refiner model
 1. Try resample 3d points at every iteration
 2. Try 2 backbone tails instead of 1 which further concatenate or summ their features
+3. Try spatial attention module for feature maps with bigger resolution (attention maps should be orthogonal)
+4. Separate the processing of real and rendered images into 2 branches with further concatenation

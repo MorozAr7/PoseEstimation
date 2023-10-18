@@ -21,7 +21,7 @@ class CoarsePoseEvaluation:
 		self.init_pose_estimation_model()
 
 	def init_pose_estimation_model(self):
-		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionRGBOneDecoderSmallModelSegmentationNew.pt",
+		self.pose_estimation_model.load_state_dict(torch.load(MAIN_DIR_PATH + "/CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorNegativeRange.pt",
 		                                                      map_location="cpu"))
 		self.pose_estimation_model.eval()
 		self.pose_estimation_model.to(self.device)
@@ -72,7 +72,7 @@ class CoarsePoseEvaluation:
 		              
 		coarse_pose_predictions = np.array([])
 		for index in range(images.shape[0]):
-			mask = np.array(uvw_predicted[3][index, ...].detach().cpu().numpy() > 0.5, dtype=bool).reshape(self.input_size, self.input_size)#np.array(masks[index, ...], dtype=bool).reshape(self.input_size, self.input_size)
+			mask = np.array(uvw_predicted[3][index, ...].detach().cpu().numpy() > 0.99, dtype=bool).reshape(self.input_size, self.input_size)#np.array(masks[index, ...], dtype=bool).reshape(self.input_size, self.input_size)
 			print(mask.shape)
 			bbox = bboxes[index, ...]
 

@@ -85,7 +85,7 @@ class DecoderModel(nn.Module):
 		x = self.Conv7(x + skip_connections[0])
 		x = self.Conv8(x)
 		x = self.Conv9(x)
-
+		#x = self.Sigmoid(x)
 		mask = self.Sigmoid(x[:, 3:4, ...])
 		uvw = self.Tanh(x[:, :3, ...])
 		x = torch.cat([uvw, mask], dim=1)
