@@ -270,7 +270,7 @@ class DatasetRenderer:
 
     def render_dataset(self):
         for subset in ["Training", "Validation"]:
-            for data_index in range(43678 if subset == "Training" else 0, self.render_config["DataAmount"][subset]):
+            for data_index in range(60000 if subset == "Training" else 5517, self.render_config["DataAmount"][subset]):
                 object_type = self.object_types[random.randint(0, len(self.object_types) - 1)]
                 pose6d = self.sample_pose()
                 T_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
