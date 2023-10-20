@@ -100,7 +100,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             l1_total = l1_u + l1_v + l1_w
             ssim_total = ssim_loss_u + ssim_loss_v + ssim_loss_w
             # grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
-            total_loss = 1 * l1_total + 0.25 * ssim_total + 0.5 * mask_loss
+            total_loss = 5 * l1_total + 1 * ssim_total + 1 * mask_loss
 
             total_loss.backward()
             optimizer.step()
