@@ -116,7 +116,7 @@ class DatasetRenderer:
         u = np.floor(x_scaled * (self.render_config["MappingRange"] - 1) - (self.render_config["MappingRange"] - 1)//2)
         v = np.floor(y_scaled * (self.render_config["MappingRange"] - 1) - (self.render_config["MappingRange"] - 1)//2)
         w = np.floor(z_scaled * (self.render_config["MappingRange"] - 1) - (self.render_config["MappingRange"] - 1)//2)
-        print(np.max(u), np.min(u), np.max(v), np.min(v),np.max(w), np.min(w))
+        #print(np.max(u), np.min(u), np.max(v), np.min(v),np.max(w), np.min(w))
         """uvw_mapping_dict = dict()
         file = open("Models3D/Chassis/ChassisUVWmappingNegativeRange.json", "w")
 
