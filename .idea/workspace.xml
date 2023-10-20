@@ -5,8 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/CONFIG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/TrainModel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/opttritri.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/tribox3.h" beforeDir="false" />
@@ -223,7 +221,7 @@
       <workItem from="1697211122395" duration="42000" />
       <workItem from="1697444759796" duration="34431000" />
       <workItem from="1697722304933" duration="2155000" />
-      <workItem from="1697793129202" duration="24028000" />
+      <workItem from="1697793129202" duration="24715000" />
     </task>
     <servers />
   </component>
