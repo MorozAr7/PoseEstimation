@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from CONFIG import *
+
 sys.path.insert(0, MAIN_DIR_PATH)
 import cv2
 import torch
@@ -15,8 +16,6 @@ class Dataset(torch.utils.data.Dataset):
 		self.subset = subset
 		self.dataset_len = num_images
 		self.image_size = 224
-		self.full_scale_w = 1865
-		self.full_scale_h = 1039
 		self.io = IOUtils()
 
 	def __len__(self):
@@ -26,8 +25,10 @@ class Dataset(torch.utils.data.Dataset):
 		x_min, y_min, x_max, y_max = bbox_corner
 
 		cropped = array[y_min:y_max, x_min:x_max]
+
 		try:
-			resized = cv2.resize(cropped, (self.image_size, self.image_size))
+			resized = cv2.resize(cropped, (self.image_size, self.image_size), interpolation=cv2.INTER_LINEAR)
+
 			return resized
 		except Exception as e:
 			print(e)
@@ -40,9 +41,9 @@ class Dataset(torch.utils.data.Dataset):
 	def is_inside_image(self, bbox):
 		x_min, y_min, x_max, y_max = bbox
 		results_dict = {"x_min": x_min,
-		                "y_min": y_min,
-		                "x_max": self.full_scale_w + 1 - x_max,
-		                "y_max": self.full_scale_h + 1 - y_max}
+						"y_min": y_min,
+						"x_max": self.full_scale_w + 1 - x_max,
+						"y_max": self.full_scale_h + 1 - y_max}
 		return results_dict
 
 	@staticmethod
@@ -53,19 +54,12 @@ class Dataset(torch.utils.data.Dataset):
 		return x_min + shift_x, y_min + shift_y, x_max + shift_x, y_max + shift_y
 
 	@staticmethod
-	def get_shift_limits(bbox, check_results):
+	def get_shift_limits(bbox):
 		size = bbox[2] - bbox[0]
 		size_20_percent = size // 5
 		limits = {"left": None, "right": None, "up": None, "down": None}
-		for key, val in check_results.items():
-			if key == "x_min":
-				limits["left"] = min(val, size_20_percent)
-			elif key == "x_max":
-				limits["right"] = min(val, size_20_percent)
-			elif key == "y_min":
-				limits["up"] = min(val, size_20_percent)
-			elif key == "y_max":
-				limits["down"] = min(val, size_20_percent)
+		for key, val in limits.items():
+			limits[key] = size_20_percent
 
 		return limits
 
@@ -89,41 +83,57 @@ class Dataset(torch.utils.data.Dataset):
 		if p > 0.75 or self.subset == "Validation":
 			return square_bbox
 		else:
-			check_results = self.is_inside_image(square_bbox)
-			limits = self.get_shift_limits(square_bbox, check_results)
+			limits = self.get_shift_limits(square_bbox)
 			shifted_bbox = self.shift_bbox(square_bbox, limits)
-			return shifted_bbox
+			return square_bbox
 
 	def __getitem__(self, index):
 		path = MAIN_DIR_PATH + "Dataset/" + self.subset + "/"
 
-		image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
+		image = cv2.imread(path + "ImageBackground/" + "img_{}.png".format(index))
+		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 		mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
 		uvw_map = self.io.load_numpy_file(path + "UVWmap/" + "data_{}.np".format(index))
-		u_map = uvw_map[..., 0]#self.io.load_numpy_file(path + "Umap/" + "data_{}.np".format(index))
-		v_map = uvw_map[..., 1]#self.io.load_numpy_file(path + "Vmap/" + "data_{}.np".format(index))
-		w_map = uvw_map[..., 2]#self.io.load_numpy_file(path + "Wmap/" + "data_{}.np".format(index))
-		json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
+		u_map = uvw_map[..., 0] * mask # self.io.load_numpy_file(path + "Umap/" + "data_{}.np".format(index))
+		v_map = uvw_map[..., 1] * mask # self.io.load_numpy_file(path + "Vmap/" + "data_{}.np".format(index))
+		w_map = uvw_map[..., 2] * mask # self.io.load_numpy_file(path + "Wmap/" + "data_{}.np".format(index))
+		json_data = self.io.load_json_file(path + "Label/" + "data_{}.json".format(index))
 
 		bbox = json_data["Box"]
-		bbox_crop = self.get_bbox(bbox)
+		# img_width, img_height = image.shape[1], image.shape[0]
+		x_min, y_min, x_max, y_max = bbox
+		bbox_max_size = max(y_max - y_min, x_max - x_min)
+		center_x = (x_min + x_max) // 2
+		center_y = (y_min + y_max) // 2
 
+		bbox_max_size_amplified = (1 + 0.5) * bbox_max_size
+		x_min_ = int(center_x - bbox_max_size_amplified / 2)
+		y_min_ = int(center_y - bbox_max_size_amplified / 2)
+		bbox = [bbox[0] - x_min_, bbox[1] - y_min_, bbox[2] - x_min_, bbox[3] - y_min_]
+		print(bbox)
+
+		bbox_crop = self.get_bbox(bbox)
 		image = self.crop_and_resize(image, bbox_crop)
 		mask = self.crop_and_resize(mask.astype(float), bbox_crop)
-		u_map = self.crop_and_resize(u_map, bbox_crop)
-		v_map = self.crop_and_resize(v_map, bbox_crop)
-		w_map = self.crop_and_resize(w_map, bbox_crop)
-
-		u_map = 2 * (u_map/255) - 1
-		v_map = 2 * (v_map/255) - 1
-		w_map = 2 * (w_map/255) - 1
+		u_map = self.crop_and_resize(u_map/250, bbox_crop)
+		v_map = self.crop_and_resize(v_map/250, bbox_crop)
+		w_map = self.crop_and_resize(w_map/250, bbox_crop)
+		print(np.max(u_map), np.min(u_map), np.max(v_map), np.min(v_map),np.max(w_map), np.min(w_map))
+		cv2.imshow("img", image)
+		cv2.waitKey(0)
+		cv2.imshow("img", mask)
+		cv2.waitKey(0)
+		cv2.imshow("img", u_map)
+		cv2.waitKey(0)
+		cv2.imshow("img", v_map)
+		cv2.waitKey(0)
+		cv2.imshow("img", w_map)
+		cv2.waitKey(0)
 
 		if self.data_augmentation:
 			image = self.data_augmentation(image=image)["image"]
-		#image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 		image_tensor = NormalizeToTensor(image=image)["image"]
 
 		return image_tensor, \
-		       torch.tensor(np.expand_dims(mask, axis=2), dtype=torch.float32).permute(2, 0, 1), \
-		       torch.tensor(u_map, dtype=torch.float32), torch.tensor(v_map, dtype=torch.float32), torch.tensor(w_map, dtype=torch.float32),
-
+			torch.tensor(np.expand_dims(mask, axis=2), dtype=torch.float32).permute(2, 0, 1), \
+			torch.tensor(u_map, dtype=torch.float32), torch.tensor(v_map, dtype=torch.float32), torch.tensor(w_map, dtype=torch.float32),

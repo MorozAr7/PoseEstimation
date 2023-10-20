@@ -106,7 +106,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             optimizer.step()
             torch.cuda.empty_cache()
 
-            diff_u = torch.sum(torch.abs((predictions[0] + 1.) * 127.5 * mask - (u_map + 1) * 127.5 * mask),
+            diff_u = torch.sum(torch.abs((predictions[0] + 1.) * 250 * mask - (u_map + 1) * 250 * mask),
                                dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
             diff_v = torch.sum(torch.abs((predictions[1] + 1) * 127.5 * mask - (v_map + 1) * 127.5 * mask),
                                dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
@@ -210,9 +210,7 @@ if __name__ == "__main__":
                                  num_images=list(SUBSET_NUM_DATA.values())[1],
                                  data_augmentation=None)
 
-    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True,
-                                     num_workers=32)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True,
-                                       num_workers=32)
+    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)#, num_workers=32)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)#,num_workers=32)
 
     main(model, optimizer, training_dataloader, validation_dataloader, loss_functions)

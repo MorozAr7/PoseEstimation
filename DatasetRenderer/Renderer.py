@@ -81,7 +81,7 @@ class DatasetRenderer:
 
     def get_object_mask(self, rendered_image: np.array) -> np.array:
         #print(np.min(rendered_image), np.max(rendered_image))
-        mask = rendered_image > -150#self.noise_threshold
+        mask = rendered_image > -1000#self.noise_threshold
         return np.array((mask[..., 0] * mask[..., 1] * mask[..., 2]), dtype=bool)
 
     @staticmethod
@@ -116,6 +116,7 @@ class DatasetRenderer:
         u = np.floor(x_scaled * (self.render_config["MappingRange"] - 1) - (self.render_config["MappingRange"] - 1)//2)
         v = np.floor(y_scaled * (self.render_config["MappingRange"] - 1) - (self.render_config["MappingRange"] - 1)//2)
         w = np.floor(z_scaled * (self.render_config["MappingRange"] - 1) - (self.render_config["MappingRange"] - 1)//2)
+        print(np.max(u), np.min(u), np.max(v), np.min(v),np.max(w), np.min(w))
         """uvw_mapping_dict = dict()
         file = open("Models3D/Chassis/ChassisUVWmappingNegativeRange.json", "w")
 
@@ -139,9 +140,9 @@ class DatasetRenderer:
         return x_2d, y_2d
 
     def get_rendered_uvw_maps(self, x_2d: np.array, y_2d: np.array, uvw_maps: tuple) -> np.array:
-        u_map = -200 * np.ones((self.image_h, self.image_w, 1))
-        v_map = -200 * np.ones((self.image_h, self.image_w, 1))
-        w_map = -200 * np.ones((self.image_h, self.image_w, 1))
+        u_map = -1000 * np.ones((self.image_h, self.image_w, 1))
+        v_map = -1000 * np.ones((self.image_h, self.image_w, 1))
+        w_map = -1000 * np.ones((self.image_h, self.image_w, 1))
 
         u_map[y_2d, x_2d] = uvw_maps[0].reshape(-1, 1)
         v_map[y_2d, x_2d] = uvw_maps[1].reshape(-1, 1)
@@ -228,13 +229,13 @@ class DatasetRenderer:
 
         cropped_image, cropped_mask, cropped_uvw_map = self.crop_images(image_background, mask, uvw_map, bbox)
         #print(uvw_map.shape, print(uvw_map.shape))
-        """cv2.imshow("uvw_map1",  cropped_image)
+        """ cv2.imshow("uvw_map1",  cropped_image)
         cv2.waitKey(0)
-        cv2.imshow("uvw_map1", cropped_uvw_map[..., 0] / 127.5)
+        cv2.imshow("uvw_map1", cropped_uvw_map[..., 0] / 250)
         cv2.waitKey(0)
-        cv2.imshow("uvw_map1", cropped_uvw_map[..., 1] / 127.5)
+        cv2.imshow("uvw_map1", cropped_uvw_map[..., 1] / 250)
         cv2.waitKey(0)
-        cv2.imshow("uvw_map1", cropped_uvw_map[..., 2] / 127.5)
+        cv2.imshow("uvw_map1", cropped_uvw_map[..., 2] / 250)
         cv2.waitKey(0)
         cv2.imshow("uvw_map1", cropped_mask.astype(float))
         cv2.waitKey(0)"""
