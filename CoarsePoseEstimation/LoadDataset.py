@@ -110,7 +110,7 @@ class Dataset(torch.utils.data.Dataset):
 		x_min_ = int(center_x - bbox_max_size_amplified / 2)
 		y_min_ = int(center_y - bbox_max_size_amplified / 2)
 		bbox = [bbox[0] - x_min_, bbox[1] - y_min_, bbox[2] - x_min_, bbox[3] - y_min_]
-		print(bbox)
+		#print(bbox)
 
 		bbox_crop = self.get_bbox(bbox)
 		image = self.crop_and_resize(image, bbox_crop)
@@ -118,7 +118,7 @@ class Dataset(torch.utils.data.Dataset):
 		u_map = self.crop_and_resize(u_map/250, bbox_crop)
 		v_map = self.crop_and_resize(v_map/250, bbox_crop)
 		w_map = self.crop_and_resize(w_map/250, bbox_crop)
-		print(np.max(u_map), np.min(u_map), np.max(v_map), np.min(v_map),np.max(w_map), np.min(w_map))
+		"""print(np.max(u_map), np.min(u_map), np.max(v_map), np.min(v_map),np.max(w_map), np.min(w_map))
 		cv2.imshow("img", image)
 		cv2.waitKey(0)
 		cv2.imshow("img", mask)
@@ -128,7 +128,7 @@ class Dataset(torch.utils.data.Dataset):
 		cv2.imshow("img", v_map)
 		cv2.waitKey(0)
 		cv2.imshow("img", w_map)
-		cv2.waitKey(0)
+		cv2.waitKey(0)"""
 
 		if self.data_augmentation:
 			image = self.data_augmentation(image=image)["image"]
