@@ -13,7 +13,7 @@ class CoarsePoseEvaluation:
 	def __init__(self, device):
 		self.pose_estimation_model = AutoencoderPoseEstimationModel()
 		self.io = IOUtils()
-		self.correspondence_uvw_mapping = self.io.load_json_file("./DatasetRenderer/Models3D/Chassis/ChassisUVWmapping.json")
+		self.correspondence_uvw_mapping = self.io.load_json_file("./DatasetRenderer/Models3D/Chassis/ChassisUVWmappingPositiveRange.json")
 		self.camera_intrinsic = np.array(self.io.load_json_file("./CameraData/camera_data_1.json")["K"])[0:3, 0:3]
 		self.input_size = 224
 		self.distortion_coefficients = np.array(self.io.load_json_file("./CameraData/camera_data_1.json")["dist_coef"])

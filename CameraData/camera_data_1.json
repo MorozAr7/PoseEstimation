@@ -19,11 +19,11 @@
       0.0
     ]
   ],
-  "res_dist": [
+  "resolution_distorted": [
     1080,
     1920
   ],
-  "res_undist": [
+  "resolution_undistorted": [
     1039,
     1865
   ],

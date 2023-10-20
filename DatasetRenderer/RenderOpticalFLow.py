@@ -32,12 +32,12 @@ class OpticalFlowRenderer:
 
         self.image_h, self.image_w = self.camera_data["res_undist"]
         self.point_cloud = self.io.load_numpy_file(
-            MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/DensePointCloud250k.npy")
+            MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/DensePointCloud.npy")
         self.model3d = o3d.io.read_triangle_model(
-            MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj")
+            MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited3.obj")
 
         self.uvw_mapping = self.io.load_json_file(
-            MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/ChassisUVWmapping.json")
+            MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/ChassisUVWmappingPositiveRange.json")
 
         self.renderer = o3d.visualization.rendering.OffscreenRenderer(self.image_w, self.image_h)
         self.renderer.scene.add_model(OBJECT_TYPE + "Model", self.model3d)
@@ -56,7 +56,7 @@ class OpticalFlowRenderer:
         self.backgrounds_list = os.listdir(self.backgrounds_path)
 
     def sample_point_cloud(self, num_points):
-        file = MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited4.obj"
+        file = MAIN_DIR_PATH + "/DatasetRenderer" + "/Models3D/" + OBJECT_TYPE + "/MeshEdited3.obj"
         mesh = o3d.io.read_triangle_mesh(file)
         pcd = mesh.sample_points_poisson_disk(num_points)
         # help(pcd)
@@ -133,7 +133,7 @@ class OpticalFlowRenderer:
         v = np.floor(y_scaled * (UVW_RANGE - 1))
         w = np.floor(z_scaled * (UVW_RANGE - 1))
         uvw_mapping_dict = dict()
-        """file = open("ChassisUVWmapping.json", "w")
+        """file = open("ChassisUVWmappingPositiveRange.json", "w")
 
         for index in range(coords3d.shape[0]):
             uvw_mapping_dict[str((int(u[index]), int(v[index]), int(w[index])))] = coords3d[index, :].reshape(-1).tolist()

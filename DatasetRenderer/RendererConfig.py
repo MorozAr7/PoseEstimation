@@ -12,5 +12,5 @@ DATASET_PATH = MAIN_DIR_PATH + "Dataset/"
 OBJECT_TYPE = "Chassis"
 CAM_DATA_FILE = "camera_data_1.json"
 IMG_SIZE = 224
-UVW_RANGE = 256
+UVW_RANGE = 1001
 DATA_AMOUNT = {"Training": 50000, "Validation": 5000}

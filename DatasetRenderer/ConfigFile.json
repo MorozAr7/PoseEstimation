@@ -1,0 +1,40 @@
+{
+  "RenderBackground": true,
+  "RenderBlack": false,
+  "RenderMask": true,
+  "RenderMapping": true,
+  "MappingRange": 255,
+  "BboxSizeAmplification": 0.4,
+  "DataAmount": {
+    "Training": 60,
+    "Validation": 6
+  },
+  "PoseRanges": {
+    "RotX": [
+      -180,
+      180
+    ],
+    "RotY": [
+      -180,
+      180
+    ],
+    "RotZ": [
+      -180,
+      180
+    ],
+    "TransX": [
+      -100,
+      100
+    ],
+    "TransY": [
+      -50,
+      50
+    ],
+    "TransZ": [
+      500,
+      750
+    ]
+  },
+  "DensePointCloudSize": 250000,
+  "ObjectTypes": ["Chassis", "Battery", "Servo", "Main", "Controller", "Axle_front"]
+}

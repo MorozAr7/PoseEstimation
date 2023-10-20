@@ -1,10 +1,10 @@
 Coarse model
 1. Try training with GAN
 2. Try change the predicted range from [0, 1] to [-1, 1] via tanh function
-
-
+3. Try differentiable way of 3d-2d matching (not classic RANSAC PNP)
+4. Increase the mapping range (-127, 127) -> (-500, 500)
 Refiner model
-1. Try resample 3d points at every iteration
-2. Try 2 backbone tails instead of 1 which further concatenate or summ their features
-3. Try spatial attention module for feature maps with bigger resolution (attention maps should be orthogonal)
-4. Separate the processing of real and rendered images into 2 branches with further concatenation
+1. Try resample 3d points at every iteration: No significant changes. Training and validation performance is slightly worse, but it hopefully prevents overfitting
+2. Try spatial attention module for feature maps with bigger resolution (attention maps should be orthogonal)
+3. Separate the processing of real and rendered images into 2 branches with further concatenation
+4. Try another parametrization of predicted translation
