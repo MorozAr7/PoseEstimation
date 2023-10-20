@@ -80,12 +80,12 @@ class Dataset(torch.utils.data.Dataset):
 	def get_bbox(self, bbox):
 		square_bbox = self.get_square_bbox(bbox)
 		p = random.random()
-		if p > 0.75 or self.subset == "Validation":
+		if p > 0.8 or self.subset == "Validation":
 			return square_bbox
 		else:
 			limits = self.get_shift_limits(square_bbox)
 			shifted_bbox = self.shift_bbox(square_bbox, limits)
-			return square_bbox
+			return shifted_bbox
 
 	def __getitem__(self, index):
 		path = MAIN_DIR_PATH + "Dataset/" + self.subset + "/"
