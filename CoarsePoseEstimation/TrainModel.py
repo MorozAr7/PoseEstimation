@@ -84,6 +84,12 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
 
             predictions = model(image)
+            """visualize_prediction = torch.cat([predictions[0] * mask, predictions[1] * mask, predictions[2] * mask], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
+            visualize_gt = torch.cat([u_map, v_map, w_map], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
+            visualize = np.concatenate([(visualize_gt + 1)/2, (visualize_prediction + 1)/2], axis=1)
+            for i in range(image.shape[0]):
+                cv2.imshow("results", visualize[i])
+                cv2.waitKey(0)"""
             iou = get_mask_iou(predictions[3], mask)
             epoch_iou = torch.cat([epoch_iou, iou], dim=0)
 
@@ -100,7 +106,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             l1_total = l1_u + l1_v + l1_w
             ssim_total = ssim_loss_u + ssim_loss_v + ssim_loss_w
             # grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
-            total_loss = 5 * l1_total + 1 * ssim_total + 1 * mask_loss
+            total_loss = 1 * l1_total + 5 * ssim_total + 1 * mask_loss
 
             total_loss.backward()
             optimizer.step()
@@ -110,7 +116,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
                                dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
             diff_v = torch.sum(torch.abs((predictions[1] + 1) * 250 * mask - (v_map + 1) * 250 * mask),
                                dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
-            diff_w = torch.sum(torch.abs((predictions[2] * mask + 1.) * 250 * mask - (w_map + 1) * 250 * mask),
+            diff_w = torch.sum(torch.abs((predictions[2] + 1.) * 250 * mask - (w_map + 1) * 250 * mask),
                                dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
 
             epoch_loss_l1_u_map += torch.sum(diff_u).item()
@@ -143,7 +149,7 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
                                    dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
                 diff_v = torch.sum(torch.abs((predictions[1] + 1) * 250 * mask - (v_map + 1) * 250 * mask),
                                    dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
-                diff_w = torch.sum(torch.abs((predictions[2] * mask + 1.) * 250 * mask - (w_map + 1) * 250 * mask),
+                diff_w = torch.sum(torch.abs((predictions[2] + 1.) * 250 * mask - (w_map + 1) * 250 * mask),
                                    dim=[2, 3]) / torch.sum(mask, dim=[2, 3])
 
                 epoch_loss_l1_u_map += torch.sum(diff_u).item()
@@ -190,14 +196,13 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
         if loss_u_v + loss_v_v + loss_w_v < smallest_loss and SAVE_MODEL:
             smallest_loss = loss_u_v + loss_v_v + loss_w_v
         print("SAVING MODEL")
-        torch.save(model.state_dict(), "{}.pt".format(
-            MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjects"))
+        torch.save(model.state_dict(), "{}.pt".format(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjectsDominantSSIM"))
         print("MODEL WAS SUCCESSFULLY SAVED!")
 
 
 if __name__ == "__main__":
     model = AutoencoderPoseEstimationModel().apply(init_weights)
-    # model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorModelRegressionGrayscaleOneDecoder.pt", map_location="cpu"))
+    model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjects.pt", map_location="cpu"))
     model.to(DEVICE)
 
     optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())

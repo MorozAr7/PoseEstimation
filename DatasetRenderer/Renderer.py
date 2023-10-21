@@ -63,7 +63,7 @@ class DatasetRenderer:
         for obj_type in self.object_types:
             triangle_model = o3d.io.read_triangle_model(MAIN_DIR_PATH + self.models_data_path + f"{obj_type}/MeshEdited.obj")
             point_cloud = self.io.load_numpy_file(MAIN_DIR_PATH + self.models_data_path + f"{obj_type}/DensePointCloud.npy")
-            mapping = self.create_uvw_mapping(point_cloud)#self.io.load_numpy_file(MAIN_DIR_PATH + self.models_data_path + f"{obj_type}/DenseMapping.npy")
+            mapping = self.create_uvw_mapping(obj_type, point_cloud)#self.io.load_numpy_file(MAIN_DIR_PATH + self.models_data_path + f"{obj_type}/DenseMapping.npy")
             data_dict[obj_type] = {"model": triangle_model, "point_cloud": point_cloud, "mapping": mapping}
         return data_dict
 
@@ -103,7 +103,7 @@ class DatasetRenderer:
 
         return scaled_coords
 
-    def create_uvw_mapping(self, coords3d: np.array) -> tuple:
+    def create_uvw_mapping(self, object_type, coords3d: np.array) -> tuple:
         centroid = np.mean(coords3d, axis=0)
         x_centered = coords3d[..., 0] - centroid[0]
         y_centered = coords3d[..., 1] - centroid[1]
@@ -118,7 +118,7 @@ class DatasetRenderer:
         w = np.floor(z_scaled * (self.render_config["MappingRange"] - 1) - (self.render_config["MappingRange"] - 1)//2)
         #print(np.max(u), np.min(u), np.max(v), np.min(v),np.max(w), np.min(w))
         """uvw_mapping_dict = dict()
-        file = open("Models3D/Chassis/ChassisUVWmappingNegativeRange.json", "w")
+        file = open(MAIN_DIR_PATH + self.models_data_path + f"{object_type}/Mapping.json", "w")
 
         for index in range(coords3d.shape[0]):
             uvw_mapping_dict[str((int(u[index]), int(v[index]), int(w[index])))] = coords3d[index, :].reshape(-1).tolist()
@@ -287,7 +287,7 @@ if __name__ == "__main__":
     exit()"""
     # dataset_renderer.sample_point_cloud(5000)
     # exit()
-    dataset_renderer.render_dataset()
+    #dataset_renderer.render_dataset()
     """while True:
         #sampled_pose = dataset_renderer.sample_pose()
         #sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}

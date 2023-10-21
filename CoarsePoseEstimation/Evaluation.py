@@ -14,7 +14,7 @@ class CoarsePoseEvaluation:
         self.pose_estimation_model = AutoencoderPoseEstimationModel()
         self.io = IOUtils()
         self.correspondence_uvw_mapping = self.io.load_json_file(
-            MAIN_DIR_PATH + "/DatasetRenderer/Models3D/Chassis/ChassisUVWmappingNegativeRange.json")
+            MAIN_DIR_PATH + "/DatasetRenderer/Models3D/MeshesReconstructed/Chassis/Mapping.json")
 
         self.camera_intrinsic = np.array(self.io.load_json_file(MAIN_DIR_PATH + "/CameraData/camera_data_1.json")["K"])[
                                 0:3, 0:3]
@@ -26,7 +26,7 @@ class CoarsePoseEvaluation:
 
     def init_pose_estimation_model(self):
         self.pose_estimation_model.load_state_dict(
-            torch.load(MAIN_DIR_PATH + "/CoarsePoseEstimation/TrainedModels/CoarsePoseEstimatorNegativeRange.pt",
+            torch.load(MAIN_DIR_PATH + "/CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjects.pt",
                        map_location="cpu"))
         self.pose_estimation_model.eval()
         self.pose_estimation_model.to(self.device)
@@ -85,9 +85,9 @@ class CoarsePoseEvaluation:
             print(mask.shape)
             bbox = bboxes[index, ...]
 
-            u_predicted = np.floor((500 * uvw_predicted[0]).permute(0, 2, 3, 1).detach().cpu().numpy()[index])
-            v_predicted = np.floor((500 * uvw_predicted[1]).permute(0, 2, 3, 1).detach().cpu().numpy()[index])
-            w_predicted = np.floor((500 * uvw_predicted[2]).permute(0, 2, 3, 1).detach().cpu().numpy()[index])
+            u_predicted = np.floor((250 * uvw_predicted[0]).permute(0, 2, 3, 1).detach().cpu().numpy()[index])
+            v_predicted = np.floor((250 * uvw_predicted[1]).permute(0, 2, 3, 1).detach().cpu().numpy()[index])
+            w_predicted = np.floor((250 * uvw_predicted[2]).permute(0, 2, 3, 1).detach().cpu().numpy()[index])
             u_predicted = np.array(u_predicted, dtype=int)
             v_predicted = np.array(v_predicted, dtype=int)
             w_predicted = np.array(w_predicted, dtype=int)
@@ -96,8 +96,8 @@ class CoarsePoseEvaluation:
                 [u_predicted * mask.reshape(224, 224, 1), v_predicted * mask.reshape(224, 224, 1), w_predicted * mask.reshape(224, 224, 1)],
                 axis=0) / 255
 
-            cv2.imshow("image", visualize)
-            cv2.waitKey(1)
+            #cv2.imshow("image", visualize)
+            #cv2.waitKey(1)
             u_masked = np.array(u_predicted)[mask].reshape(-1, 1)
             v_masked = np.array(v_predicted)[mask].reshape(-1, 1)
             w_masked = np.array(w_predicted)[mask].reshape(-1, 1)
