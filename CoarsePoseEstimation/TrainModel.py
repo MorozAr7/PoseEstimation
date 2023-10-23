@@ -61,7 +61,7 @@ def init_classification_model():
 
 
 def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, epoch=0):
-    model.eval() if is_training else model.eval()
+    model.train() if is_training else model.eval()
 
     epoch_loss_l1_u_map = 0
     epoch_loss_l1_w_map = 0
@@ -90,10 +90,11 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             visualize_prediction = torch.cat([predictions[0] * mask, predictions[1] * mask, predictions[2] * mask], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
             visualize_gt = torch.cat([u_map, v_map, w_map], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
             visualize = np.concatenate([(visualize_gt + 1)/2, (visualize_prediction + 1)/2], axis=1)
-            for i in range(image.shape[0]):
-                cv2.imshow("masks", mask_visualize[i])
-                cv2.imshow("results", visualize[i])
-                cv2.waitKey(0)
+            if epoch % 10 == 0:
+                for i in range(image.shape[0]):
+                    cv2.imshow("masks", mask_visualize[i])
+                    cv2.imshow("results", visualize[i])
+                    cv2.waitKey(0)
             iou = get_mask_iou(predictions[3], mask)
             epoch_iou = torch.cat([epoch_iou, iou], dim=0)
 
@@ -112,8 +113,8 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             # grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
             total_loss = 4 * l1_total + 1 * ssim_total + 1 * mask_loss
 
-            #total_loss.backward()
-            #optimizer.step()
+            total_loss.backward()
+            optimizer.step()
             torch.cuda.empty_cache()
 
             diff_u = torch.sum(torch.abs((predictions[0] + 1.) * 250 * mask - (u_map + 1) * 250 * mask),
@@ -213,7 +214,7 @@ if __name__ == "__main__":
     loss_functions = [nn.L1Loss(reduction="sum"), MultiscaleSsimLossFunction(DEVICE), nn.BCELoss(reduction="sum")]
     train_dataset = Dataset(subset=list(SUBSET_NUM_DATA.keys())[0],
                             num_images=list(SUBSET_NUM_DATA.values())[0],
-                            data_augmentation=PoseEstimationAugmentation)
+                            data_augmentation=None)
 
     validation_dataset = Dataset(subset=list(SUBSET_NUM_DATA.keys())[1],
                                  num_images=list(SUBSET_NUM_DATA.values())[1],

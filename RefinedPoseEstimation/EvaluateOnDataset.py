@@ -21,6 +21,7 @@ warnings.filterwarnings("ignore")
 class EvaluateOnDataset:
     def __init__(self):
         self.pose_ref_model = PoseRefinementNetwork()
+        self.device = "cpu"
         self.init_cnn()
         self.subset = "Training"
         self.transformations = Transformations()
@@ -30,47 +31,57 @@ class EvaluateOnDataset:
     
     def init_cnn(self):
         self.pose_ref_model.load_state_dict(torch.load("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/TrainedModels/RefinedPoseEstimationBigModel.pt", map_location="cpu"))
-        
-        self.pose_ref_model.to(DEVICE)
+
+        self.pose_ref_model.to(self.device)
         self.pose_ref_model.eval()
     
-    def crop_and_resize(self, array, bbox_corner):
+    def crop_and_resize(self, array, bbox_corner, resize=True):
         x_min, y_min, x_max, y_max = bbox_corner
-
+        print(x_min, y_min, x_max, y_max)
+        print(array.shape)
         cropped = array[y_min:y_max, x_min:x_max, :]
-        try:
-            resized = cv2.resize(cropped, (self.image_size, self.image_size))
-            return resized
-        except Exception as e:
-            print(e)
-            print(x_min, x_max, y_min, y_max)
-            exit()
+        print(cropped.shape)
+        if resize:
+            try:
+                resized = cv2.resize(cropped, (self.image_size, self.image_size))
+                return resized
+            except Exception as e:
+                print(e)
+                print(x_min, x_max, y_min, y_max)
+                exit()
+        else:
+            return cropped
+
+
     
     def load_image(self, index):
         path = MAIN_DIR_PATH + "/Dataset/" + self.subset + "/"
         self.index = index
         
-        real_image = self.io.load_numpy_file(path + "ImageBackground/" + "data_{}.np".format(index))
-        mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
-        json_data = self.io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
+        real_image = cv2.imread(path + "ImageBackground/" + "img_{}.png".format(index))
+        json_data = self.io.load_json_file(path + "Label/" + "data_{}.json".format(index))
         
         real_pose = json_data["Pose"]
+        bbox_real_image_enlarged = json_data["EnlargedBox"]
 
         refinement_pose_number = random.randint(0, 9)
         path_datapoint = path + "ImageRefinement/" + "Data_{}/".format(index)
-        refinement_image_path = path_datapoint + "Image/" + "data_{}.npy".format(refinement_pose_number)
+        refinement_image_path = path_datapoint + "Image/" + "data_{}.png".format(refinement_pose_number)
         refinement_data_path = path_datapoint + "Pose/" + "data_{}.json".format(refinement_pose_number)
 
-        rendered_image_cropped = self.io.load_numpy_file(refinement_image_path)
+        rendered_image_cropped = cv2.imread(refinement_image_path)
         rendered_data = self.io.load_json_file(refinement_data_path)
         rendered_pose = rendered_data["Pose"]
-        rendered_bbox = rendered_data["Box"]
+        bbox = rendered_data["Box"]
+
+        bbox_crop = [bbox[0] - bbox_real_image_enlarged[0], bbox[1] - bbox_real_image_enlarged[1], bbox[2] - bbox_real_image_enlarged[0], bbox[3] - bbox_real_image_enlarged[1]]
         trans_matrix_real = self.transformations.get_transformation_matrix_from_pose(real_pose)
         trans_matrix_rendered = self.transformations.get_transformation_matrix_from_pose(rendered_pose)
-        
-        real_image_cropped = self.crop_and_resize(real_image, rendered_bbox)
-        
-        return real_image, real_image_cropped, rendered_image_cropped, trans_matrix_real, trans_matrix_rendered, rendered_bbox
+
+        real_image_cropped = self.crop_and_resize(real_image, bbox_crop)
+        real_image = self.crop_and_resize(real_image, bbox_crop, False)
+
+        return real_image, real_image_cropped, rendered_image_cropped, trans_matrix_real, trans_matrix_rendered, bbox_crop, bbox
 
     def process_cnn(self, real_image_torch, rendered_image_torch):
         
@@ -80,8 +91,7 @@ class EvaluateOnDataset:
         rot_pred_numpy = rot_pred.detach().cpu().numpy()[0]
         
         return trans_pred_numpy, rot_pred_numpy
-    
-    
+
     def update_pose_prediction(self, coarse_T, predicted_R, predicted_t):
 
         coarse_xy = coarse_T[:2, -1]
@@ -94,44 +104,32 @@ class EvaluateOnDataset:
         T_predicted[:2, -1] = updated_xy
         T_predicted[2:3, -1] = updated_z
         return T_predicted
-        
-        
+
     def evaluate_dataset(self):
         
-        for index in range(256):
-            real_image, real_image_cropped, rendered_image_cropped, trans_matrix_real, trans_matrix_rendered, rendered_bbox = self.load_image(index)
-            #real_image_cropped = PoseEstimationAugmentation(image=real_image_cropped)["image"]
-            #real_image = np.expand_dims(cv2.cvtColor(real_image, cv2.COLOR_RGB2GRAY), axis=-1)
-            #real_image_cropped = np.expand_dims(cv2.cvtColor(real_image_cropped, cv2.COLOR_RGB2GRAY), axis=-1)
-            #rendered_image_cropped = np.expand_dims(cv2.cvtColor(rendered_image_cropped, cv2.COLOR_RGB2GRAY), axis=-1)
-            real_image_torch = NormalizeToTensor(image=real_image_cropped)["image"].unsqueeze(0).to(DEVICE)
-            rendered_image_torch = NormalizeToTensor(image=rendered_image_cropped)["image"].unsqueeze(0).to(DEVICE)
+        for index in range(32):
+            real_image, real_image_cropped, rendered_image_cropped, trans_matrix_real, trans_matrix_rendered, rendered_bbox, bbox = self.load_image(index)
 
-            vis = torch.cat([real_image_torch, rendered_image_torch], dim=-1).permute(0, 2, 3, 1)[0].detach().cpu().numpy() * 255
-            #cv2.imwrite("/Users/artemmoroz/Desktop/CIIRC_projects/PoseEstimation/RefinedPoseEstimation/SavedImages/image_{}.png".format(index), vis)
-            cv2.imshow("input", vis)
-            cv2.waitKey(1)
+            real_image_torch = NormalizeToTensor(image=real_image_cropped)["image"].unsqueeze(0).to(self.device)
+            rendered_image_torch = NormalizeToTensor(image=rendered_image_cropped)["image"].unsqueeze(0).to(self.device)
+
             trans_pred, rot_pred = self.process_cnn(real_image_torch, rendered_image_torch)
             
             T_predicted = self.update_pose_prediction(trans_matrix_rendered, rot_pred, trans_pred)
-            rendered_image_dict = self.renderer.get_image(trans_matrix_rendered, None, image_black=True, image_background=False, UVW=False, constant_light=True)
-            mask = np.expand_dims(rendered_image_dict["Mask"], axis=-1)
-            rendered_image_coarse = rendered_image_dict["ImageBlack"] * mask
-            rendered_image_coarse = np.expand_dims(cv2.cvtColor(rendered_image_coarse, cv2.COLOR_RGB2GRAY), axis=-1)
-            visualize_coarse = real_image * (1 - mask) + rendered_image_coarse
-
-            visualize_coarse = self.crop_and_resize(visualize_coarse.astype(np.uint8), rendered_bbox)
-            visualize_coarse = np.expand_dims(visualize_coarse, axis=-1)
-            rendered_image_dict = self.renderer.get_image(T_predicted, None, image_black=True, image_background=False, UVW=False, constant_light=True)
-            mask = np.expand_dims(rendered_image_dict["Mask"], axis=-1)
-            rendered_image_refined = rendered_image_dict["ImageBlack"] * mask
-            rendered_image_refined = np.expand_dims(cv2.cvtColor(rendered_image_refined, cv2.COLOR_RGB2GRAY), axis=-1)
-
-            visualize_refined = real_image * (1 - mask) + rendered_image_refined
-            visualize_refined = self.crop_and_resize(visualize_refined.astype(np.uint8), rendered_bbox)
-            visualize_refined = np.expand_dims(visualize_refined, axis=-1)
-            cv2.imshow("video", np.hstack([visualize_refined.reshape(224, 224, 3), visualize_coarse.reshape(224, 224, 3), real_image_cropped])/255)
+            rendered_image_dict = self.renderer.render_image("Chassis", T_predicted, None, False, constant_light=True)
+            image_black = rendered_image_dict["ImageBlack"]
+            mask = rendered_image_dict["Mask"]
+            cropped_black = self.crop_and_resize(image_black, bbox, True)
+            cropped_mask = self.crop_and_resize(np.expand_dims(mask, -1).astype(float), bbox, True)
+            cropped_mask = np.expand_dims(cropped_mask, -1)
+            visualize_coarse = real_image_cropped * (1 - cropped_mask) + rendered_image_cropped
+            visualize_refined = real_image_cropped * (1 - cropped_mask) + cropped_black
+            cv2.imshow("coarse and refined", np.concatenate([visualize_coarse, visualize_refined], axis=1)/255)
             cv2.waitKey(0)
+
+            print(cropped_black.shape, cropped_mask.shape)
+            print(real_image.shape, real_image_cropped.shape, rendered_image_cropped.shape)
+            #exit()
 
 
 if __name__ == "__main__":

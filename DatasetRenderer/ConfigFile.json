@@ -4,7 +4,7 @@
   "RenderMask": true,
   "RenderMapping": true,
   "MappingRange": 501,
-  "BboxSizeAmplification": 0.5,
+  "BboxSizeAmplification": 1,
   "DataAmount": {
     "Training": 60000,
     "Validation": 6000

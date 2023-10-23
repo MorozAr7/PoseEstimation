@@ -165,6 +165,21 @@ class DatasetRenderer:
 
         return background
 
+    def get_enlarged_bbox(self, bbox):
+        x_min, y_min, x_max, y_max = bbox
+        bbox_size_amplification = self.render_config["BboxSizeAmplification"]
+        bbox_max_size = max(y_max - y_min, x_max - x_min)
+        center_x = (x_min + x_max) // 2
+        center_y = (y_min + y_max) // 2
+
+        bbox_max_size_amplified = (1 + bbox_size_amplification) * bbox_max_size
+
+        x_min_ = int(center_x - bbox_max_size_amplified / 2)
+        x_max_ = int(center_x + bbox_max_size_amplified / 2)
+        y_min_ = int(center_y - bbox_max_size_amplified / 2)
+        y_max_ = int(center_y + bbox_max_size_amplified / 2)
+
+        return [x_min_, y_min_, x_max_, y_max_]
     @staticmethod
     def randomize_light_conditions(constant=False):
         if constant:
@@ -181,27 +196,16 @@ class DatasetRenderer:
 
         return direction, color, intensity
 
-    def crop_images(self, image, mask, uvw_map, bbox):
+    def crop_images(self, image, image_black, mask, uvw_map, bbox):
         x_min, y_min, x_max, y_max = bbox
-        bbox_size_amplification = self.render_config["BboxSizeAmplification"]
-        bbox_max_size = max(y_max - y_min, x_max - x_min)
-        center_x = (x_min + x_max) // 2
-        center_y = (y_min + y_max) // 2
 
-        bbox_max_size_amplified = (1 + bbox_size_amplification) * bbox_max_size
+        cropped_image = image[y_min:y_max, x_min:x_max]
+        cropped_mask = mask[y_min:y_max, x_min:x_max]
+        cropped_uvw_map = uvw_map[y_min:y_max, x_min:x_max]
+        cropped_black = image_black[y_min:y_max, x_min:x_max]
+        return cropped_image, cropped_black, cropped_mask, cropped_uvw_map
 
-        x_min_ = int(center_x - bbox_max_size_amplified/2)
-        x_max_ = int(center_x + bbox_max_size_amplified/2)
-        y_min_ = int(center_y - bbox_max_size_amplified/2)
-        y_max_ = int(center_y + bbox_max_size_amplified/2)
-
-        cropped_image = image[y_min_:y_max_, x_min_:x_max_]
-        cropped_mask = mask[y_min_:y_max_, x_min_:x_max_]
-        cropped_uvw_map = uvw_map[y_min_:y_max_, x_min_:x_max_]
-
-        return cropped_image, cropped_mask, cropped_uvw_map
-
-    def render_image(self, object_type, T_matrix, pose6d, crop_image=True, constant_light=False) -> dict:
+    def render_image(self, object_type, T_matrix, pose6d, crop=True, constant_light=False) -> dict:
 
         model = self.data_dict[object_type]["model"]
         point_cloud = self.data_dict[object_type]["point_cloud"]
@@ -225,25 +229,18 @@ class DatasetRenderer:
 
         uvw_map = self.get_rendered_uvw_maps(x_2d, y_2d, mapping)
         mask = self.get_object_mask(image_black)
-        bbox = self.get_bbox_from_mask(mask)
+        tight_bbox = self.get_bbox_from_mask(mask)
+        enlarged_bbox = self.get_enlarged_bbox(tight_bbox)
 
-        if crop_image:
-            image_background, mask, uvw_map = self.crop_images(image_background, mask, uvw_map, bbox)
+        if crop:
+            image_background, image_black, mask, uvw_map = self.crop_images(image_background, image_black, mask, uvw_map, enlarged_bbox)
 
-        """ cv2.imshow("uvw_map1",  cropped_image)
-        cv2.waitKey(0)
-        cv2.imshow("uvw_map1", cropped_uvw_map[..., 0] / 250)
-        cv2.waitKey(0)
-        cv2.imshow("uvw_map1", cropped_uvw_map[..., 1] / 250)
-        cv2.waitKey(0)
-        cv2.imshow("uvw_map1", cropped_uvw_map[..., 2] / 250)
-        cv2.waitKey(0)
-        cv2.imshow("uvw_map1", cropped_mask.astype(float))
-        cv2.waitKey(0)"""
         rendered_image_dict = {"ImageBackground": image_background,
+                               "ImageBlack": image_black,
                                "Mask": mask,
                                "UVWmap": uvw_map * np.expand_dims(mask, axis=-1),
-                               "Box": bbox,
+                               "TightBox": tight_bbox,
+                               "EnlargedBox": enlarged_bbox,
                                "Pose": pose6d,
                                "Class": object_type
                                }
@@ -256,13 +253,15 @@ class DatasetRenderer:
         return cv2.resize(full_scale[y_min: y_max, x_min: x_max], (IMG_SIZE, IMG_SIZE))
 
     def save_data(self, img_object, index, subset):
-        json_data = {"Pose": None, "Box": None, "Class": None}
+        json_data = {}
         for key, data in img_object.items():
-            if key in ["Box", "Pose", "Class"]:
+            if key in ["TightBox", "EnlargedBox", "Pose", "Class"]:
                 json_data[key] = data
             elif key == "ImageBackground":
                 path = DATASET_PATH + subset + "/" + key + "/img_{}.png".format(index)
                 cv2.imwrite(path, data)
+            elif key == "ImageBlack":
+                pass
             else:
                 path = DATASET_PATH + subset + "/" + key + "/data_{}.np".format(index)
                 self.io.save_numpy_file(path, data)
@@ -272,20 +271,22 @@ class DatasetRenderer:
     def render_dataset(self):
         for subset in ["Training", "Validation"]:
             for data_index in range(0, self.render_config["DataAmount"][subset]):
-                object_type = self.object_types[random.randint(0, len(self.object_types) - 1)]
+                integer_object_type = random.randint(0, len(self.object_types) - 1)
+                object_type = self.object_types[integer_object_type]
                 pose6d = self.sample_pose()
                 T_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
                 rendered_image_dict = self.render_image(object_type, T_matrix=T_matrix, pose6d=pose6d)
                 self.save_data(rendered_image_dict, data_index, subset)
-                print("{} image number {}/{} has been rendered".format(subset, data_index,self.render_config["DataAmount"][subset]))
+                print("{} image number {}/{} has been rendered".format(subset, data_index, self.render_config["DataAmount"][subset]))
 
 
 if __name__ == "__main__":
     dataset_renderer = DatasetRenderer()
-    """for obj_type in dataset_renderer.object_types:
-        dataset_renderer.sample_point_clouds(dataset_renderer.render_config["DensePointCloudSize"], obj_type)
-        print(f"sparse point cloud for {obj_type} is done")
-    exit()"""
+    #for obj_type in dataset_renderer.object_types:
+    #obj_type = "Chassis"
+    #dataset_renderer.sample_point_clouds(dataset_renderer.render_config["DensePointCloudSize"], obj_type)
+    #print(f"sparse point cloud for {obj_type} is done")
+    #exit()
     # dataset_renderer.sample_point_cloud(5000)
     # exit()
     dataset_renderer.render_dataset()

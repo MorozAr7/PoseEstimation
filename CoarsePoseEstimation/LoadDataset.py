@@ -21,105 +21,103 @@ class Dataset(torch.utils.data.Dataset):
 	def __len__(self):
 		return self.dataset_len
 
-	def crop_and_resize(self, array, bbox_corner):
+	def crop_and_resize(self, array, bbox_corner, resize=True):
 		x_min, y_min, x_max, y_max = bbox_corner
 
 		cropped = array[y_min:y_max, x_min:x_max]
 
-		try:
-			resized = cv2.resize(cropped, (self.image_size, self.image_size), interpolation=cv2.INTER_LINEAR)
+		if resize:
+			try:
+				resized = cv2.resize(cropped, (self.image_size, self.image_size), interpolation=cv2.INTER_LINEAR)
 
-			return resized
-		except Exception as e:
-			print(e)
-			print(x_min, x_max, y_min, y_max)
-			exit()
-
-	def random_shift(self, square_bbox, shift_limits):
-		pass
-
-	def is_inside_image(self, bbox):
-		x_min, y_min, x_max, y_max = bbox
-		results_dict = {"x_min": x_min,
-						"y_min": y_min,
-						"x_max": self.full_scale_w + 1 - x_max,
-						"y_max": self.full_scale_h + 1 - y_max}
-		return results_dict
+				return resized
+			except Exception as e:
+				print(e)
+				print(x_min, x_max, y_min, y_max)
+				exit()
+		else:
+			return cropped
 
 	@staticmethod
-	def shift_bbox(square_bbox, shift_limits):
-		shift_x = random.randint(-shift_limits["left"], shift_limits["right"])
-		shift_y = random.randint(-shift_limits["up"], shift_limits["down"])
-		x_min, y_min, x_max, y_max = square_bbox
-		return x_min + shift_x, y_min + shift_y, x_max + shift_x, y_max + shift_y
+	def augment_bbox(bbox):
+		centroid_x, centroid_y, width, height = bbox
+		size_20_percent = int(0.2 * width)
 
-	@staticmethod
-	def get_shift_limits(bbox):
-		size = bbox[2] - bbox[0]
-		size_20_percent = size // 5
-		limits = {"left": None, "right": None, "up": None, "down": None}
-		for key, val in limits.items():
-			limits[key] = size_20_percent
+		shift_x = random.randint(-size_20_percent, size_20_percent)
+		shift_y = random.randint(-size_20_percent, size_20_percent)
 
-		return limits
+		enlargement = random.randint(0, size_20_percent)
+
+		return centroid_x + shift_x, centroid_y + shift_y, width + enlargement, height + enlargement
 
 	@staticmethod
 	def get_square_bbox(bbox):
+		centroid_x, centroid_y, width, height = bbox
+		size_side = max(width, height)
+
+		return centroid_x, centroid_y, size_side, size_side
+
+	@staticmethod
+	def convert_corner_to_centroid(bbox):
 		x_min, y_min, x_max, y_max = bbox
-		size_x = x_max - x_min
-		size_y = y_max - y_min
-		difference = abs(size_x - size_y)
-		if size_x > size_y:
-			y_min = y_min - difference // 2
-			y_max = y_max + difference // 2
-		else:
-			x_min = x_min - difference // 2
-			x_max = x_max + difference // 2
+		centroid_x = (x_max + x_min) // 2
+		centroid_y = (y_max + y_min) // 2
+		width = x_max - x_min
+		height = y_max - y_min
+
+		return centroid_x, centroid_y, width, height
+
+	@staticmethod
+	def convert_centroid_to_corner(bbox):
+		centroid_x, centroid_y, width, height = bbox
+
+		x_min = int(centroid_x - width // 2)
+		x_max = int(centroid_x + width // 2)
+		y_min = int(centroid_y - height // 2)
+		y_max = int(centroid_y + height // 2)
+
 		return x_min, y_min, x_max, y_max
 
-	def get_bbox(self, bbox):
+	def get_crop_bbox(self, bbox):
 		square_bbox = self.get_square_bbox(bbox)
 		p = random.random()
 		if p > 0.8 or self.subset == "Validation":
 			return square_bbox
 		else:
-			limits = self.get_shift_limits(square_bbox)
-			shifted_bbox = self.shift_bbox(square_bbox, limits)
-			return shifted_bbox
+			bbox = self.augment_bbox(square_bbox)
+			return bbox
 
 	def __getitem__(self, index):
 		path = MAIN_DIR_PATH + "Dataset/" + self.subset + "/"
-
+		#print("Image Index", index)
 		image = cv2.imread(path + "ImageBackground/" + "img_{}.png".format(index))
 		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
 		mask = self.io.load_numpy_file(path + "Mask/" + "data_{}.np".format(index))
+
 		uvw_map = self.io.load_numpy_file(path + "UVWmap/" + "data_{}.np".format(index))
-		u_map = uvw_map[..., 0] * mask # self.io.load_numpy_file(path + "Umap/" + "data_{}.np".format(index))
-		v_map = uvw_map[..., 1] * mask # self.io.load_numpy_file(path + "Vmap/" + "data_{}.np".format(index))
-		w_map = uvw_map[..., 2] * mask # self.io.load_numpy_file(path + "Wmap/" + "data_{}.np".format(index))
+		u_map = uvw_map[..., 0] * mask
+		v_map = uvw_map[..., 1] * mask
+		w_map = uvw_map[..., 2] * mask
+
 		json_data = self.io.load_json_file(path + "Label/" + "data_{}.json".format(index))
 
-		bbox = json_data["Box"]
-		# img_width, img_height = image.shape[1], image.shape[0]
-		x_min, y_min, x_max, y_max = bbox
-		bbox_max_size = max(y_max - y_min, x_max - x_min)
-		center_x = (x_min + x_max) // 2
-		center_y = (y_min + y_max) // 2
+		bbox_tight = json_data["TightBox"]
+		bbox_enlarged = json_data["EnlargedBox"]
+		x_min_, y_min_, x_max_, y_max_ = bbox_enlarged
+		bbox_corner = [bbox_tight[0] - x_min_, bbox_tight[1] - y_min_, bbox_tight[2] - x_min_, bbox_tight[3] - y_min_]
+		bbox_centroid = self.convert_corner_to_centroid(bbox_corner)
+		bbox_crop = self.get_crop_bbox(bbox_centroid)
+		bbox_crop = self.convert_centroid_to_corner(bbox_crop)
 
-		bbox_max_size_amplified = (1 + 0.5) * bbox_max_size
-		x_min_ = int(center_x - bbox_max_size_amplified / 2)
-		y_min_ = int(center_y - bbox_max_size_amplified / 2)
-		bbox = [bbox[0] - x_min_, bbox[1] - y_min_, bbox[2] - x_min_, bbox[3] - y_min_]
-		#print(bbox)
-
-		bbox_crop = self.get_bbox(bbox)
 		image = self.crop_and_resize(image, bbox_crop)
 		mask = self.crop_and_resize(mask.astype(float), bbox_crop)
 		u_map = self.crop_and_resize(u_map/250, bbox_crop)
 		v_map = self.crop_and_resize(v_map/250, bbox_crop)
 		w_map = self.crop_and_resize(w_map/250, bbox_crop)
-		"""print(np.max(u_map), np.min(u_map), np.max(v_map), np.min(v_map),np.max(w_map), np.min(w_map))
-		cv2.imshow("img", image)
+		#cv2.imshow("img", image)
+		#cv2.waitKey(0)
+		"""cv2.imshow("img", image)
 		cv2.waitKey(0)
 		cv2.imshow("img", mask)
 		cv2.waitKey(0)

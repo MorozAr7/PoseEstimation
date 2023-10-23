@@ -61,10 +61,10 @@ def get_centered_bbox(trans_matrix, bbox_rendered, bbox_image):
 
 def generate_refinement_image(subset, index):
     path = MAIN_DIR_PATH + "Dataset/" + subset + "/"
-    json_data = io.load_json_file(path + "Pose/" + "data_{}.json".format(index))
+    json_data = io.load_json_file(path + "Label/" + "data_{}.json".format(index))
     
     pose_real = json_data["Pose"]
-    bbox_real = json_data["Box"]
+    bbox_real = json_data["TightBox"]
     
     path_datapoint = path + "ImageRefinement/" + "Data_{}/".format(index)
     os.mkdir(path_datapoint)
@@ -75,11 +75,11 @@ def generate_refinement_image(subset, index):
         pose_rendered = distort_target_pose(pose_real)
         trans_matrix = transformations.get_transformation_matrix_from_pose(pose_rendered)
         
-        rendered_image_dict = dataset_renderer.get_image(trans_matrix, pose_rendered, image_black=True, image_background=False, UVW=False, constant_light=True)
+        rendered_image_dict = dataset_renderer.render_image("Chassis", trans_matrix, pose_rendered, crop=False, constant_light=True)
         
         rendered_image = rendered_image_dict["ImageBlack"] * np.expand_dims(rendered_image_dict["Mask"], axis=-1)
         
-        bbox_rendered = rendered_image_dict["Box"]
+        bbox_rendered = rendered_image_dict["TightBox"]
         
         bbox_crop = get_centered_bbox(trans_matrix, bbox_rendered, bbox_real)
         
@@ -87,13 +87,14 @@ def generate_refinement_image(subset, index):
         
         data_json = {"Pose": pose_rendered, "Box": bbox_crop}
         
-        io.save_numpy_file(path_datapoint + "Image/" + "data_{}.npy".format(i), rendered_image_cropped)
+        #io.save_numpy_file(path_datapoint + "Image/" + "data_{}.npy".format(i), rendered_image_cropped)
+        cv2.imwrite(path_datapoint + "Image/" + "data_{}.png".format(i), rendered_image_cropped)
         io.save_json_file(path_datapoint + "Pose/" + "data_{}.json".format(i), data_json)
-        print("Rendered image number {} with pose {} was genedered".format(i, pose_rendered))
+        print("Rendered image number {} with pose {} was generated".format(i, pose_rendered))
         
 
 def generate_refinements_dataset():
-    for index in range(0, 256):
+    for index in range(0, 32):
         generate_refinement_image(subset='Training', index=index)
     """or index in range(0, 5000):
         generate_refinement_image(subset='Validation', index=index)"""
