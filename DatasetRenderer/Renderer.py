@@ -80,7 +80,6 @@ class DatasetRenderer:
         return pose_params
 
     def get_object_mask(self, rendered_image: np.array) -> np.array:
-        #print(np.min(rendered_image), np.max(rendered_image))
         mask = rendered_image > self.noise_threshold
         return np.array((mask[..., 0] * mask[..., 1] * mask[..., 2]), dtype=bool)
 
@@ -282,19 +281,5 @@ class DatasetRenderer:
 
 if __name__ == "__main__":
     dataset_renderer = DatasetRenderer()
-    #for obj_type in dataset_renderer.object_types:
-    #obj_type = "Chassis"
-    #dataset_renderer.sample_point_clouds(dataset_renderer.render_config["DensePointCloudSize"], obj_type)
-    #print(f"sparse point cloud for {obj_type} is done")
-    #exit()
-    # dataset_renderer.sample_point_cloud(5000)
-    # exit()
-    dataset_renderer.render_dataset()
-    """while True:
-        #sampled_pose = dataset_renderer.sample_pose()
-        #sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}
-        transf_matrix = dataset_renderer.transformations.get_transformation_matrix_from_pose(sampled_pose)
-        rendered_image_dict = dataset_renderer.get_image(transformation_matrix=transf_matrix, pose6d=sampled_pose, constant_light=True, UVW=True)"""
 
-    # cv2.imshow("images", np.concatenate([rendered_image_dict["ImageBackground"],np.concatenate([rendered_image_dict["Umap"], rendered_image_dict["Vmap"], rendered_image_dict["Wmap"]], axis=2)]))
-    # cv2.waitKey(0)
+    dataset_renderer.render_dataset()
