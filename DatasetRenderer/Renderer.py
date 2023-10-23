@@ -226,12 +226,12 @@ class DatasetRenderer:
         renderer.scene.set_background(np.array([0, 0, 0, 1]))
         image_black = np.array(renderer.render_to_image())
         x_2d, y_2d = self.project_point_cloud(point_cloud, T_matrix)
-
+        print("After black image is rendered")
         uvw_map = self.get_rendered_uvw_maps(x_2d, y_2d, mapping)
         mask = self.get_object_mask(image_black)
         tight_bbox = self.get_bbox_from_mask(mask)
         enlarged_bbox = self.get_enlarged_bbox(tight_bbox)
-
+        print("After box is computed")
         if crop:
             image_background, image_black, mask, uvw_map = self.crop_images(image_background, image_black, mask, uvw_map, enlarged_bbox)
 
@@ -244,7 +244,8 @@ class DatasetRenderer:
                                "Pose": pose6d,
                                "Class": object_type
                                }
-        del renderer
+        # del renderer
+        print("After renderer is deleted")
         return rendered_image_dict
 
     @staticmethod
