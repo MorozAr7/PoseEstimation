@@ -218,10 +218,11 @@ class DatasetRenderer:
         renderer = self.setup_renderer_scene(renderer, direction, color, intensity)
         renderer.setup_camera(self.camera_intrinsic[0:3, 0:3], T_matrix, self.image_w, self.image_h)
 
+        print("Before load background")
         background_image = self.load_random_background()
         renderer.scene.set_background(np.array([0, 0, 0, 1]), image=background_image)
         image_background = np.array(renderer.render_to_image())
-
+        print("After load background")
         renderer.scene.set_background(np.array([0, 0, 0, 1]))
         image_black = np.array(renderer.render_to_image())
         x_2d, y_2d = self.project_point_cloud(point_cloud, T_matrix)
