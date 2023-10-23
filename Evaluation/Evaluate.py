@@ -84,8 +84,8 @@ class Evaluation:
 			print("Coarse prediction", pose_prediction)
 			print()
 			#print("Refined prediction", refined_pose_prediction)
-			img_dict_coarse = self.dataset_renderer.get_image(transformation_matrix=pose_prediction, image_black=True, image_background=False, constant_light=True)
-			img_rendered_coarse = img_dict_coarse["ImageBlack"]
+			img_dict_coarse = self.dataset_renderer.render_image(object_type="Chassis", T_matrix=pose_prediction, pose6d=None, crop_image=False)
+			img_rendered_coarse = img_dict_coarse["ImageBackground"]
 			mask = np.expand_dims(img_dict_coarse["Mask"], axis=-1)
 			visualize_coarse = frame * (1 - mask) + img_rendered_coarse
 			#pose_prediction[0:3, -1] = refined_pose_prediction[0, 0:3]

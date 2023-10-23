@@ -29,7 +29,7 @@ class DatasetRenderer:
     def __init__(self):
         self.transformations = Transformations()
         self.io = IOUtils()
-        self.render_config = self.io.load_json_file("ConfigFile.json")
+        self.render_config = self.io.load_json_file(MAIN_DIR_PATH + "DatasetRenderer/ConfigFile.json")
 
         self.camera_file = "camera_data_1.json"
         self.models_data_path = "DatasetRenderer/Models3D/MeshesReconstructed/"
@@ -81,7 +81,7 @@ class DatasetRenderer:
 
     def get_object_mask(self, rendered_image: np.array) -> np.array:
         #print(np.min(rendered_image), np.max(rendered_image))
-        mask = rendered_image > -1000#self.noise_threshold
+        mask = rendered_image > self.noise_threshold
         return np.array((mask[..., 0] * mask[..., 1] * mask[..., 2]), dtype=bool)
 
     @staticmethod
@@ -140,9 +140,9 @@ class DatasetRenderer:
         return x_2d, y_2d
 
     def get_rendered_uvw_maps(self, x_2d: np.array, y_2d: np.array, uvw_maps: tuple) -> np.array:
-        u_map = -1000 * np.ones((self.image_h, self.image_w, 1))
-        v_map = -1000 * np.ones((self.image_h, self.image_w, 1))
-        w_map = -1000 * np.ones((self.image_h, self.image_w, 1))
+        u_map = np.zeros((self.image_h, self.image_w, 1))
+        v_map = np.zeros((self.image_h, self.image_w, 1))
+        w_map = np.zeros((self.image_h, self.image_w, 1))
 
         u_map[y_2d, x_2d] = uvw_maps[0].reshape(-1, 1)
         v_map[y_2d, x_2d] = uvw_maps[1].reshape(-1, 1)
@@ -201,7 +201,7 @@ class DatasetRenderer:
 
         return cropped_image, cropped_mask, cropped_uvw_map
 
-    def render_image(self, object_type, T_matrix, pose6d) -> dict:
+    def render_image(self, object_type, T_matrix, pose6d, crop_image=True, constant_light=False) -> dict:
 
         model = self.data_dict[object_type]["model"]
         point_cloud = self.data_dict[object_type]["point_cloud"]
@@ -209,7 +209,8 @@ class DatasetRenderer:
 
         renderer = o3d.visualization.rendering.OffscreenRenderer(self.image_w, self.image_h)
         renderer.scene.add_model(object_type, model)
-        direction, color, intensity = self.randomize_light_conditions()
+
+        direction, color, intensity = self.randomize_light_conditions(constant_light)
 
         renderer = self.setup_renderer_scene(renderer, direction, color, intensity)
         renderer.setup_camera(self.camera_intrinsic[0:3, 0:3], T_matrix, self.image_w, self.image_h)
@@ -219,16 +220,16 @@ class DatasetRenderer:
         image_background = np.array(renderer.render_to_image())
 
         renderer.scene.set_background(np.array([0, 0, 0, 1]))
-
+        image_black = np.array(renderer.render_to_image())
         x_2d, y_2d = self.project_point_cloud(point_cloud, T_matrix)
 
         uvw_map = self.get_rendered_uvw_maps(x_2d, y_2d, mapping)
-        mask = self.get_object_mask(uvw_map)
+        mask = self.get_object_mask(image_black)
         bbox = self.get_bbox_from_mask(mask)
 
+        if crop_image:
+            image_background, mask, uvw_map = self.crop_images(image_background, mask, uvw_map, bbox)
 
-        cropped_image, cropped_mask, cropped_uvw_map = self.crop_images(image_background, mask, uvw_map, bbox)
-        #print(uvw_map.shape, print(uvw_map.shape))
         """ cv2.imshow("uvw_map1",  cropped_image)
         cv2.waitKey(0)
         cv2.imshow("uvw_map1", cropped_uvw_map[..., 0] / 250)
@@ -239,9 +240,9 @@ class DatasetRenderer:
         cv2.waitKey(0)
         cv2.imshow("uvw_map1", cropped_mask.astype(float))
         cv2.waitKey(0)"""
-        rendered_image_dict = {"ImageBackground": cropped_image,
-                               "Mask": cropped_mask,
-                               "UVWmap": cropped_uvw_map,
+        rendered_image_dict = {"ImageBackground": image_background,
+                               "Mask": mask,
+                               "UVWmap": uvw_map,
                                "Box": bbox,
                                "Pose": pose6d,
                                "Class": object_type
@@ -270,13 +271,13 @@ class DatasetRenderer:
 
     def render_dataset(self):
         for subset in ["Training", "Validation"]:
-            for data_index in range(60000 if subset == "Training" else 5517, self.render_config["DataAmount"][subset]):
+            for data_index in range(0, self.render_config["DataAmount"][subset]):
                 object_type = self.object_types[random.randint(0, len(self.object_types) - 1)]
                 pose6d = self.sample_pose()
                 T_matrix = self.transformations.get_transformation_matrix_from_pose(pose6d)
                 rendered_image_dict = self.render_image(object_type, T_matrix=T_matrix, pose6d=pose6d)
                 self.save_data(rendered_image_dict, data_index, subset)
-                print("{} image number {}/{} has been rendered".format(subset, data_index,self.render_config["DataAmount"][subset] ))
+                print("{} image number {}/{} has been rendered".format(subset, data_index,self.render_config["DataAmount"][subset]))
 
 
 if __name__ == "__main__":
@@ -287,7 +288,7 @@ if __name__ == "__main__":
     exit()"""
     # dataset_renderer.sample_point_cloud(5000)
     # exit()
-    #dataset_renderer.render_dataset()
+    dataset_renderer.render_dataset()
     """while True:
         #sampled_pose = dataset_renderer.sample_pose()
         #sampled_pose = {"RotX": 0,"RotY": 0,"RotZ": 180,"TransX": 0,"TransY": 0,"TransZ": 300}

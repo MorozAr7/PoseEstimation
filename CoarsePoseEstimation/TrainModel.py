@@ -61,7 +61,7 @@ def init_classification_model():
 
 
 def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, epoch=0):
-    model.train() if is_training else model.eval()
+    model.eval() if is_training else model.eval()
 
     epoch_loss_l1_u_map = 0
     epoch_loss_l1_w_map = 0
@@ -78,18 +78,22 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 
             image = image.to(DEVICE)
             mask = mask.to(DEVICE).reshape(-1, 1, 224, 224)
-
+            mask_visualize = mask.permute(0, 2, 3, 1).detach().cpu().numpy()
+            """for i in range(mask_visualize.shape[0]):
+                cv2.imshow("masks", mask_visualize[i, ...])
+                cv2.waitKey(0)"""
             u_map = u_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
             v_map = v_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
             w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
 
             predictions = model(image)
-            """visualize_prediction = torch.cat([predictions[0] * mask, predictions[1] * mask, predictions[2] * mask], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
+            visualize_prediction = torch.cat([predictions[0] * mask, predictions[1] * mask, predictions[2] * mask], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
             visualize_gt = torch.cat([u_map, v_map, w_map], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
             visualize = np.concatenate([(visualize_gt + 1)/2, (visualize_prediction + 1)/2], axis=1)
             for i in range(image.shape[0]):
+                cv2.imshow("masks", mask_visualize[i])
                 cv2.imshow("results", visualize[i])
-                cv2.waitKey(0)"""
+                cv2.waitKey(0)
             iou = get_mask_iou(predictions[3], mask)
             epoch_iou = torch.cat([epoch_iou, iou], dim=0)
 
@@ -106,10 +110,10 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             l1_total = l1_u + l1_v + l1_w
             ssim_total = ssim_loss_u + ssim_loss_v + ssim_loss_w
             # grad_total = grad_ssim_loss_u + grad_ssim_loss_v + grad_ssim_loss_w
-            total_loss = 1 * l1_total + 5 * ssim_total + 1 * mask_loss
+            total_loss = 4 * l1_total + 1 * ssim_total + 1 * mask_loss
 
-            total_loss.backward()
-            optimizer.step()
+            #total_loss.backward()
+            #optimizer.step()
             torch.cuda.empty_cache()
 
             diff_u = torch.sum(torch.abs((predictions[0] + 1.) * 250 * mask - (u_map + 1) * 250 * mask),
@@ -202,7 +206,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 if __name__ == "__main__":
     model = AutoencoderPoseEstimationModel().apply(init_weights)
-    model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjects.pt", map_location="cpu"))
+    model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjectsDominantSSIM.pt", map_location="cpu"))
     model.to(DEVICE)
 
     optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())
@@ -215,7 +219,7 @@ if __name__ == "__main__":
                                  num_images=list(SUBSET_NUM_DATA.values())[1],
                                  data_augmentation=None)
 
-    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True, num_workers=32)
-    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True,num_workers=32)
+    training_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)#, num_workers=32)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)#,num_workers=32)
 
     main(model, optimizer, training_dataloader, validation_dataloader, loss_functions)

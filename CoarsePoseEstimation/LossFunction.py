@@ -75,7 +75,7 @@ class MultiscaleSsimLossFunction(nn.Module):
 		contrast_sim = contrast_sim.permute(0, 2, 3, 1).detach().cpu().numpy()
 		#print(vis_ssim.shape, visualize_gt.shape, visualize_prediction.shape)
 		for index in range(ssim_map.shape[0]):
-			cv2.imshow("img", np.concatenate([visualize_prediction[index, ...], visualize_gt[index, ...], cv2.resize(content_sim[index, ...], (224, 224)).reshape(224, 224, 1), cv2.resize(brightness_sim[index, ...], (224, 224)).reshape(224, 224, 1), cv2.resize(contrast_sim[index, ...], (224, 224)).reshape(224, 224, 1)], axis=1))
+			cv2.imshow("img", np.concatenate([(visualize_prediction[index, ...] + 1)/2, (visualize_gt[index, ...] + 1)/2, cv2.resize(content_sim[index, ...], (visualize_gt[index, ...].shape[1], visualize_gt[index, ...].shape[1])).reshape(visualize_gt[index, ...].shape[1], visualize_gt[index, ...].shape[1], 1), cv2.resize(brightness_sim[index, ...], (visualize_gt[index, ...].shape[1], visualize_gt[index, ...].shape[1])).reshape(visualize_gt[index, ...].shape[1], visualize_gt[index, ...].shape[1], 1), cv2.resize(contrast_sim[index, ...], (visualize_gt[index, ...].shape[1], visualize_gt[index, ...].shape[1])).reshape(visualize_gt[index, ...].shape[1], visualize_gt[index, ...].shape[1], 1)], axis=1))
 			cv2.waitKey(0)"""
 		return 1 - torch.mean(ssim_map)
 

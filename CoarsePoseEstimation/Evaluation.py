@@ -26,7 +26,7 @@ class CoarsePoseEvaluation:
 
     def init_pose_estimation_model(self):
         self.pose_estimation_model.load_state_dict(
-            torch.load(MAIN_DIR_PATH + "/CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjects.pt",
+            torch.load(MAIN_DIR_PATH + "/CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjectsDominantSSIM.pt",
                        map_location="cpu"))
         self.pose_estimation_model.eval()
         self.pose_estimation_model.to(self.device)
@@ -79,10 +79,10 @@ class CoarsePoseEvaluation:
 
         coarse_pose_predictions = np.array([])
         for index in range(images.shape[0]):
-            mask = np.array(uvw_predicted[3][index, ...].detach().cpu().numpy() > 0.99, dtype=bool).reshape(
+            mask = np.array(uvw_predicted[3][index, ...].detach().cpu().numpy() > 0.9, dtype=bool).reshape(
                 self.input_size,
                 self.input_size)  # np.array(masks[index, ...], dtype=bool).reshape(self.input_size, self.input_size)
-            print(mask.shape)
+            #print(mask.shape)
             bbox = bboxes[index, ...]
 
             u_predicted = np.floor((250 * uvw_predicted[0]).permute(0, 2, 3, 1).detach().cpu().numpy()[index])
@@ -91,13 +91,13 @@ class CoarsePoseEvaluation:
             u_predicted = np.array(u_predicted, dtype=int)
             v_predicted = np.array(v_predicted, dtype=int)
             w_predicted = np.array(w_predicted, dtype=int)
-            print(mask.shape, u_predicted.shape)
-            visualize = np.concatenate(
+            #print(mask.shape, u_predicted.shape)
+            visualize = (np.concatenate(
                 [u_predicted * mask.reshape(224, 224, 1), v_predicted * mask.reshape(224, 224, 1), w_predicted * mask.reshape(224, 224, 1)],
-                axis=0) / 255
+                axis=0) + 250) / 500
 
-            #cv2.imshow("image", visualize)
-            #cv2.waitKey(1)
+            cv2.imshow("image", visualize)
+            cv2.waitKey(1)
             u_masked = np.array(u_predicted)[mask].reshape(-1, 1)
             v_masked = np.array(v_predicted)[mask].reshape(-1, 1)
             w_masked = np.array(w_predicted)[mask].reshape(-1, 1)
