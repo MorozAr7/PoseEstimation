@@ -270,6 +270,7 @@ class DatasetRenderer:
     def render_dataset(self):
         for subset in ["Training", "Validation"]:
             for data_index in range(0, self.render_config["DataAmount"][subset]):
+                print("Ready to generate object")
                 integer_object_type = random.randint(0, len(self.object_types) - 1)
                 object_type = self.object_types[integer_object_type]
                 pose6d = self.sample_pose()
