@@ -220,8 +220,11 @@ class DatasetRenderer:
 
         print("Before load background")
         background_image = self.load_random_background()
+        print("After loading background")
         renderer.scene.set_background(np.array([0, 0, 0, 1]), image=background_image)
+        print("After setting background")
         image_background = np.array(renderer.render_to_image())
+        print("After rendering")
         print("After load background")
         renderer.scene.set_background(np.array([0, 0, 0, 1]))
         image_black = np.array(renderer.render_to_image())
