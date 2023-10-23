@@ -209,10 +209,10 @@ class DatasetRenderer:
         model = self.data_dict[object_type]["model"]
         point_cloud = self.data_dict[object_type]["point_cloud"]
         mapping = self.data_dict[object_type]["mapping"]
-
+        print("Before renderer init")
         renderer = o3d.visualization.rendering.OffscreenRenderer(self.image_w, self.image_h)
         renderer.scene.add_model(object_type, model)
-
+        print("After renderer init")
         direction, color, intensity = self.randomize_light_conditions(constant_light)
 
         renderer = self.setup_renderer_scene(renderer, direction, color, intensity)
