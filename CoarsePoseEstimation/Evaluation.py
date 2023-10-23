@@ -26,7 +26,7 @@ class CoarsePoseEvaluation:
 
     def init_pose_estimation_model(self):
         self.pose_estimation_model.load_state_dict(
-            torch.load(MAIN_DIR_PATH + "/CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjectsDominantSSIM.pt",
+            torch.load(MAIN_DIR_PATH + "/CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjects.pt",
                        map_location="cpu"))
         self.pose_estimation_model.eval()
         self.pose_estimation_model.to(self.device)
@@ -96,8 +96,8 @@ class CoarsePoseEvaluation:
                 [u_predicted * mask.reshape(224, 224, 1), v_predicted * mask.reshape(224, 224, 1), w_predicted * mask.reshape(224, 224, 1)],
                 axis=0) + 250) / 500
 
-            cv2.imshow("image", visualize)
-            cv2.waitKey(1)
+            #cv2.imshow("image", visualize)
+            #cv2.waitKey(1)
             u_masked = np.array(u_predicted)[mask].reshape(-1, 1)
             v_masked = np.array(v_predicted)[mask].reshape(-1, 1)
             w_masked = np.array(w_predicted)[mask].reshape(-1, 1)

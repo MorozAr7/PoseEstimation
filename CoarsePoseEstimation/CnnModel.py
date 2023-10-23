@@ -50,9 +50,9 @@ class EncoderModel(nn.Module):
 
 
 class DecoderModel(nn.Module):
-	def __init__(self, tanh=True):
+	def __init__(self):
 		super(DecoderModel, self).__init__()
-		self.channel = [256, 192, 128, 96, 64, 1]
+		self.channel = [256, 192, 128, 96, 64, 4]
 
 		self.TransConv1 = TransposeConvBnActiv(in_channels=self.channel[0], out_channels=self.channel[1])
 		self.ResLayer1 = ResidualBlock(in_channels=self.channel[1], out_channels=self.channel[1])
@@ -68,7 +68,8 @@ class DecoderModel(nn.Module):
 		self.Conv8 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[4])
 		self.Conv9 = ConvBnActiv(in_channels=self.channel[4], out_channels=self.channel[5], kernel_size=1, stride=1, padding=0, apply_activation=False, apply_bias=False, apply_bn=False)
 
-		self.Head = nn.Tanh() if tanh else nn.Sigmoid()
+		self.Sigmoid = nn.Sigmoid()
+		self.Tanh = nn.Tanh()
 
 	def forward(self, x, skip_connections):
 		x = self.TransConv1(x)
@@ -84,7 +85,10 @@ class DecoderModel(nn.Module):
 		x = self.Conv7(x + skip_connections[0])
 		x = self.Conv8(x)
 		x = self.Conv9(x)
-		x = self.Head(x)
+		#x = self.Sigmoid(x)
+		mask = self.Sigmoid(x[:, 3:4, ...])
+		uvw = self.Tanh(x[:, :3, ...])
+		x = torch.cat([uvw, mask], dim=1)
 		return x
 
 
@@ -92,22 +96,17 @@ class AutoencoderPoseEstimationModel(nn.Module):
 	def __init__(self):
 		super(AutoencoderPoseEstimationModel, self).__init__()
 		self.Encoder = EncoderModel()
-		self.DecoderU = DecoderModel()
-		self.DecoderV = DecoderModel()
-		self.DecoderW = DecoderModel()
-		self.DecoderMask = DecoderModel(tanh=False)
+		self.Decoder = DecoderModel()
 
 	def forward(self, x):
 		feature_vector, skip_connections = self.Encoder(x)
-		u_prediction = self.DecoderU(feature_vector, skip_connections)
-		v_prediction = self.DecoderV(feature_vector, skip_connections)
-		w_prediction = self.DecoderW(feature_vector, skip_connections)
-		binary_mask = self.DecoderMask(feature_vector, skip_connections)
-		#u_prediction = prediction[:, 0:1, ...]
-		#v_prediction = prediction[:, 1:2, ...]
-		#w_prediction = prediction[:, 2:3, ...]
-		#binary_mask = prediction[:, 3:4, ...]
-		print(torch.min(u_prediction), torch.max(u_prediction), torch.min(binary_mask), torch.max(binary_mask))
+		prediction = self.Decoder(feature_vector, skip_connections)
+		#v_prediction = self.DecoderV(feature_vector, skip_connections)
+		#w_prediction = self.DecoderW(feature_vector, skip_connections)
+		u_prediction = prediction[:, 0:1, ...]
+		v_prediction = prediction[:, 1:2, ...]
+		w_prediction = prediction[:, 2:3, ...]
+		binary_mask = prediction[:, 3:4, ...]
 		return u_prediction, v_prediction, w_prediction, binary_mask
 
 
@@ -118,7 +117,7 @@ if __name__ == "__main__":
 	model_parameters = filter(lambda p: p.requires_grad, ae_model.parameters())
 	params = sum([np.prod(p.size()) for p in model_parameters])
 	print("NUMBER PARAMS GENERATOR:", params)
-	input_tensor = torch.rand(size=(8, 3, 224, 224)).to(device)
+	input_tensor = torch.ones(size=(8, 1, 224, 224)).to(device)
 	u = ae_model(input_tensor)
 	#print(pose_ref_cnn(input_tensor).shape)
 	print(u[0].shape)

@@ -12,7 +12,7 @@ dataset_renderer = DatasetRenderer()
 transformations = Transformations()
 io = IOUtils()
 
-NUM_RENDERED_POSES_PER_IMAGE = 10
+NUM_RENDERED_POSES_PER_IMAGE = 5
 
 def distort_target_pose(pose):
     distorted_pose = {"RotX": None, "RotY": None, "RotZ": None, "TransX": None, "TransY": None, "TransZ": None}

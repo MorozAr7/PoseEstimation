@@ -6,8 +6,8 @@
   "MappingRange": 501,
   "BboxSizeAmplification": 1,
   "DataAmount": {
-    "Training": 60000,
-    "Validation": 6000
+    "Training": 32,
+    "Validation": 1
   },
   "PoseRanges": {
     "RotX": [
