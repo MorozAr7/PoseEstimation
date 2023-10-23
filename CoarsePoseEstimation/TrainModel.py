@@ -82,9 +82,9 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
             """for i in range(mask_visualize.shape[0]):
                 cv2.imshow("masks", mask_visualize[i, ...])
                 cv2.waitKey(0)"""
-            u_map = u_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
-            v_map = v_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
-            w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
+            u_map = u_map.to(DEVICE).reshape(-1, 1, 224, 224)# * mask
+            v_map = v_map.to(DEVICE).reshape(-1, 1, 224, 224)# * mask
+            w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224)# * mask
 
             predictions = model(image)
             visualize_prediction = torch.cat([predictions[0] * mask, predictions[1] * mask, predictions[2] * mask], dim=3).permute(0, 2, 3, 1).detach().cpu().numpy()
@@ -140,9 +140,9 @@ def one_epoch(model, optimizer, dataloader, loss_functions, is_training=True, ep
 
                 mask = mask.to(DEVICE).reshape(-1, 1, 224, 224)
 
-                u_map = u_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
-                v_map = v_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
-                w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224) * mask
+                u_map = u_map.to(DEVICE).reshape(-1, 1, 224, 224)# * mask
+                v_map = v_map.to(DEVICE).reshape(-1, 1, 224, 224)# * mask
+                w_map = w_map.to(DEVICE).reshape(-1, 1, 224, 224)# * mask
 
                 predictions = model(image)
                 iou = get_mask_iou(predictions[3], mask)
@@ -206,7 +206,7 @@ def main(model, optimizer, training_dataloader, validation_dataloader, loss_func
 
 if __name__ == "__main__":
     model = AutoencoderPoseEstimationModel().apply(init_weights)
-    model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjectsDominantSSIM.pt", map_location="cpu"))
+   # model.load_state_dict(torch.load(MAIN_DIR_PATH + "CoarsePoseEstimation/TrainedModels/CoarsePoseMultipleObjectsDominantSSIM.pt", map_location="cpu"))
     model.to(DEVICE)
 
     optimizer = torch.optim.Adam(lr=LEARNING_RATE, params=model.parameters())

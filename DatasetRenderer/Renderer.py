@@ -242,7 +242,7 @@ class DatasetRenderer:
         cv2.waitKey(0)"""
         rendered_image_dict = {"ImageBackground": image_background,
                                "Mask": mask,
-                               "UVWmap": uvw_map,
+                               "UVWmap": uvw_map * np.expand_dims(mask, axis=-1),
                                "Box": bbox,
                                "Pose": pose6d,
                                "Class": object_type
