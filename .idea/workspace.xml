@@ -5,11 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="159f1526-af90-408b-9d1e-19536b2253af" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/CnnModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/CnnModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoarsePoseEstimation/Evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/CoarsePoseEstimation/Evaluation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/ConfigFile.json" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/ConfigFile.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/DatasetRenderer/Renderer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/opttritri.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/3rdparty/tomasakeninemoeller/include/tomasakeninemoeller/tribox3.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/docker/docker_build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/docker/docker_build.sh" afterDir="false" />
@@ -27,8 +22,6 @@
       <change beforePath="$PROJECT_DIR$/Open3D/python/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/python/setup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/python/test/ml_ops/test_tf_training_graph_mode.py" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/python/test/ml_ops/test_tf_training_graph_mode.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Open3D/util/ci_utils.sh" beforeDir="false" afterPath="$PROJECT_DIR$/Open3D/util/ci_utils.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/EvaluateOnDataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RefinedPoseEstimation/GenerateRefinementPoses.py" beforeDir="false" afterPath="$PROJECT_DIR$/RefinedPoseEstimation/GenerateRefinementPoses.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -227,7 +220,7 @@
       <workItem from="1697211122395" duration="42000" />
       <workItem from="1697444759796" duration="34431000" />
       <workItem from="1697722304933" duration="2155000" />
-      <workItem from="1697793129202" duration="56715000" />
+      <workItem from="1697793129202" duration="57339000" />
     </task>
     <servers />
   </component>
